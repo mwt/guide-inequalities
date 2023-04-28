@@ -118,10 +118,7 @@ m_function <- function(W_data, A_matrix, theta, J0_vec, Vbar, IV, grid0){
             mu_vec5 <- MomentFunct_U(A_vec, D_vec, Z5_vec, J0_vec, theta, Vbar)
             mu_vec7 <- MomentFunct_U(A_vec, D_vec, Z7_vec, J0_vec, theta, Vbar)
 
-            X2_data(mm0, :) <- [ml_vec(ml_indx) mu_vec(mu_indx) ...
-                                  ml_vec3(ml_indx) mu_vec3(mu_indx) ...
-                                  ml_vec5(ml_indx) mu_vec5(mu_indx) ...
-                                  ml_vec7(ml_indx) mu_vec7(mu_indx)]
+            X2_data(mm0, :) <- [ml_vec(ml_indx) mu_vec(mu_indx) ml_vec3(ml_indx) mu_vec3(mu_indx) ml_vec5(ml_indx) mu_vec5(mu_indx) ml_vec7(ml_indx) mu_vec7(mu_indx)]
 
         }
 

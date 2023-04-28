@@ -21,15 +21,14 @@
 # the first column of A_matrix and D_matrix were used to index the markets,
 # these first columns are useless in the rest of the code.
 
-clc; clear all; close all
 
 addpath('1_functions')
 load('Amatrix200701_fake.mat')
-dir.create(''_results'')
+dir.create('_results')
 
 ## 1 Setup
 
-dgp <- struct
+dgp <- list()
 dgp[['A_matrix']] <- A_matrix
 dgp[['D_matrix']] <- D_matrix
 
@@ -37,7 +36,7 @@ dgp[['J0_vec']] <- J0_vec# (product, firm), where firm = 1 coca-cola, firm=2 ene
 dgp[['num_market']] <- (dim(A_matrix)[1])
 dgp[['num_product']] <- (dim(D_matrix)[1]) - 1
 
-settings <- struct
+settings <- list()
 settings[['Vbar']] <- matrix(c(500, 1000), nrow = 1, ncol = 2)# Vbar is defined in Assumption 4.2 and appears in eq. (26)-(27).
 settings[['IV']] <- matrix(c(NA), nrow = 1, ncol = 1)# No instrumental variables
 settings[['test_stat']] <- matrix(c(NA), nrow = 1, ncol = 1)# CCK as in eq. (38).
@@ -45,9 +44,9 @@ settings[['cv']] <- matrix(c(NA, NA), nrow = 1, ncol = 3)# Critical values as in
 settings[['alpha']] <- 0.05# significance level
 settings[['grid']] <- matrix(c(1, 2), nrow = 1, ncol = 2)# compute moment functions for 1: theta1, 2: theta2
 
-sim <- struct
-sim[['grid_Theta1']] <- seq(-40, 100, len = 1401)'
-sim[['grid_Theta2']] <- seq(-40, 100, len = 1401)'
+sim <- list()
+sim[['grid_Theta1']] <- t(seq(-40, 100, len = 1401))
+sim[['grid_Theta2']] <- t(seq(-40, 100, len = 1401))
 sim[['rng_seed']] <- 20220826
 sim[['num_boots']] <- 1000
 sim[['rng_seed_R']] <- 20220818
@@ -56,19 +55,15 @@ sim[['sim_name']] <- 'Table1_0423fake'
 
 specs <- cell(4, 1)
 
-specs[[1]] <- {settings[['Vbar']]{1}, settings[['IV']]{1}, ...
-                                              settings[['test_stat']][[1]], settings[['cv']][[1]]}# Vbar=500, IV=N, test0=CCK, cvalue = SN2S,
+specs[[1]] <- [[settings[['Vbar']][[1]], settings[['IV']][[1]], settings[['test_stat']][[1]], settings[['cv']][[1]]]]# Vbar=500, IV=N, test0=CCK, cvalue = SN2S,
 
-specs[[2]] <- {settings[['Vbar']]{1}, settings[['IV']]{1}, ...
-                                              settings[['test_stat']][[1]], settings[['cv']][[2]]}# Vbar=500, IV=N, test0=CCK, cvalue = EB2S,
+specs[[2]] <- [[settings[['Vbar']][[1]], settings[['IV']][[1]], settings[['test_stat']][[1]], settings[['cv']][[2]]]]# Vbar=500, IV=N, test0=CCK, cvalue = EB2S,
 
-specs[[3]] <- {settings[['Vbar']]{2}, settings[['IV']]{1}, ...
-                                              settings[['test_stat']][[1]], settings[['cv']][[1]]}# Vbar=1000, IV=N, test0=CCK, cvalue= SN2S,
+specs[[3]] <- [[settings[['Vbar']][[2]], settings[['IV']][[1]], settings[['test_stat']][[1]], settings[['cv']][[1]]]]# Vbar=1000, IV=N, test0=CCK, cvalue= SN2S,
 
-specs[[4]] <- {settings[['Vbar']]{2}, settings[['IV']]{1}, ...
-                                              settings[['test_stat']][[1]], settings[['cv']][[2]]}# Vbar=1000, IV=N, test0=CCK, cvalue= EB2S,
+specs[[4]] <- [[settings[['Vbar']][[2]], settings[['IV']][[1]], settings[['test_stat']][[1]], settings[['cv']][[2]]]]# Vbar=1000, IV=N, test0=CCK, cvalue= EB2S,
 
-results <- struct
+results <- list()
 results[['CI1_vec']] <- rep(0, 2)(4, 2)
 results[['CI2_vec']] <- rep(0, 2)
 results[['comp_time']] <- rep(0, 1)
@@ -139,7 +134,7 @@ for (sim0 in 1:4){
 
     # Confidence Interval for theta1
 
-    CS_vec <- []
+    CS_vec <- numeric()
 
     for (point0 in 1:(dim(sim[['grid_Theta1']])[1])){
         theta1 <- sim[['grid_Theta1']](point0, :)'
@@ -161,7 +156,7 @@ for (sim0 in 1:4){
 
     # Confidence Interval for theta2
 
-    CS_vec <- []
+    CS_vec <- numeric()
 
     for (point0 in 1:(dim(sim[['grid_Theta2']])[1])){
         theta2 <- sim[['grid_Theta2']](point0, :)'
@@ -213,11 +208,7 @@ for (row0 in 1:(dim(specs)[1])){
         cvalue0 <- 'bootstrap'
     }
 
-    fprintf(f, '#s#s#s#s#5.1f#s#5.1f#s#5.1f#s#5.1f#s#5.1f#s\n', ...
-        Vbar, ' & ', cvalue0, ' & [', ...
-        results[['CI1_vec']](row0, 1), ' , ', results[['CI1_vec']](row0, 2), '] & [', ...
-        results[['CI2_vec']](row0, 1), ' , ', results[['CI2_vec']](row0, 2), '] &', ...
-        results[['comp_time']](row0, 1), '\\')
+    fprintf(f, '%s%s%s%s%5[['CI1_vec']]%s%5[['CI1_vec']]%s%5[['CI1_vec']]%s%5[['CI1_vec']]%s%5[['CI1_vec']]%s\n', Vbar, ' & ', cvalue0, ' & [', results[['CI1_vec']](row0, 1), ' , ', results[['CI1_vec']](row0, 2), '] & [', results[['CI2_vec']](row0, 1), ' , ', results[['CI2_vec']](row0, 2), '] &', results[['comp_time']](row0, 1), '\\')
 
     if (row0 == 2){
         fprintf(f, '#s\n', '\hline')

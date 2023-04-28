@@ -60,17 +60,13 @@ sim.sim_name    = 'Table1_0423fake';
 
 specs = cell(4,1);
 
-specs{1}  = {settings.Vbar{1}, settings.IV{1},...
-             settings.test_stat{1}, settings.cv{1} };                      % Vbar=500, IV=N, test0=CCK, cvalue = SN2S,
+specs{1}  = {settings.Vbar{1}, settings.IV{1}, settings.test_stat{1}, settings.cv{1} };                      % Vbar=500, IV=N, test0=CCK, cvalue = SN2S,
 
-specs{2}  = {settings.Vbar{1}, settings.IV{1},...
-             settings.test_stat{1}, settings.cv{2} };                      % Vbar=500, IV=N, test0=CCK, cvalue = EB2S,
+specs{2}  = {settings.Vbar{1}, settings.IV{1}, settings.test_stat{1}, settings.cv{2} };                      % Vbar=500, IV=N, test0=CCK, cvalue = EB2S,
 
-specs{3}  = {settings.Vbar{2}, settings.IV{1},...
-             settings.test_stat{1}, settings.cv{1} };                      % Vbar=1000, IV=N, test0=CCK, cvalue= SN2S,
+specs{3}  = {settings.Vbar{2}, settings.IV{1}, settings.test_stat{1}, settings.cv{1} };                      % Vbar=1000, IV=N, test0=CCK, cvalue= SN2S,
 
-specs{4}  = {settings.Vbar{2}, settings.IV{1},...
-             settings.test_stat{1}, settings.cv{2} };                      % Vbar=1000, IV=N, test0=CCK, cvalue= EB2S,
+specs{4}  = {settings.Vbar{2}, settings.IV{1}, settings.test_stat{1}, settings.cv{2} };                      % Vbar=1000, IV=N, test0=CCK, cvalue= EB2S,
 
 
 results                = struct;

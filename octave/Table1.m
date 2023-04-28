@@ -56,17 +56,13 @@ sim.sim_name = 'Table1_0423fake';
 
 specs = cell(4, 1);
 
-specs{1} = {settings.Vbar{1}, settings.IV{1}, ...
-                                              settings.test_stat{1}, settings.cv{1}}; % Vbar=500, IV=N, test0=CCK, cvalue = SN2S,
+specs{1} = {settings.Vbar{1}, settings.IV{1}, settings.test_stat{1}, settings.cv{1}}; % Vbar=500, IV=N, test0=CCK, cvalue = SN2S,
 
-specs{2} = {settings.Vbar{1}, settings.IV{1}, ...
-                                              settings.test_stat{1}, settings.cv{2}}; % Vbar=500, IV=N, test0=CCK, cvalue = EB2S,
+specs{2} = {settings.Vbar{1}, settings.IV{1}, settings.test_stat{1}, settings.cv{2}}; % Vbar=500, IV=N, test0=CCK, cvalue = EB2S,
 
-specs{3} = {settings.Vbar{2}, settings.IV{1}, ...
-                                              settings.test_stat{1}, settings.cv{1}}; % Vbar=1000, IV=N, test0=CCK, cvalue= SN2S,
+specs{3} = {settings.Vbar{2}, settings.IV{1}, settings.test_stat{1}, settings.cv{1}}; % Vbar=1000, IV=N, test0=CCK, cvalue= SN2S,
 
-specs{4} = {settings.Vbar{2}, settings.IV{1}, ...
-                                              settings.test_stat{1}, settings.cv{2}}; % Vbar=1000, IV=N, test0=CCK, cvalue= EB2S,
+specs{4} = {settings.Vbar{2}, settings.IV{1}, settings.test_stat{1}, settings.cv{2}}; % Vbar=1000, IV=N, test0=CCK, cvalue= EB2S,
 
 results = struct;
 results.CI1_vec = zeros(4, 2); % specs x {LB, UB}
@@ -213,11 +209,7 @@ for row0 = 1:size(specs, 1)
         cvalue0 = 'bootstrap';
     end
 
-    fprintf(f, '%s%s%s%s%5.1f%s%5.1f%s%5.1f%s%5.1f%s%5.1f%s\n', ...
-        Vbar, ' & ', cvalue0, ' & [', ...
-        results.CI1_vec(row0, 1), ' , ', results.CI1_vec(row0, 2), '] & [', ...
-        results.CI2_vec(row0, 1), ' , ', results.CI2_vec(row0, 2), '] &', ...
-        results.comp_time(row0, 1), '\\');
+    fprintf(f, '%s%s%s%s%5.1f%s%5.1f%s%5.1f%s%5.1f%s%5.1f%s\n', Vbar, ' & ', cvalue0, ' & [', results.CI1_vec(row0, 1), ' , ', results.CI1_vec(row0, 2), '] & [', results.CI2_vec(row0, 1), ' , ', results.CI2_vec(row0, 2), '] &', results.comp_time(row0, 1), '\\');
 
     if row0 == 2
         fprintf(f, '%s\n', '\hline')
