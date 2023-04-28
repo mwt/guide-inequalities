@@ -18,27 +18,27 @@ ehthumbs_vista.db
 # Matlab/Octave language
 ###############################################################################
 # Windows default autosave extension
-/matlab/**/.asv
+/(matlab|octave)/**/.asv
 # OSX / *nix default autosave extension
-/matlab/**/.m~
+/(matlab|octave)/**/.m~
 # Compiled MEX binaries (all platforms)
-/matlab/**/.mex*
+/(matlab|octave)/**/.mex*
 # Packaged app and toolbox files
-/matlab/**/.mlappinstall
-/matlab/**/.mltbx
+/(matlab|octave)/**/.mlappinstall
+/(matlab|octave)/**/.mltbx
 # Generated helpsearch folders
-/matlab/**/elpsearch*/
+/(matlab|octave)/**/elpsearch*/
 # Simulink code generation folders
-/matlab/**/lprj/
-/matlab/**/ccprj/
+/(matlab|octave)/**/lprj/
+/(matlab|octave)/**/ccprj/
 # Matlab code generation folders
-/matlab/**/odegen/
+/(matlab|octave)/**/odegen/
 # Simulink autosave extension
-/matlab/**/.autosave
+/(matlab|octave)/**/.autosave
 # Simulink cache files
-/matlab/**/.slxc
+/(matlab|octave)/**/.slxc
 # Octave session info
-/matlab/**/ctave-workspace
+/(matlab|octave)/**/ctave-workspace
 
 ###############################################################################
 # Python language
