@@ -7,14 +7,14 @@
 %   and critical value SPUR1 as in Appendix Section C.
 % - the implicit reference for equations is Canay, Illanes, and Velez (2023)
 
-function salida = G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, IV, grid0, test0, cvalue, alpha_input, num_boots, rng_seed, An_vec, hat_r_inf)
+function salida = G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, grid0, test0, cvalue, alpha_input, num_boots, rng_seed, An_vec, hat_r_inf)
     % input:
     % - W_data              n  x J              matrix of all product portfolio
     % - A_matrix            n  x (1+J0)         matrix of revenue differential
     % - theta0         d_theta x 1              parameter of interest
     % - J0_vec              J0 x 2              matrix of ownership by two firms (coca-cola, energy-brands)
     % - Vbar                                    tuning parameter as in Assumption 4.2
-    % - IV       {'N', 'demographics'}          instruments
+    % - IV_matrix   {n x k, empty}              instruments (empty if no instruments)
     % - grid0       {1, 2, 'all'}               searching direction
     % - test0       {'CCK','RC-CCK'}            two possible type of tests
     % - cvalue   {'SN','SN2S','EB2S', 'SPUR1'}  four possible type of critical values
@@ -31,7 +31,7 @@ function salida = G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, IV, grid
     if nargin == 12
 
         if strcmp(test0, 'CCK')
-            X_data = m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV, grid0);
+            X_data = m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, grid0);
             m_hat0 = m_hat(X_data, [], 0);
             n = size(X_data, 1);
 
@@ -60,7 +60,7 @@ function salida = G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, IV, grid
 
         if strcmp(test0, 'RC-CCK')
 
-            X_data = -m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV, grid0); % in order to use the same condition on the moments as in eq. (3.1) in Andrews and Kwon (2023)
+            X_data = -m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, grid0); % in order to use the same condition on the moments as in eq. (3.1) in Andrews and Kwon (2023)
             m_hat0 = m_hat(X_data, [], 0); % as in eq. (4.2) in Andrews and Kwon (2023)
             n = size(X_data, 1);
 
@@ -73,13 +73,13 @@ function salida = G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, IV, grid
 
             if strcmp(cvalue, 'SN2S')
                 beta_input = alpha_input / 50;
-                X_data = m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV, grid0);
+                X_data = m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, grid0);
                 c_value = cvalue_SN2S(X_data, alpha_input, beta_input); % as in eq (41)
             end
 
             if strcmp(cvalue, 'EB2S')
                 beta_input = alpha_input / 50;
-                X_data = m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV, grid0);
+                X_data = m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, grid0);
                 c_value = cvalue_EB2S(X_data, num_boots, alpha_input, beta_input, rng_seed); % as in eq (48)
             end
 

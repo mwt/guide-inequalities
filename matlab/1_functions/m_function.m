@@ -2,9 +2,8 @@
 
 % there are four main steps
 % step 1: select moments with non-zero variance using ml_indx & mu_indx
-% step 2: load instruments in case we use them
-% step 3: compute all the moment functions
-% step 4: select the cumputed moments using ml_indx & mu_indx defined in step 1
+% step 2: compute all the moment functions
+% step 3: select the cumputed moments using ml_indx & mu_indx defined in step 1
 
 % comment:
 % - all the inputs are included in 'Amatrix200701_fake.mat'.
@@ -12,7 +11,7 @@
 % - J1 is the number of moments w/ no zero variance, see section 8.1.
 % - n is the number of markets
 
-function salida = m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV, grid0)
+function salida = m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0)
 
     % input:
     % - W_data          n  x J          matrix of all product portfolio
@@ -20,7 +19,7 @@ function salida = m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV, grid0)
     % - theta      d_theta x 1          parameter of interest
     % - J0_vec          J0 x 2          matrix of ownership by two firms
     % - Vbar                            tuning parameter as in Assumption 4.2
-    % - IV       {'N', 'demographics'}  instruments
+    % - IV_matrix   {n x k, empty}      instruments (empty if no instruments)
     % - grid0       {1, 2, 'all'}       searching direction
 
     % output:
@@ -80,29 +79,22 @@ function salida = m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV, grid0)
 
     end
 
-    %% step 2: load instruments in case we use them
-    %          the instruments are presented in section 8.2
-
-    if strcmp(IV, 'demographics')
-        load('Amatrix200701_fake.mat', 'IV_matrix')
-    end
-
-    %% step 3: compute all the moment functions
+    %% step 2: compute all the moment functions
 
     for mm0 = 1:n
-        %
+
         A_vec = A_matrix(mm0, 2:J0 + 1)'; % vector of estimated revenue differential in market mm0
         D_vec = W_data(mm0, :)';
         D_vec = D_vec(J0_vec(:, 1)); % vector of product portfolio of coca-cola and energy-products in market mm0
 
-        if strcmp(IV, 'N')
+        if isempty(IV_matrix)
             Z_vec = ones(J0, 1);
             ml_vec = MomentFunct_L(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar);
             mu_vec = MomentFunct_U(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar);
 
             X_data(mm0, :) = [ml_vec(ml_indx) mu_vec(mu_indx)];
 
-        elseif strcmp(IV, 'demographics')
+        else
             Z_vec = ones(J0, 1);
             Z3_vec = 1 * (IV_matrix(:, 2) > median(IV_matrix(:, 2))); % employment rate
             Z5_vec = 1 * (IV_matrix(:, 3) > median(IV_matrix(:, 3))); % average income in market
@@ -118,17 +110,13 @@ function salida = m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV, grid0)
             mu_vec5 = MomentFunct_U(A_vec, D_vec, Z5_vec, J0_vec, theta, Vbar);
             mu_vec7 = MomentFunct_U(A_vec, D_vec, Z7_vec, J0_vec, theta, Vbar);
 
-            X2_data(mm0, :) = [ml_vec(ml_indx) mu_vec(mu_indx) ml_vec3(ml_indx) mu_vec3(mu_indx) ml_vec5(ml_indx) mu_vec5(mu_indx) ml_vec7(ml_indx) mu_vec7(mu_indx)];
+            X_data(mm0, :) = [ml_vec(ml_indx) mu_vec(mu_indx) ml_vec3(ml_indx) mu_vec3(mu_indx) ml_vec5(ml_indx) mu_vec5(mu_indx) ml_vec7(ml_indx) mu_vec7(mu_indx)];
         end
 
     end
 
-    %% step 4: select the computed moments using ml_indx & mu_indx defined in step 1
+    %% step 3: select the computed moments using ml_indx & mu_indx defined in step 1
 
-    if strcmp(IV, 'N')
-        salida = X_data;
-    elseif strcmp(IV, 'demographics')
-        salida = X2_data;
-    end
+    salida = X_data;
 
 end
