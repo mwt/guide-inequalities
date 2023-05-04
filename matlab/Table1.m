@@ -53,9 +53,7 @@ sim.grid_Theta1 = linspace(-40,100,1401)';
 sim.grid_Theta2 = linspace(-40,100,1401)';
 sim.rng_seed    = 20220826;
 sim.num_boots   = 1000;
-sim.rng_seed_R  = 20220818;
-sim.num_boots_R = 250;
-sim.num_robots  = 4;                                                       % Number of parallel workers
+sim.num_robots  = 4;                                                       % number of parallel workers
 sim.sim_name    = 'Table1_0423fake';
 
 specs = cell(4,1);
@@ -89,6 +87,7 @@ parpool('local',sim.num_robots)
 W_data       = D_matrix(:,2:end);
 alpha_input  = settings.alpha;
 num_boots    = sim.num_boots;
+rng_seed     = sim.rng_seed;
 
 for sim0 = 1:4
 
@@ -115,7 +114,7 @@ for sim0 = 1:4
            grid0       = settings.grid{1};
 
            %test_H0: [T_n, c_value]
-           test_H0     = G_restriction(W_data,A_matrix,theta0,J0_vec,Vbar,IV,grid0,test0,cvalue,alpha_input,num_boots);
+           test_H0     = G_restriction(W_data,A_matrix,theta0,J0_vec,Vbar,IV,grid0,test0,cvalue,alpha_input,num_boots,rng_seed);
 
            Test1_vec(point0)   = test_H0(1);
            cv1_vec(point0)     = test_H0(2);
@@ -128,7 +127,7 @@ for sim0 = 1:4
            grid0       = settings.grid{2};
 
            %test_H0: [T_n, c_value]
-           test_H0     = G_restriction(W_data,A_matrix,theta0,J0_vec,Vbar,IV,grid0,test0,cvalue,alpha_input,num_boots);
+           test_H0     = G_restriction(W_data,A_matrix,theta0,J0_vec,Vbar,IV,grid0,test0,cvalue,alpha_input,num_boots,rng_seed);
 
            Test2_vec(point0)   = test_H0(1);
            cv2_vec(point0)     = test_H0(2);
@@ -198,10 +197,10 @@ mkdir(fullfile('_results',cd_name));
 
 f = fopen(fullfile('_results', cd_name, strcat(sim.sim_name, 'table1.tex')), 'w'); % Open file for writing
 
-fprintf(f, '%s\n', '\begin{tabular}{c c c c c}')
-fprintf(f, '%s\n', '\hline \hline')
-fprintf(f, '%s\n', '~ & Crit. Value & $\theta_1$: Coca-Cola &$\theta_2$: Energy Brands & Comp. Time \\')
-fprintf(f, '%s\n', '\hline')
+fprintf(f, '%s\n', '\begin{tabular}{c c c c c}');
+fprintf(f, '%s\n', '\hline \hline');
+fprintf(f, '%s\n', '~ & Crit. Value & $\theta_1$: Coca-Cola &$\theta_2$: Energy Brands & Comp. Time \\');
+fprintf(f, '%s\n', '\hline');
 
 
 for row0 = 1:size(specs,1)
@@ -222,9 +221,9 @@ for row0 = 1:size(specs,1)
             results.CI2_vec(row0,1) ,' , ',results.CI2_vec(row0,2),'] &',...
             results.comp_time(row0,1),'\\');
     if row0==2
-        fprintf(f, '%s\n', '\hline')
+        fprintf(f, '%s\n', '\hline');
     end
 
 end
-fprintf(f, '%s\n', '\hline \hline')
-fprintf(f, '%s', '\end{tabular}')
+fprintf(f, '%s\n', '\hline \hline');
+fprintf(f, '%s', '\end{tabular}');

@@ -1,9 +1,9 @@
-%% compute critical value defined in eq (41) of section 5
+%% compute critical value defined in eq (41) of section 5 in Canay, Illanes, and Velez (2023)
 
 function c_value = cvalue_SN2S(X_data,alpha_input,beta_input)
 
 % input
-% - X_data          n x k    n: sample size, p: number of moment inequalities
+% - X_data          n x k    matrix of evaluated moment functions
 % - alpha_input     1 x 1    significance level
 % - beta_input      1 x 1    tuning parameter to select moments
 
@@ -11,11 +11,11 @@ function c_value = cvalue_SN2S(X_data,alpha_input,beta_input)
 % - c_value         1 x 1    critical value
 
 %% Step 0: parameter setting
- 
-n          = size(X_data,1);     
-k          = size(X_data,2);    
-alpha      = alpha_input;          
-beta       = beta_input;            
+
+n          = size(X_data,1);                                               % sample size
+k          = size(X_data,2);                                               % number of moments
+alpha      = alpha_input;
+beta       = beta_input;
 
 if beta < alpha/2
 %     disp('Two step SN-method is running');
@@ -29,17 +29,17 @@ else
     keyboard
 end
 
-%% Step 1: define set J_SN as almost binding 
+%% Step 1: define set J_SN as almost binding
 
 c_sn0  = cvalue_SN(X_data,beta);                                           % as in eq (40)
 contar = 0;                                                                % number of moments inequalities that are almost binding
 
 for jj=1:k
-    mu_hat    = mean(X_data(:,jj)); 
-    sigma_hat = std(X_data(:,jj),1);                                       
-    
+    mu_hat    = mean(X_data(:,jj));
+    sigma_hat = std(X_data(:,jj),1);
+
     test0 = sqrt(n)*mu_hat/sigma_hat;                                      % Studentized statistic for each moment inequality
-    
+
     if test0>-2*c_sn0                                                      % moments inequalities that are almost binding
         contar = contar +1;
     end
@@ -54,7 +54,7 @@ if k_hat>0
     c_sn1 = qq1/sqrt(1-qq1^2/n);                                           % as in eq (41)
 else
     c_sn1 = 0;
-end 
+end
 
 c_value = c_sn1;
 end

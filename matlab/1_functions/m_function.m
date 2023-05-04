@@ -14,17 +14,17 @@
 
 function salida = m_function(W_data,A_matrix,theta,J0_vec,Vbar,IV,grid0)
 
-% input: 
+% input:
 % - W_data          n  x J          matrix of all product portfolio
 % - A_matrix        n  x (1+J0)     matrix of revenue differential
 % - theta      d_theta x 1          parameter of interest
 % - J0_vec          J0 x 2          matrix of ownership by two firms
 % - Vbar                            tuning parameter as in Assumption 4.2
-% - IV       {'N', 'demographics'}  instruments      
+% - IV       {'N', 'demographics'}  instruments
 % - grid0       {1, 2, 'all'}       searching direction
- 
-% output: 
-% - salida          1 x J1          vector of the moment function. 
+
+% output:
+% - salida          n x J1          vector of the moment function.
 
 
 n  = size(A_matrix,1);
@@ -74,57 +74,55 @@ end
 %% step 2: load instruments in case we use them
 %          the instruments are presented in section 8.2
 
-if strcmp(IV,'demographics')  
-    load('Amatrix200701_fake.mat', 'IV_matrix')  
+if strcmp(IV,'demographics')
+    load('Amatrix200701_fake.mat', 'IV_matrix')
 end
 
 %% step 3: compute all the moment functions
 
 for mm0=1:n
-%                
+%
    A_vec = A_matrix(mm0,2:J0+1)';                                          % vector of estimated revenue differential in market mm0
    D_vec = W_data(mm0,:)';
-   D_vec = D_vec(J0_vec(:,1));                                             % vector of product portfolio of coca-cola and energy-products in market mm0 
+   D_vec = D_vec(J0_vec(:,1));                                             % vector of product portfolio of coca-cola and energy-products in market mm0
 
    if strcmp(IV,'N')
       Z_vec = ones(J0,1);
       ml_vec = MomentFunct_L(A_vec,D_vec,Z_vec,J0_vec,theta,Vbar);
       mu_vec = MomentFunct_U(A_vec,D_vec,Z_vec,J0_vec,theta,Vbar);
-      
-      X_data(mm0,:) = [ml_vec(ml_indx) mu_vec(mu_indx)];                     
-                     
-   elseif strcmp(IV,'demographics')   
+
+      X_data(mm0,:) = [ml_vec(ml_indx) mu_vec(mu_indx)];
+
+   elseif strcmp(IV,'demographics')
        Z_vec = ones(J0,1);
        Z3_vec = 1*(IV_matrix(:,2) > median(IV_matrix(:,2)));               % employment rate
        Z5_vec = 1*(IV_matrix(:,3) > median(IV_matrix(:,3)));               % average income in market
        Z7_vec = 1*(IV_matrix(:,4) > median(IV_matrix(:,4)));               % median income in market
-       
+
        ml_vec  = MomentFunct_L(A_vec,D_vec,Z_vec,J0_vec,theta,Vbar);
        ml_vec3 = MomentFunct_L(A_vec,D_vec,Z3_vec,J0_vec,theta,Vbar);
        ml_vec5 = MomentFunct_L(A_vec,D_vec,Z5_vec,J0_vec,theta,Vbar);
        ml_vec7 = MomentFunct_L(A_vec,D_vec,Z7_vec,J0_vec,theta,Vbar);
-       
+
        mu_vec  = MomentFunct_U(A_vec,D_vec,Z_vec,J0_vec,theta,Vbar);
        mu_vec3 = MomentFunct_U(A_vec,D_vec,Z3_vec,J0_vec,theta,Vbar);
        mu_vec5 = MomentFunct_U(A_vec,D_vec,Z5_vec,J0_vec,theta,Vbar);
-       mu_vec7 = MomentFunct_U(A_vec,D_vec,Z7_vec,J0_vec,theta,Vbar);      
-       
+       mu_vec7 = MomentFunct_U(A_vec,D_vec,Z7_vec,J0_vec,theta,Vbar);
+
        X2_data(mm0,:) = [ml_vec(ml_indx)  mu_vec(mu_indx)...
                          ml_vec3(ml_indx) mu_vec3(mu_indx)...
                          ml_vec5(ml_indx) mu_vec5(mu_indx)...
-                         ml_vec7(ml_indx) mu_vec7(mu_indx)];   
-   
+                         ml_vec7(ml_indx) mu_vec7(mu_indx)];
    end
 
- 
 end
 
 %% step 4: select the computed moments using ml_indx & mu_indx defined in step 1
 
 if strcmp(IV,'N')
-    salida = X_data; 
-elseif strcmp(IV,'demographics') 
-    salida = X2_data; 
+    salida = X_data;
+elseif strcmp(IV,'demographics')
+    salida = X2_data;
 end
 
 
