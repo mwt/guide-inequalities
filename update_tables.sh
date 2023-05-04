@@ -13,11 +13,11 @@ cat <<EOF >>README.new.md
 
 ### Table 1
 
-$(pandoc -f latex -t gfm ./matlab/_results/tables-tex/table_1.tex)
+$(pandoc -f latex -t markdown ./matlab/_results/tables-tex/table_1.tex)
 
 ### Table 2
 
-$(pandoc -f latex -t gfm ./matlab/_results/tables-tex/table_2.tex)
+$(pandoc -f latex -t markdown ./matlab/_results/tables-tex/table_2.tex)
 EOF
 
 # Replace the old README with the new one
