@@ -2,10 +2,10 @@
 
 % Inputs
 
-% Amatrix200701_fake.mat                 fake data
-%  - A_matrix            n  x (1+J0)     matrix of revenue differential
-%  - D_matrix            n  x (1+J)      matrix of all product portfolio
-%  - J0_vec              J0 x 2          matrix of product ownership by two firms
+% ../data/                               fake data
+%  - A.csv               n  x (1+J0)     matrix of revenue differential
+%  - D.csv               n  x (1+J)      matrix of all product portfolio
+%  - J0.csv              J0 x 2          matrix of ownership by two firms
 
 % G_restriction.m                        find test statistic and c. value
 %  - m_function                          compute (26)-(27)
@@ -15,7 +15,7 @@
 
 % output
 
-% 'table1.tex'                           confidence intervals and comp.time
+% '_results/tables-tex/table1.tex'       confidence intervals and comp.time
 
 % comment:
 % the first column of A_matrix and D_matrix were used to index the markets,
@@ -51,7 +51,7 @@ sim.grid_Theta = {linspace(-40, 100, 1401)', linspace(-40, 100, 1401)'};
 sim.rng_seed = 20220826;
 sim.num_boots = 1000;
 sim.num_robots = 4; % number of parallel workers
-sim.sim_name = 'Table1_0423fake';
+sim.sim_name = 'table1';
 
 results = struct;
 results.CI_vec = {zeros(4, 2), zeros(4, 2)}; % specs x {LB, UB}
@@ -135,7 +135,7 @@ save(fullfile('_results', strcat(sim.sim_name, '.mat')), 'dgp', 'settings', 'sim
 cd_name = 'tables-tex';
 mkdir(fullfile('_results', cd_name));
 
-f = fopen(fullfile('_results', cd_name, strcat(sim.sim_name, 'table1.tex')), 'w'); % Open file for writing
+f = fopen(fullfile('_results', cd_name, strcat(sim.sim_name, '.tex')), 'w'); % Open file for writing
 
 fprintf(f, '%s\n', '\begin{tabular}{c c c c c}');
 fprintf(f, '%s\n', '\hline \hline');
