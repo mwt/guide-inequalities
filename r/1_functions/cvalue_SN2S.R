@@ -1,9 +1,9 @@
-## compute critical value defined in eq (41) of section 5
+## compute critical value defined in eq (41) of section 5 in Canay, Illanes, and Velez (2023)
 
 function c_value <- cvalue_SN2S(X_data, alpha_input, beta_input)
 
     # input
-    # - X_data          n x k    n: sample size, p: number of moment inequalities
+    # - X_data          n x k    matrix of evaluated moment functions
     # - alpha_input     1 x 1    significance level
     # - beta_input      1 x 1    tuning parameter to select moments
 
@@ -12,8 +12,8 @@ function c_value <- cvalue_SN2S(X_data, alpha_input, beta_input)
 
     ## Step 0: parameter setting
 
-    n <- (dim(X_data)[1])
-    k <- (dim(X_data)[2])
+    n <- (dim(X_data)[1])# sample size
+    k <- (dim(X_data)[2])# number of moments
     alpha <- alpha_input
     beta <- beta_input
 

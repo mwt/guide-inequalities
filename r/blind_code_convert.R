@@ -1,4 +1,6 @@
-MATLAB_FOLDER <- file.path("..", "octave")
+library(matconv)
+
+MATLAB_FOLDER <- file.path("..", "matlab")
 if (!dir.exists("1_functions")) {
   dir.create("1_functions")
 }

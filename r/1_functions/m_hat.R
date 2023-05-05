@@ -24,7 +24,7 @@ m_hat <- function(X_data, xi_draw, type){
 
     Xmean <- mean(X_data)
     Xstd <- sd(X_data)
-    Xhat <- Xmean ./ Xstd# as in eq (A.13) and similar to eq. (3.9) in Andrews and Kwon (2023)
+    Xhat <- Xmean ./ Xstd# as in eq (A.13) and similar to eq. (4.2) in Andrews and Kwon (2023)
 
     salida <- Xhat
 

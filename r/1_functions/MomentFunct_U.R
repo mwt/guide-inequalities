@@ -3,15 +3,15 @@
 MomentFunct_U <- function(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar){
 
     # input:
-    # - A_vec  : J0 x 1 dim. vector of estimated revenue differential in a market
-    # - D_vec  : J0 x 1 dim. vector of product portfolio in a market.
-    # - Z_vec  : J0 x 1 dim. vector of instruments in a market
-    # - J0_vec : J0 x 2 dim. vector of products of coca-cola and energy-product
-    # - theta  : d_theta x 1 dim. vector
-    # - Vbar   : tuning parameter as in Assumption 4.2
+    # - A_vec       J0 x 1      vector of estimated revenue differential in a market
+    # - D_vec       J0 x 1      vector of product portfolio in a market.
+    # - Z_vec       J0 x 1      vector of instruments in a market
+    # - J0_vec      J0 x 2      vector of products of coca-cola and energy-product
+    # - theta  d_theta x 1      parameter of interest
+    # - Vbar                    tuning parameter as in Assumption 4.2
 
     # output:
-    # - salida : 1 x J0-dim. vector of the moment function.
+    # - salida      1 x J0      vector of the moment function.
 
     J0 <- (dim(J0_vec)[1])# number of products to evaluate one-product deviation
     S0 <- (dim(unique(J0_vec(:, 2), 'stable'))[1])# number of firms

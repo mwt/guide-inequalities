@@ -184,3 +184,4 @@ ehthumbs_vista.db
 /r/**/po/*~
 # RStudio Connect folder
 /r/**/rsconnect/
+.Rproj.user

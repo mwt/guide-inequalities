@@ -1,23 +1,23 @@
-## compute critical value defined in eq (48) of Section 5
+## compute critical value defined in eq (48) of Section 5 in Canay, Illanes, and Velez (2023)
 
-function c_value <- cvalue_EB2S(X_data, BB_input, alpha_input, beta_input)
+function c_value <- cvalue_EB2S(X_data, BB_input, alpha_input, beta_input, rng_seed)
 
     # input
-    # - X_data          n x k    n: sample size, k: number of moment inequalities
+    # - X_data          n x k    matrix of evaluated moment functions
     # - BB_input        1 x 1    number of bootstraps
     # - alpha_input     1 x 1    significance level
     # - beta_input      1 x 1    tuning parameter to select moments
+    # - rng_seed                 seed for replication purpose
 
     # output
     # - c_value         1 x 1    critical value
     ## Step 1: paramater setting
 
-    n <- (dim(X_data)[1])
-    k <- (dim(X_data)[2])
+    n <- (dim(X_data)[1])# sample size
+    k <- (dim(X_data)[2])# number of moments
     BB <- BB_input
     alpha <- alpha_input
     beta <- beta_input
-    rng_seed <- 20220826
 
     if (beta < alpha / 2){
         # cat('Two step EB-method is running')
@@ -33,7 +33,7 @@ function c_value <- cvalue_EB2S(X_data, BB_input, alpha_input, beta_input)
 
     ## Step 2: Algorithm of the Empirical Bootstrap as in Section 5.2
 
-    matrix(runif("state" * rng_seed), "state")# to replicate results
+    rng(rng_seed, 'twister')# to replicate results
     draws_vector <- randi(n, n, BB)
 
     WEB_matrix <- rep(0, k)# matrix to save components of the empirical bootstrap test statistic
