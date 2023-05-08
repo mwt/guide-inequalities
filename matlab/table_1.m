@@ -73,7 +73,7 @@ for sim0 = 1:4
     tic
 
     for theta_index = 1:2
-        % Temporary in-loop variables
+        % Temporary in-loop variables (for each theta)
         reject_H = zeros(size(sim.grid_Theta{theta_index}, 1), 1); % save which points reject H0
         Test_vec = zeros(size(sim.grid_Theta{theta_index}, 1), 1);
         cv_vec = zeros(size(sim.grid_Theta{theta_index}, 1), 1);

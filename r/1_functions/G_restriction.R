@@ -32,7 +32,7 @@ G_restriction <- function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, gri
 
         if (strcmp(test0, 'CCK')){
             X_data <- m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, grid0)
-            m_hat0 <- m_hat(X_data, [], 0)
+            m_hat0 <- m_hat(X_data)
             n <- (dim(X_data)[1])
 
             T_n <- sqrt(n) * m_hat0
@@ -52,7 +52,7 @@ G_restriction <- function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, gri
                 c_value <- cvalue_EB2S(X_data, num_boots, alpha_input, beta_input, rng_seed)# as in eq (48)
             }
 
-            salida <- [T_n, c_value]
+            salida <- c(T_n, c_value)
 
         }
 
@@ -61,7 +61,7 @@ G_restriction <- function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, gri
         if (strcmp(test0, 'RC-CCK')){
 
             X_data <- -m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, grid0)# in order to use the same condition on the moments as in eq. (3.1) in Andrews and Kwon (2023)
-            m_hat0 <- m_hat(X_data, [], 0)# as in eq. (4.2) in Andrews and Kwon (2023)
+            m_hat0 <- m_hat(X_data)# as in eq. (4.2) in Andrews and Kwon (2023)
             n <- (dim(X_data)[1])
 
             S_n <- sqrt(n) * (m_hat0 + hat_r_inf)# re-centering step as in (4.5) in  Andrews and Kwon (2023)
@@ -83,7 +83,7 @@ G_restriction <- function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, gri
                 c_value <- cvalue_EB2S(X_data, num_boots, alpha_input, beta_input, rng_seed)# as in eq (48)
             }
 
-            salida <- [S_n, c_value]
+            salida <- c(S_n, c_value)
 
         }
 

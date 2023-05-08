@@ -25,6 +25,8 @@ dir.create('_results')
 
 # Import packages and functions
 require(tidyverse)
+require(tictoc)
+require(Rfast2)
 # Quick hack to load functions (temporary)
 lapply(list.files(path = "1_functions", full.names = T, pattern = "\\.R$"), source)
 
@@ -56,8 +58,10 @@ sim <- list(
 )
 
 results <- list(
-  CI_vec = list( matrix(NA, 4,2), matrix(NA, 4,2)),
-  Tn_vec = lapply(sim$grid_theta, `+`, NA),
+  CI_vec = list(matrix(NA, 4, 2), matrix(NA, 4, 2)),
+  Tn_vec = lapply(sim$grid_theta, function(grid) {
+    matrix(NA, nrow = length(grid), ncol = 4)
+  }),
   comp_time = rep(NA, 4)
 )
 
@@ -68,21 +72,20 @@ results <- list(
 
 for (sim0 in 1:4){
 
-    cat(c(paste0('case ', num2str(sim0))))
-
-    tic
+    tic(paste0('case ', sim0))
 
     for (theta_index in 1:2){
-        # Temporary in-loop variables
-(dim(0)[1])# save which points reject H0
-(dim(0)[1])
-(dim(0)[1])
+        # Temporary in-loop variables (for each theta)
+        gridsize <- length(sim$grid_theta[[theta_index]])
+        reject_H <- rep(NA, gridsize)
+        Test_vec <- rep(NA, gridsize)
+        cv_vec <- rep(NA, gridsize)
 
         # Step 1: find test stat. Tn(theta) and c.value(theta) using G_restriction
 
-        for (point0 in 1:(dim(sim[['grid_theta']])[1])){
-            theta0 <- [0 0]'
-            theta0(theta_index) <- sim[['grid_theta']][[theta_index]](point0, :)
+        for (point0 in 1:gridsize){
+            theta0 <- numeric(2)
+            theta0[theta_index] <- sim$grid_theta[[theta_index]][point0]
 
             #test_H0: [T_n, c_value]
             test_H0 <- G_restriction(dgp[['W_data']], dgp[['A']], theta0, dgp[['J0']], settings[['Vbar']][[sim0]], settings[['IV']][[sim0]], theta_index, settings[['test_stat']][[sim0]], settings[['cv']][[sim0]], settings[['alpha']][[sim0]], sim[['num_boots']], sim[['rng_seed']])
@@ -94,71 +97,69 @@ for (sim0 in 1:4){
 
         }
 
-        results[['Tn_vec']][[theta_index]](:, sim0) <- Test_vec
+        results$Tn_vec[[theta_index]][sim0] <- Test_vec
 
         # Step 2: find confidence intervals using Tn(theta) and c[['value']](theta)
 
         # Confidence Interval for thetai
 
-        CS_vec <- []
+        CS_vec <- numeric(0)
 
-        for (point0 in 1:(dim(sim[['grid_theta']])[1])){
-            thetai <- sim[['grid_theta']][[theta_index]](point0, :)'
+        for (point0 in 1:gridsize){
+            thetai <- sim$grid_theta[[theta_index]][point0]
 
             if (reject_H(point0) == 0){
-                CS_vec <- [CS_vec; thetai']
+                CS_vec <- c(CS_vec, thetai)
             }
 
         }
 
-        if (sum(dim(CS_vec)) == 0){# it may be the CI is empty
-            results[['CI_vec']][[theta_index]](sim0, :) <- [NaN NaN]
-            [!, point0] <- min(Test_vec)
-            thetai <- sim[['grid_theta']][[theta_index]](point0, :)
-            results[['CI_vec']][[theta_index]](sim0, 2) <- thetai# in this case, we report [nan, argmin test statistic]
-        } else {
-            results[['CI_vec']][[theta_index]](sim0, :) <- [min(CS_vec) max(CS_vec)]
-        }
+        #if (sum(dim(CS_vec)) == 0){# it may be the CI is empty
+        #    results[['CI_vec']][[theta_index]](sim0, :) <- [NaN NaN]
+        #    [!, point0] <- min(Test_vec)
+        #    thetai <- sim[['grid_theta']][[theta_index]](point0, :)
+        #    results[['CI_vec']][[theta_index]](sim0, 2) <- thetai# in this case, we report [nan, argmin test statistic]
+        #} else {
+        #    results[['CI_vec']][[theta_index]](sim0, :) <- [min(CS_vec) max(CS_vec)]
+        #}
 
     }
 
-    toc
-    time <- toc
-    results[['comp_time']](sim0, 1) <- time
+    results[['comp_time']][sim0] <- toc()
 
 }
 
 ## 3 Save results
-save(fullfile('_results', strcat(sim[['sim_name']], '.mat')), 'dgp', 'settings', 'sim', 'results')
-
+#save(fullfile('_results', strcat(sim[['sim_name']], '.mat')), 'dgp', 'settings', 'sim', 'results')
+#
 ## 4 Print table
-cd_name <- 'tables-tex'
-dir.create('fullfile('_results', cd_name)')
-
-f <- fopen(fullfile('_results', cd_name, strcat(sim[['sim_name']], '.tex')), 'w')# Open file for writing
-
-fprintf(f, '%s\n', '\begin{tabular}{c c c c c}')
-fprintf(f, '%s\n', '\hline \hline')
-fprintf(f, '%s\n', '! & Crit. Value & $\theta_1$: Coca-Cola &$\theta_2$: Energy Brands & Comp. Time \\')
-fprintf(f, '%s\n', '\hline')
-
-for (row0 in 1:4){
-
-    if (strcmp(settings[['cv']][[row0]], 'SN2S')){
-        Vbar0 <- c(paste0('$Bar[[row0]]$ <- ', num2str(settings[['Vbar']][[row0]])))
-        cvalue0 <- 'self-norm'
-    } else if (strcmp(settings[['cv']][[row0]], 'EB2S')){
-        Vbar0 <- "!"
-        cvalue0 <- 'bootstrap'
-    }
-
-    fprintf(f, '%s%s%s%s%5[['CI_vec']]%s%5[['CI_vec']]%s%5[['CI_vec']]%s%5[['CI_vec']]%s%5[['CI_vec']]%s\n', Vbar0, ' & ', cvalue0, ' & [', results[['CI_vec']][[1]](row0, 1), ' , ', results[['CI_vec']][[1]](row0, 2), '] & [', results[['CI_vec']][[2]](row0, 1), ' , ', results[['CI_vec']][[2]](row0, 2), '] &', results[['comp_time']](row0, 1), '\\')
-
-    if (row0 == 2){
-        fprintf(f, '%s\n', '\hline')
-    }
-
-}
-
-fprintf(f, '%s\n', '\hline \hline')
-fprintf(f, '%s', '\}{tabular}')
+#cd_name <- 'tables-tex'
+#dir.create(fullfile('_results', cd_name))
+#
+#f <- fopen(fullfile('_results', cd_name, strcat(sim[['sim_name']], '.tex')), 'w')# Open file for writing
+#
+#fprintf(f, '%s\n', '\begin{tabular}{c c c c c}')
+#fprintf(f, '%s\n', '\hline \hline')
+#fprintf(f, '%s\n', '! & Crit. Value & $\theta_1$: Coca-Cola &$\theta_2$: Energy Brands & Comp. Time \\')
+#fprintf(f, '%s\n', '\hline')
+#
+#for (row0 in 1:4){
+#
+#    if (strcmp(settings[['cv']][[row0]], 'SN2S')){
+#        Vbar0 <- c(paste0('$Bar[[row0]]$ <- ', num2str(settings[['Vbar']][[row0]])))
+#        cvalue0 <- 'self-norm'
+#    } else if (strcmp(settings[['cv']][[row0]], 'EB2S')){
+#        Vbar0 <- "!"
+#        cvalue0 <- 'bootstrap'
+#    }
+#
+#    fprintf(f, '%s%s%s%s%5[['CI_vec']]%s%5[['CI_vec']]%s%5[['CI_vec']]%s%5[['CI_vec']]%s%5[['CI_vec']]%s\n', Vbar0, ' & ', cvalue0, ' & [', results[['CI_vec']][[1]](row0, 1), ' , ', results[['CI_vec']][[1]](row0, 2), '] & [', results[['CI_vec']][[2]](row0, 1), ' , ', results[['CI_vec']][[2]](row0, 2), '] &', results[['comp_time']](row0, 1), '\\')
+#
+#    if (row0 == 2){
+#        fprintf(f, '%s\n', '\hline')
+#    }
+#
+#}
+#
+#fprintf(f, '%s\n', '\hline \hline')
+#fprintf(f, '%s', '\}{tabular}')

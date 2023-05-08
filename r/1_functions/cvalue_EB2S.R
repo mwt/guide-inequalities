@@ -33,7 +33,8 @@ function c_value <- cvalue_EB2S(X_data, BB_input, alpha_input, beta_input, rng_s
 
     ## Step 2: Algorithm of the Empirical Bootstrap as in Section 5.2
 
-    rng(rng_seed, 'twister')# to replicate results
+    # to replicate results
+    set.seed(rng_seed)
     draws_vector <- randi(n, n, BB)
 
     WEB_matrix <- rep(0, k)# matrix to save components of the empirical bootstrap test statistic
@@ -42,8 +43,10 @@ function c_value <- cvalue_EB2S(X_data, BB_input, alpha_input, beta_input, rng_s
     sigma_hat <- sd(X_data)
 
     for (kk in 1:BB){
-        XX_draw <- X_data(draws_vector(:, kk), :)# draw from the empirical distribution
-        WEB_matrix(kk, :) <- sqrt(n) * (1 / n) * (rep(1, 1)' * (n, 1)
+        # draw from the empirical distribution
+        XX_draw <- X_data[draws_vector[, kk],]
+        # as in eq (45)
+        WEB_matrix[kk,] <- sqrt(n) * (1 / n) * (rep(1, n) %*% (XX_draw - rep(1, n) %*% mu_hat)) / sigma_hat
     }
 
     WEB_vector <- max(WEB_matrix, [], 2)
@@ -71,8 +74,9 @@ function c_value <- cvalue_EB2S(X_data, BB_input, alpha_input, beta_input, rng_s
         }
 
     }
-
-    WEB_vector2 <- max(WEB_matrix2, [], 2)# as in eq (47)
+  
+    # as in eq (47)
+    WEB_vector2 <- Rfast::rowMaxs(WEB_matrix2)
 
     ## Step 3: Critical value
 
