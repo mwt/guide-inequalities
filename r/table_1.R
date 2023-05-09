@@ -26,20 +26,20 @@ dir.create('_results')
 # Import packages and functions
 require(tidyverse)
 require(tictoc)
-require(Rfast2)
+require(Rfast)
 # Quick hack to load functions (temporary)
-lapply(list.files(path = "1_functions", full.names = T, pattern = "\\.R$"), source)
+invisible(lapply(list.files(path = "1_functions", full.names = T, pattern = "\\.R$"), source))
 
 # Import data
 datasets <- c("A", "D", "J0")
 data_path <- file.path("..", "data")
-dgp <- lapply(datasets, function(dataset) {
+dgp <- sapply(datasets, function(dataset) {
   read_csv(file.path(data_path, paste0(dataset, ".csv")), col_names = F) %>% as.matrix %>% unname
-})
+}, simplify = F)
 
-dgp[['num_market']] <- nrow(dgp$A)
-dgp[['num_product']] <- nrow(dgp$D) - 1
-dgp[['W_data']] <- dgp$D[, -1]
+dgp$num_market <- nrow(dgp$A)
+dgp$num_product <- nrow(dgp$D) - 1
+dgp$W_data <- dgp$D[,-1]
 
 # Settings (cell arrays are used to loop over each of the four different specifications)
 settings <- list(
@@ -88,13 +88,12 @@ for (sim0 in 1:4){
             theta0[theta_index] <- sim$grid_theta[[theta_index]][point0]
 
             #test_H0: [T_n, c_value]
-            test_H0 <- G_restriction(dgp[['W_data']], dgp[['A']], theta0, dgp[['J0']], settings[['Vbar']][[sim0]], settings[['IV']][[sim0]], theta_index, settings[['test_stat']][[sim0]], settings[['cv']][[sim0]], settings[['alpha']][[sim0]], sim[['num_boots']], sim[['rng_seed']])
+            test_H0 <- G_restriction(dgp$W_data, dgp$A, theta0, dgp$J0, settings$Vbar[[sim0]], settings$IV[[sim0]], theta_index, settings$test_stat[[sim0]], settings$cv[[sim0]], settings$alpha[[sim0]], sim$num_boots, sim$rng_seed)
 
             Test_vec(point0) <- test_H0(1)
             cv_vec(point0) <- test_H0(2)
 
             reject_H(point0) <- 1 * (test_H0(1) > test_H0(2))
-
         }
 
         results$Tn_vec[[theta_index]][sim0] <- Test_vec
@@ -145,10 +144,10 @@ for (sim0 in 1:4){
 #
 #for (row0 in 1:4){
 #
-#    if (strcmp(settings[['cv']][[row0]], 'SN2S')){
+#    if (settings[['cv']][[row0]] == 'SN2S'){
 #        Vbar0 <- c(paste0('$Bar[[row0]]$ <- ', num2str(settings[['Vbar']][[row0]])))
 #        cvalue0 <- 'self-norm'
-#    } else if (strcmp(settings[['cv']][[row0]], 'EB2S')){
+#    } else if (settings[['cv']][[row0]] == 'EB2S'){
 #        Vbar0 <- "!"
 #        cvalue0 <- 'bootstrap'
 #    }
