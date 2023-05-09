@@ -28,7 +28,14 @@ require(tidyverse)
 require(tictoc)
 require(Rfast)
 # Quick hack to load functions (temporary)
-invisible(lapply(list.files(path = "1_functions", full.names = T, pattern = "\\.R$"), source))
+invisible(lapply(
+  list.files(
+    path = "1_functions",
+    full.names = T,
+    pattern = "\\.R$"
+  ),
+  source
+))
 
 # Import data
 datasets <- c("A", "D", "J0")
@@ -43,17 +50,33 @@ dgp$W_data <- dgp$D[,-1]
 
 # Settings (cell arrays are used to loop over each of the four different specifications)
 settings <- list(
-  Vbar = c(500, 500, 1000, 1000),  # Vbar is defined in Assumption 4.2 and appears in eq. (26)-(27).
-  test_stat = rep('CCK', 4),       # CCK as in eq. (38).
-  cv = rep(c('SN2S', 'EB2S'), 2),  # Critical values as in eq. (41) and (47).
-  alpha = rep(0.05, 4),            # significance level
+  Vbar = c(500, 500, 1000, 1000),
+  # Vbar is defined in Assumption 4.2 and appears in eq. (26)-(27).
+  test_stat = rep('CCK', 4),
+  # CCK as in eq. (38).
+  cv = rep(c('SN2S', 'EB2S'), 2),
+  # Critical values as in eq. (41) and (47).
+  alpha = rep(0.05, 4),
+  # significance level
   IV = rep(NA, 4)                  # no IVs
 )
 
 # Technical settings (lists are used to loop over the two parameters: theta1 and theta2)
 sim <- list(
-  grid_theta = list(seq(from = -40, to = 100, length.out = 1401), seq(from = -40, to = 100, length.out = 1401)),
+  grid_theta = list(
+    seq(
+      from = -40,
+      to = 100,
+      length.out = 1401
+    ),
+    seq(
+      from = -40,
+      to = 100,
+      length.out = 1401
+    )
+  ),
   rng_seed = 20220826,
+  num_boots = 1000,
   sim_name = "table_1"
 )
 
@@ -70,62 +93,77 @@ results <- list(
 #             i) compute test statistic and critical value
 #            ii) conlist() confidence interevals
 
-for (sim0 in 1:4){
-
-    tic(paste0('case ', sim0))
-
-    for (theta_index in 1:2){
-        # Temporary in-loop variables (for each theta)
-        gridsize <- length(sim$grid_theta[[theta_index]])
-        reject_H <- rep(NA, gridsize)
-        Test_vec <- rep(NA, gridsize)
-        cv_vec <- rep(NA, gridsize)
-
-        # Step 1: find test stat. Tn(theta) and c.value(theta) using G_restriction
-
-        for (point0 in 1:gridsize){
-            theta0 <- numeric(2)
-            theta0[theta_index] <- sim$grid_theta[[theta_index]][point0]
-
-            #test_H0: [T_n, c_value]
-            test_H0 <- G_restriction(dgp$W_data, dgp$A, theta0, dgp$J0, settings$Vbar[[sim0]], settings$IV[[sim0]], theta_index, settings$test_stat[[sim0]], settings$cv[[sim0]], settings$alpha[[sim0]], sim$num_boots, sim$rng_seed)
-
-            Test_vec(point0) <- test_H0(1)
-            cv_vec(point0) <- test_H0(2)
-
-            reject_H(point0) <- 1 * (test_H0(1) > test_H0(2))
-        }
-
-        results$Tn_vec[[theta_index]][sim0] <- Test_vec
-
-        # Step 2: find confidence intervals using Tn(theta) and c[['value']](theta)
-
-        # Confidence Interval for thetai
-
-        CS_vec <- numeric(0)
-
-        for (point0 in 1:gridsize){
-            thetai <- sim$grid_theta[[theta_index]][point0]
-
-            if (reject_H(point0) == 0){
-                CS_vec <- c(CS_vec, thetai)
-            }
-
-        }
-
-        #if (sum(dim(CS_vec)) == 0){# it may be the CI is empty
-        #    results[['CI_vec']][[theta_index]](sim0, :) <- [NaN NaN]
-        #    [!, point0] <- min(Test_vec)
-        #    thetai <- sim[['grid_theta']][[theta_index]](point0, :)
-        #    results[['CI_vec']][[theta_index]](sim0, 2) <- thetai# in this case, we report [nan, argmin test statistic]
-        #} else {
-        #    results[['CI_vec']][[theta_index]](sim0, :) <- [min(CS_vec) max(CS_vec)]
-        #}
-
+for (sim0 in 1:4) {
+  tic(paste0('case ', sim0))
+  
+  for (theta_index in 1:2) {
+    # Temporary in-loop variables (for each theta)
+    gridsize <- length(sim$grid_theta[[theta_index]])
+    reject_H <- rep(NA, gridsize)
+    Test_vec <- rep(NA, gridsize)
+    cv_vec <- rep(NA, gridsize)
+    
+    # Step 1: find test stat. Tn(theta) and c.value(theta) using G_restriction
+    
+    for (point0 in 1:gridsize) {
+      theta0 <- numeric(2)
+      theta0[theta_index] <-
+        sim$grid_theta[[theta_index]][point0]
+      
+      #test_H0: [T_n, c_value]
+      test_H0 <-
+        G_restriction(
+          W_data = dgp$W_data,
+          A_matrix = dgp$A,
+          theta0 = theta0,
+          J0_vec = dgp$J0,
+          Vbar = settings$Vbar[[sim0]],
+          IV_matrix = settings$IV[[sim0]],
+          grid0 = theta_index,
+          test0 = settings$test_stat[[sim0]],
+          cvalue = settings$cv[[sim0]],
+          alpha_input = settings$alpha[[sim0]],
+          num_boots = sim$num_boots,
+          rng_seed = sim$rng_seed
+        )
+      
+      Test_vec[point0] <- test_H0[1]
+      cv_vec[point0] <- test_H0[2]
+      
+      reject_H[point0] <- 1 * (test_H0[1] > test_H0[2])
     }
-
-    results[['comp_time']][sim0] <- toc()
-
+    
+    results$Tn_vec[[theta_index]][, sim0] <- Test_vec
+    
+    # Step 2: find confidence intervals using Tn(theta) and c[['value']](theta)
+    
+    # Confidence Interval for thetai
+    
+    CS_vec <- numeric(0)
+    
+    for (point0 in 1:gridsize) {
+      thetai <- sim$grid_theta[[theta_index]][point0]
+      
+      if (reject_H[point0] == 0) {
+        CS_vec <- c(CS_vec, thetai)
+      }
+      
+    }
+    
+    #if (sum(dim(CS_vec)) == 0){# it may be the CI is empty
+    #    results[['CI_vec']][[theta_index]](sim0, :) <- [NaN NaN]
+    #    [!, point0] <- min(Test_vec)
+    #    thetai <- sim[['grid_theta']][[theta_index]](point0, :)
+    #    results[['CI_vec']][[theta_index]](sim0, 2) <- thetai# in this case, we report [nan, argmin test statistic]
+    #} else {
+        results$CI_vec[[theta_index]][sim0,] <- c(min(CS_vec), max(CS_vec))
+    #}
+    
+  }
+  
+  temp_timer <- toc()
+  results[['comp_time']][sim0] <- temp_timer$toc - temp_timer$tic
+  
 }
 
 ## 3 Save results

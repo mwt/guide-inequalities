@@ -17,9 +17,9 @@ cvalue_EB2S <- function(X_data,
 {
   ## Step 1: paramater setting
   # sample size
-  n <- (dim(X_data)[1])
+  n <- nrow(X_data)
   # number of moments
-  k <- (dim(X_data)[2])
+  k <- ncol(X_data)
   BB <- BB_input
   alpha <- alpha_input
   beta <- beta_input
@@ -39,20 +39,22 @@ cvalue_EB2S <- function(X_data,
   
   # to replicate results
   set.seed(rng_seed)
-  draws_vector <- randi(n, n, BB)
+  draws_vector <- matrix(sample.int(n, n * BB, replace = T),
+                         nrow = n,
+                         ncol = BB)
   
   # matrix to save components of the empirical bootstrap test statistic
-  WEB_matrix <- rep(0, k)
+  WEB_matrix <- matrix(NA, BB, k)
   
-  mu_hat <- mean(X_data, 1)
-  sigma_hat <- sd(X_data)
+  mu_hat <- Rfast::colmeans(X_data)
+  sigma_hat <- Rfast::colVars(X_data, std = T)
   
   for (kk in 1:BB) {
     # draw from the empirical distribution
-    XX_draw <- X_data[draws_vector[, kk], ]
+    XX_draw <- X_data[draws_vector[, kk],]
     # as in eq (45)
-    WEB_matrix[kk, ] <-
-      sqrt(n) * (1 / n) * (rep(1, n) %*% (XX_draw - rep(1, n) %*% mu_hat)) / sigma_hat
+    WEB_matrix[kk,] <-
+      as.vector(sqrt(n) * (1 / n) * (rep(1, n) %*% (XX_draw - rep(1, n) %*% t(mu_hat))) / sigma_hat)
   }
   
   WEB_vector <- Rfast::rowMaxs(WEB_matrix)
@@ -73,7 +75,7 @@ cvalue_EB2S <- function(X_data,
   jj0 <- 0
   
   for (jj in 1:k) {
-    test0 <- test_vector(jj)
+    test0 <- test_vector[jj]
     
     if (test0 > (-2) * c_value0) {
       jj0 <- jj0 + 1

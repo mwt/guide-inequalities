@@ -67,7 +67,6 @@ m_function <- function(W_data,
         }
         
       }
-      
     }
     
     if (aux1[jj0] > 0) {
@@ -92,21 +91,21 @@ m_function <- function(W_data,
   
   for (mm0 in 1:n) {
     # vector of estimated revenue differential in market mm0
-    A_vec <- A_matrix[mm0, 2:J0 + 1]
+    A_vec <- A_matrix[mm0, 2:(J0 + 1)]
     # vector of product portfolio of coca-cola and energy-products in market mm0
     D_vec <- W_data[mm0, J0_vec[, 1]]
     
     if (is.na(IV_matrix)) {
-      Z_vec <- rep(1, 1)
+      Z_vec <- rep(1, J0)
       ml_vec <-
         MomentFunct_L(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
       mu_vec <-
         MomentFunct_U(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
       
-      X_data <- cbind(X_data, c(ml_vec[ml_indx], mu_vec[mu_indx]))
+      X_data <- rbind(X_data, c(ml_vec[ml_indx], mu_vec[mu_indx]))
       
     } else {
-      Z_vec <- rep(1, 1)
+      Z_vec <- rep(1, J0)
       # employment rate
       Z3_vec <-
         as.numeric(IV_matrix[, 2] > median(IV_matrix[, 2]))
@@ -135,7 +134,7 @@ m_function <- function(W_data,
       mu_vec7 <-
         MomentFunct_U(A_vec, D_vec, Z7_vec, J0_vec, theta, Vbar)
       
-      X_data <- cbind(
+      X_data <- rbind(
         X_data,
         c(
           ml_vec[ml_indx],

@@ -14,7 +14,8 @@ cvalue_SN <- function(X_data, alpha_input)
   
   ## Step 2: calculations
   qq <- qnorm(1 - alpha_input / k)
-  c_sn <- qq / sqrt(1 - qq ^ 2 / n)# as in eq (40)
+  # as in eq (40)
+  c_sn <- qq / sqrt(1 - qq ^ 2 / n)
   
   c_value <- c_sn
   return(c_value)
