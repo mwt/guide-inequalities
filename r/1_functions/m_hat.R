@@ -22,8 +22,8 @@ m_hat <- function(X_data,
     X_data <- X_data[xi_draw,]
   }
   
-  Xmean <- mean(X_data)
-  Xstd <- sd(X_data)
+  Xmean <- Rfast::colmeans(X_data)
+  Xstd <- Rfast::colVars(X_data, std = T)
   
   # as in eq (A.13) and similar to eq. (4.2) in Andrews and Kwon (2023)
   Xhat <- Xmean / Xstd
