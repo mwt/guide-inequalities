@@ -52,25 +52,21 @@ G_restriction <- function(W_data,
       # as in eq (38)
       T_n <- max(T_n)
       
-      if (cvalue == 'SN') {
-        # as in eq (40)
-        c_value <- cvalue_SN(X_data, alpha)
-      }
+      # see Section 4.2.2 in Chernozhukov et al. (2019)
+      beta_input <- alpha_input / 50
       
-      if (cvalue == 'SN2S') {
-        # see Section 4.2.2 in Chernozhukov et al. (2019)
-        beta_input <- alpha_input / 50
-        # as in eq (41)
-        c_value <- cvalue_SN2S(X_data, alpha_input, beta_input)
-      }
-      
-      if (cvalue == 'EB2S') {
-        # see Section 4.2.2 in Chernozhukov et al. (2019)
-        beta_input <- alpha_input / 50
-        # as in eq (48)
-        c_value <-
-          cvalue_EB2S(X_data, num_boots, alpha_input, beta_input, rng_seed)
-      }
+      # Set critical value
+      ## 1. SN as in eq (40)
+      ## 2. SN2S as in eq (41)
+      ## 3. EB2S as in eq (48)
+      c_value <-
+        switch(
+          cvalue,
+          SN = cvalue_SN(X_data, alpha_input),
+          SN2S = cvalue_SN2S(X_data, alpha_input, beta_input),
+          EB2S = cvalue_EB2S(X_data, num_boots, alpha_input, beta_input, rng_seed),
+          stop(sprintf('cvalue must be one of SN, SN2S, EB2S. You entered %s.', cvalue))
+        )
       
       salida <- c(T_n, c_value)
       return(salida)

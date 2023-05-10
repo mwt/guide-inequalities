@@ -41,7 +41,11 @@ invisible(lapply(
 datasets <- c("A", "D", "J0")
 data_path <- file.path("..", "data")
 dgp <- sapply(datasets, function(dataset) {
-  read_csv(file.path(data_path, paste0(dataset, ".csv")), col_names = F) %>% as.matrix %>% unname
+  uname(as.matrix(read_csv(
+    file.path(data_path, paste0(dataset, ".csv")),
+    col_names = F,
+    show_col_types = F
+  )))
 }, simplify = F)
 
 dgp$num_market <- nrow(dgp$A)
@@ -50,15 +54,16 @@ dgp$W_data <- dgp$D[,-1]
 
 # Settings (cell arrays are used to loop over each of the four different specifications)
 settings <- list(
-  Vbar = c(500, 500, 1000, 1000),
   # Vbar is defined in Assumption 4.2 and appears in eq. (26)-(27).
-  test_stat = rep('CCK', 4),
+  Vbar = c(500, 500, 1000, 1000),
   # CCK as in eq. (38).
-  cv = rep(c('SN2S', 'EB2S'), 2),
+  test_stat = rep('CCK', 4),
   # Critical values as in eq. (41) and (47).
-  alpha = rep(0.05, 4),
+  cv = rep(c('SN2S', 'EB2S'), 2),
   # significance level
-  IV = rep(NA, 4)                  # no IVs
+  alpha = rep(0.05, 4),
+  # no IVs
+  IV = NULL
 )
 
 # Technical settings (lists are used to loop over the two parameters: theta1 and theta2)

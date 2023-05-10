@@ -17,8 +17,7 @@ MomentFunct_L <- function(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
   S0 <- length(unique(J0_vec[, 2]))
   
   if (S0 != length(theta)) {
-    cat('error on dimension of theta')
-    return()
+    stop('error on dimension of theta')
   } else {
     salida <- rep(0, J0)
     
@@ -27,7 +26,7 @@ MomentFunct_L <- function(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
       theta_jj0 <- theta[jj2]
       # as in eq (26)
       salida[jj0] <-
-        ((A_vec[jj0] - theta_jj0) * (1 - D_vec[jj0]) - Vbar * D_vec[jj0]) %*% Z_vec[jj0]
+        ((A_vec[jj0] - theta_jj0) * (1 - D_vec[jj0]) - Vbar * D_vec[jj0]) * Z_vec[jj0]
     }
     return(salida)
   }
