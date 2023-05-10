@@ -39,7 +39,7 @@ function salida = G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matri
             T_n = max(T_n); % as in eq (38)
 
             if strcmp(cvalue, 'SN')
-                c_value = cvalue_SN(X_data, alpha); % as in eq (40)
+                c_value = cvalue_SN(X_data, alpha_input); % as in eq (40)
             end
 
             if strcmp(cvalue, 'SN2S')
