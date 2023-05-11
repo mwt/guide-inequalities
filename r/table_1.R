@@ -30,6 +30,7 @@ require(tictoc)
 require(foreach)
 require(Rfast)
 require(Rfast2)
+require(xtable)
 # Quick hack to load functions (temporary)
 invisible(lapply(
   list.files(
@@ -53,16 +54,16 @@ dgp <- sapply(datasets, function(dataset) {
 
 dgp$num_market <- nrow(dgp$A)
 dgp$num_product <- nrow(dgp$D) - 1
-dgp$W_data <- dgp$D[,-1]
+dgp$W_data <- dgp$D[, -1]
 
 # Settings (cell arrays are used to loop over each of the four different specifications)
 settings <- list(
   # Vbar is defined in Assumption 4.2 and appears in eq. (26)-(27).
   Vbar = c(500, 500, 1000, 1000),
   # CCK as in eq. (38).
-  test_stat = rep('CCK', 4),
+  test_stat = rep("CCK", 4),
   # Critical values as in eq. (41) and (47).
-  cv = rep(c('SN2S', 'EB2S'), 2),
+  cv = rep(c("SN2S", "EB2S"), 2),
   # significance level
   alpha = rep(0.05, 4),
   # no IVs
@@ -102,23 +103,23 @@ results <- list(
 #            ii) conlist() confidence interevals
 
 for (sim0 in 1:4) {
-  tictoc::tic(paste0('case ', sim0))
-  
+  tictoc::tic(paste0("case ", sim0))
+
   for (theta_index in 1:2) {
     # Temporary in-loop variables (for each theta)
     gridsize <- length(sim$grid_theta[[theta_index]])
     reject_H <- rep(NA, gridsize)
     Test_vec <- rep(NA, gridsize)
     cv_vec <- rep(NA, gridsize)
-    
+
     # Step 1: find test stat. Tn(theta) and c.value(theta) using G_restriction
-    
+
     for (point0 in 1:gridsize) {
       theta0 <- numeric(2)
       theta0[theta_index] <-
         sim$grid_theta[[theta_index]][point0]
-      
-      #test_H0: [T_n, c_value]
+
+      # test_H0: [T_n, c_value]
       test_H0 <-
         G_restriction(
           W_data = dgp$W_data,
@@ -134,79 +135,84 @@ for (sim0 in 1:4) {
           num_boots = sim$num_boots,
           rng_seed = sim$rng_seed
         )
-      
+
       Test_vec[point0] <- test_H0[1]
       cv_vec[point0] <- test_H0[2]
-      
+
       reject_H[point0] <- 1 * (test_H0[1] > test_H0[2])
     }
-    
+
     results$Tn_vec[[theta_index]][, sim0] <- Test_vec
-    
+
     # Step 2: find confidence intervals using Tn(theta) and c[['value']](theta)
-    
+
     # Confidence Interval for thetai
-    
+
     CS_vec <- numeric(0)
-    
+
     for (point0 in 1:gridsize) {
       thetai <- sim$grid_theta[[theta_index]][point0]
-      
+
       if (reject_H[point0] == 0) {
         CS_vec <- c(CS_vec, thetai)
       }
-      
     }
-    
-    if (length(CS_vec) == 0){
-        # it may be the CI is empty
-        results$CI_vec[[theta_index]][sim0,] <- c(NaN, NaN)
-        point0 <- which.min(Test_vec)
-        thetai <- sim$grid_theta[[theta_index]][point0]
-        # in this case, we report [nan, argmin test statistic]
-        results$CI_vec[[theta_index]][sim0,2] <- thetai
+
+    if (length(CS_vec) == 0) {
+      # it may be the CI is empty
+      results$CI_vec[[theta_index]][sim0, ] <- c(NaN, NaN)
+      point0 <- which.min(Test_vec)
+      thetai <- sim$grid_theta[[theta_index]][point0]
+      # in this case, we report [nan, argmin test statistic]
+      results$CI_vec[[theta_index]][sim0, 2] <- thetai
     } else {
-        results$CI_vec[[theta_index]][sim0,] <- c(min(CS_vec), max(CS_vec))
+      results$CI_vec[[theta_index]][sim0, ] <- c(min(CS_vec), max(CS_vec))
     }
-    
   }
-  
+
+  # Stop the timer
   temp_timer <- tictoc::toc()
-  results[['comp_time']][sim0] <- temp_timer$toc - temp_timer$tic
-  
+  results[["comp_time"]][sim0] <- temp_timer$toc - temp_timer$tic
 }
 
 ## 3 Save results
-#save(fullfile('_results', strcat(sim[['sim_name']], '.mat')), 'dgp', 'settings', 'sim', 'results')
+save(results, file = file.path("_results", paste0(sim$sim_name, ".Rdata")))
+
+
+# save(fullfile('_results', strcat(sim[['sim_name']], '.mat')), 'dgp', 'settings', 'sim', 'results')
 #
 ## 4 Print table
-#cd_name <- 'tables-tex'
-#dir.create(fullfile('_results', cd_name))
-#
-#f <- fopen(fullfile('_results', cd_name, strcat(sim[['sim_name']], '.tex')), 'w')# Open file for writing
-#
-#fprintf(f, '%s\n', '\begin{tabular}{c c c c c}')
-#fprintf(f, '%s\n', '\hline \hline')
-#fprintf(f, '%s\n', '! & Crit. Value & $\theta_1$: Coca-Cola &$\theta_2$: Energy Brands & Comp. Time \\')
-#fprintf(f, '%s\n', '\hline')
-#
-#for (row0 in 1:4){
-#
-#    if (settings[['cv']][[row0]] == 'SN2S'){
-#        Vbar0 <- c(paste0('$Bar[[row0]]$ <- ', num2str(settings[['Vbar']][[row0]])))
-#        cvalue0 <- 'self-norm'
-#    } else if (settings[['cv']][[row0]] == 'EB2S'){
-#        Vbar0 <- "!"
-#        cvalue0 <- 'bootstrap'
-#    }
-#
-#    fprintf(f, '%s%s%s%s%5[['CI_vec']]%s%5[['CI_vec']]%s%5[['CI_vec']]%s%5[['CI_vec']]%s%5[['CI_vec']]%s\n', Vbar0, ' & ', cvalue0, ' & [', results[['CI_vec']][[1]](row0, 1), ' , ', results[['CI_vec']][[1]](row0, 2), '] & [', results[['CI_vec']][[2]](row0, 1), ' , ', results[['CI_vec']][[2]](row0, 2), '] &', results[['comp_time']](row0, 1), '\\')
-#
-#    if (row0 == 2){
-#        fprintf(f, '%s\n', '\hline')
-#    }
-#
-#}
-#
-#fprintf(f, '%s\n', '\hline \hline')
-#fprintf(f, '%s', '\}{tabular}')
+table_dir <- file.path("_results", "tables-tex")
+if (!dir.exists(table_dir)) {
+  dir.create(table_dir)
+}
+
+# Format CI as [lb, ub]
+formated_CI <- sapply(results$CI_vec, function(CI_mat) {
+  apply(CI_mat, 1, function(CI_row) {
+    paste0("[", CI_row[1], ", ", CI_row[2], "]")
+  })
+})
+
+# Make table as matrix
+the_table <- cbind(
+  settings$Vbar,
+  formated_CI,
+  sprintf("%.2f", results$comp_time)
+)
+
+# Add colnames
+colnames(the_table) <- c(
+  "$\\Bar{V}$",
+  "$\\theta_1$: Coca-Cola",
+  "$\\theta_2$: Energy Brands",
+  "Comp. Time"
+)
+
+# Save the table
+print(
+  xtable(the_table, digits = 4),
+  include.rownames = F,
+  sanitize.colnames.function = identity,
+  file = file.path(table_dir, paste0(sim$sim_name, ".tex"))
+)

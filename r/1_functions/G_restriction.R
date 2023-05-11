@@ -38,85 +38,47 @@ G_restriction <- function(W_data,
                           alpha_input,
                           num_boots,
                           rng_seed,
-                          An_vec = NA,
-                          hat_r_inf = NA)
-{
-  if (is.na(An_vec) && is.na(hat_r_inf)) {
-    if (test0 == 'CCK') {
-      X_data <-
-        m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, grid0)
-      m_hat0 <- m_hat(X_data)
-      n <- nrow(X_data)
-      
-      T_n <- sqrt(n) * m_hat0
-      # as in eq (38)
-      T_n <- max(T_n)
-      
-      # see Section 4.2.2 in Chernozhukov et al. (2019)
-      beta_input <- alpha_input / 50
-      
-      # Set critical value
-      ## 1. SN as in eq (40)
-      ## 2. SN2S as in eq (41)
-      ## 3. EB2S as in eq (48)
-      c_value <-
-        switch(
-          cvalue,
-          SN = cvalue_SN(X_data, alpha_input),
-          SN2S = cvalue_SN2S(X_data, alpha_input, beta_input),
-          EB2S = cvalue_EB2S(X_data, num_boots, alpha_input, beta_input, rng_seed),
-          stop(sprintf('cvalue must be one of SN, SN2S, EB2S. You entered %s.', cvalue))
-        )
-      
-      salida <- c(T_n, c_value)
-      return(salida)
-    }
-    
-  } else if (is.numeric(An_vec) && is.numeric(hat_r_inf)) {
-    if (test0 == 'RC-CCK') {
-      # in order to use the same condition on the moments as in eq. (3.1) in Andrews and Kwon (2023)
-      X_data <-
-        -m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, grid0)
-      # as in eq. (4.2) in Andrews and Kwon (2023)
-      m_hat0 <- m_hat(X_data)
-      n <- nrow(X_data)
-      
-      # re-centering step as in (4.5) in  Andrews and Kwon (2023)
-      S_n <- sqrt(n) * (m_hat0 + hat_r_inf)
-      # = max(-S_n) = T_n recentered, since by definition S_n <=0
-      S_n <- max(-min(S_n, 0))
-      
-      if (cvalue == 'SPUR1') {
-        # compute the critical value presented in Section 4.4 in Andrews and Kwon (2023)
-        c_value <-
-          cvalue_SPUR1(X_data, num_boots, alpha_input, An_vec, rng_seed)
-      }
-      
-      if (cvalue == 'SN2S') {
-        beta_input <- alpha_input / 50
-        X_data <-
-          m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, grid0)
-        # as in eq (41)
-        c_value <- cvalue_SN2S(X_data, alpha_input, beta_input)
-      }
-      
-      if (cvalue == 'EB2S') {
-        beta_input <- alpha_input / 50
-        X_data <-
-          m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, grid0)
-        # as in eq (48)
-        c_value <-
-          cvalue_EB2S(X_data, num_boots, alpha_input, beta_input, rng_seed)
-      }
-      
-      salida <- c(S_n, c_value)
-      return(salida)
-    }
-    
-  } else {
-    cat('goal!')
-    stop('there are typos in the number of inputs! ')
-    
+                          An_vec = NULL,
+                          hat_r_inf = NULL) {
+  if (cvalue == "SPUR1" && (is.null(An_vec) || is.null(hat_r_inf))) {
+    stop("SPUR1 requires An_vec and hat_r_inf to be defined")
   }
-  
+
+  X_data <- m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, grid0)
+  m_hat0 <- m_hat(X_data)
+  n <- nrow(X_data)
+
+  # see Section 4.2.2 in Chernozhukov et al. (2019)
+  beta_input <- alpha_input / 50
+
+  # Set test statistic
+  ## 1. CCK
+  ## 2. RC-CCK
+  T_n <-
+    switch(test0,
+      CCK = max(sqrt(n) * m_hat0),
+      `RC-CCK` = max(-min(sqrt(n) * (m_hat0 + hat_r_inf), 0)),
+      stop(sprintf("test0 must be one of CCK, RC-CCK. You entered %s.", cvalue))
+    )
+
+  # Set critical value
+  ## 1. SPUR1 as in Section 4.4 in Andrews and Kwon (2023)
+  ##    (note, we use -X_data to match their condition)
+  ## 2. SN as in eq (40)
+  ## 3. SN2S as in eq (41)
+  ## 4. EB2S as in eq (48)
+  c_value <-
+    switch(cvalue,
+      SPUR1 = cvalue_SPUR1(-X_data, num_boots, alpha_input, An_vec, rng_seed),
+      SN = cvalue_SN(X_data, alpha_input),
+      SN2S = cvalue_SN2S(X_data, alpha_input, beta_input),
+      EB2S = cvalue_EB2S(X_data, num_boots, alpha_input, beta_input, rng_seed),
+      stop(
+        sprintf(
+          "cvalue must be one of SPUR1, SN, SN2S, EB2S. You entered %s.",
+          cvalue
+        )
+      )
+    )
+  return(c(T_n, c_value))
 }

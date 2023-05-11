@@ -14,18 +14,17 @@ MomentFunct_U <- function(A_vec,
                           Z_vec,
                           J0_vec,
                           theta,
-                          Vbar)
-{
+                          Vbar) {
   # number of products to evaluate one-product deviation
   J0 <- nrow(J0_vec)
   # number of firms
   S0 <- length(unique(J0_vec[, 2]))
-  
+
   if (S0 != length(theta)) {
-    stop('error on dimension of theta')
+    stop("error on dimension of theta")
   } else {
     salida <- rep(0, J0)
-    
+
     for (jj0 in 1:J0) {
       jj2 <- J0_vec[jj0, 2]
       theta_jj0 <- theta[jj2]

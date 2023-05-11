@@ -13,8 +13,7 @@ cvalue_EB2S <- function(X_data,
                         BB_input,
                         alpha_input,
                         beta_input,
-                        rng_seed)
-{
+                        rng_seed) {
   ## Step 1: paramater setting
   # sample size
   n <- nrow(X_data)
@@ -23,32 +22,33 @@ cvalue_EB2S <- function(X_data,
   BB <- BB_input
   alpha <- alpha_input
   beta <- beta_input
-  
+
   if (beta < alpha / 2) {
     # cat('Two step EB-method is running')
   } else {
     stop(sprintf(
-      'beta is not lower than alpha/2: fix it! alpha: %s, beta %s',
+      "beta is not lower than alpha/2: fix it! alpha: %s, beta %s",
       alpha,
       beta
     ))
   }
-  
+
   ## Step 2: Algorithm of the Empirical Bootstrap as in Section 5.2
-  
+
   # to replicate results
-  set.seed(rng_seed, kind = 'Mersenne-Twister')
+  set.seed(rng_seed, kind = "Mersenne-Twister")
   draws_vector <- matrix(sample.int(n, n * BB, replace = T),
-                         nrow = n,
-                         ncol = BB)
-  
+    nrow = n,
+    ncol = BB
+  )
+
   # matrix to save components of the empirical bootstrap test statistic
   WEB_matrix <- matrix(NA, BB, k)
-  
+
   mu_hat <- Rfast::colmeans(X_data)
   # normalize by n instead of n-1 as in matlab code
-  sigma_hat <- Rfast::colVars(X_data, std = T)*sqrt((n-1)/n)
-  
+  sigma_hat <- Rfast::colVars(X_data, std = T) * sqrt((n - 1) / n)
+
   for (kk in 1:BB) {
     # draw from the empirical distribution
     XX_draw <- X_data[draws_vector[, kk], ]
@@ -56,37 +56,37 @@ cvalue_EB2S <- function(X_data,
     WEB_matrix[kk, ] <-
       sqrt(n) * (1 / n) * (rep(1, n) %*% (XX_draw - rep(1, n) %*% t(mu_hat))) / sigma_hat
   }
-  
+
   # Take maximum of each sample
   WEB_vector <- Rfast::rowMaxs(WEB_matrix, value = T)
   # Obtain quantile of bootstrap samples
   c_value0 <- Rfast2::Quantile(WEB_vector, 1 - beta)
-  
+
   test_vector <- sqrt(n) * mu_hat / sigma_hat
   # as in eq (46)
   JJ <- sum(test_vector > (-2 * c_value0))
-  
+
   if (JJ > 0) {
     WEB_matrix2 <- matrix(0, BB, JJ)
   } else {
     WEB_matrix2 <- matrix(0, BB, 1)
   }
-  
+
   jj0 <- 0
-  
+
   for (jj in 1:k) {
     test0 <- test_vector[jj]
-    
+
     if (test0 > (-2 * c_value0)) {
       jj0 <- jj0 + 1
       # selection of moment inequalities
       WEB_matrix2[, jj0] <- WEB_matrix[, jj]
     }
   }
-  
+
   # as in eq (47)
   WEB_vector2 <- Rfast::rowMaxs(WEB_matrix2, value = T)
-  
+
   ## Step 3: Critical value
   # as in eq (48)
   c_value <- Rfast2::Quantile(WEB_vector2, 1 - alpha + 2 * beta)
