@@ -10,8 +10,8 @@
 cvalue_SN2S <- function(X_data, alpha_input, beta_input)
 {
   ## Step 0: parameter setting
-  n <- (dim(X_data)[1])# sample size
-  k <- (dim(X_data)[2])# number of moments
+  n <- nrow(X_data)# sample size
+  k <- ncol(X_data)# number of moments
   alpha <- alpha_input
   beta <- beta_input
   

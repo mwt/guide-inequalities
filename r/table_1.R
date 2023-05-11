@@ -20,13 +20,16 @@
 # comment:
 # the first column of A_matrix and D_matrix were used to index the markets,
 # these first columns are useless in the rest of the code.
-
-dir.create('_results')
+if (!dir.exists("_results")) {
+  dir.create("_results")
+}
 
 # Import packages and functions
-require(tidyverse)
+require(readr)
 require(tictoc)
+require(foreach)
 require(Rfast)
+require(Rfast2)
 # Quick hack to load functions (temporary)
 invisible(lapply(
   list.files(
@@ -41,7 +44,7 @@ invisible(lapply(
 datasets <- c("A", "D", "J0")
 data_path <- file.path("..", "data")
 dgp <- sapply(datasets, function(dataset) {
-  uname(as.matrix(read_csv(
+  unname(as.matrix(readr::read_csv(
     file.path(data_path, paste0(dataset, ".csv")),
     col_names = F,
     show_col_types = F
@@ -99,7 +102,7 @@ results <- list(
 #            ii) conlist() confidence interevals
 
 for (sim0 in 1:4) {
-  tic(paste0('case ', sim0))
+  tictoc::tic(paste0('case ', sim0))
   
   for (theta_index in 1:2) {
     # Temporary in-loop variables (for each theta)
@@ -155,18 +158,20 @@ for (sim0 in 1:4) {
       
     }
     
-    #if (sum(dim(CS_vec)) == 0){# it may be the CI is empty
-    #    results[['CI_vec']][[theta_index]](sim0, :) <- [NaN NaN]
-    #    [!, point0] <- min(Test_vec)
-    #    thetai <- sim[['grid_theta']][[theta_index]](point0, :)
-    #    results[['CI_vec']][[theta_index]](sim0, 2) <- thetai# in this case, we report [nan, argmin test statistic]
-    #} else {
+    if (length(CS_vec) == 0){
+        # it may be the CI is empty
+        results$CI_vec[[theta_index]][sim0,] <- c(NaN, NaN)
+        point0 <- which.min(Test_vec)
+        thetai <- sim$grid_theta[[theta_index]][point0]
+        # in this case, we report [nan, argmin test statistic]
+        results$CI_vec[[theta_index]][sim0,2] <- thetai
+    } else {
         results$CI_vec[[theta_index]][sim0,] <- c(min(CS_vec), max(CS_vec))
-    #}
+    }
     
   }
   
-  temp_timer <- toc()
+  temp_timer <- tictoc::toc()
   results[['comp_time']][sim0] <- temp_timer$toc - temp_timer$tic
   
 }

@@ -16,14 +16,15 @@ m_hat <- function(X_data,
                   xi_draw = NA,
                   type = 0)
 {
-  n <- (dim(X_data)[1])
+  n <- nrow(X_data)
   
   if (type == 1) {
     X_data <- X_data[xi_draw,]
   }
   
   Xmean <- Rfast::colmeans(X_data)
-  Xstd <- Rfast::colVars(X_data, std = T)
+  # normalize by n instead of n-1 as in matlab code
+  Xstd <- Rfast::colVars(X_data, std = T)*sqrt((n-1)/n)
   
   # as in eq (A.13) and similar to eq. (4.2) in Andrews and Kwon (2023)
   Xhat <- Xmean / Xstd

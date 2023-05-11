@@ -46,7 +46,7 @@ G_restriction <- function(W_data,
       X_data <-
         m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, grid0)
       m_hat0 <- m_hat(X_data)
-      n <- (dim(X_data)[1])
+      n <- nrow(X_data)
       
       T_n <- sqrt(n) * m_hat0
       # as in eq (38)
@@ -79,7 +79,7 @@ G_restriction <- function(W_data,
         -m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, grid0)
       # as in eq. (4.2) in Andrews and Kwon (2023)
       m_hat0 <- m_hat(X_data)
-      n <- (dim(X_data)[1])
+      n <- nrow(X_data)
       
       # re-centering step as in (4.5) in  Andrews and Kwon (2023)
       S_n <- sqrt(n) * (m_hat0 + hat_r_inf)

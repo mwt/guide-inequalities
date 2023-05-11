@@ -9,8 +9,8 @@
 cvalue_SN <- function(X_data, alpha_input)
 {
   ## Step 1: parameter setting
-  n <- (dim(X_data)[1])# sample size
-  k <- (dim(X_data)[2])# number of moments
+  n <- nrow(X_data)# sample size
+  k <- ncol(X_data)# number of moments
   
   ## Step 2: calculations
   qq <- qnorm(1 - alpha_input / k)
