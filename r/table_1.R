@@ -172,7 +172,7 @@ for (sim0 in 1:4) {
 
   # Stop the timer
   temp_timer <- tictoc::toc()
-  results[["comp_time"]][sim0] <- temp_timer$toc - temp_timer$tic
+  results$comp_time[sim0] <- temp_timer$toc - temp_timer$tic
 }
 
 ## 3 Save results

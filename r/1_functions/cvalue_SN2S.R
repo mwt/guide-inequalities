@@ -17,12 +17,11 @@ cvalue_SN2S <- function(X_data, alpha_input, beta_input) {
   if (beta < alpha / 2) {
     #     cat('Two step SN-method is running');
   } else {
-    cat("beta is not lower than alpha/2: fix it!")
-    cat("alpha is...")
-    cat(alpha)
-    cat("and beta is...")
-    cat(beta)
-    return()
+    stop(sprintf(
+      "beta is not lower than alpha/2: fix it! alpha: %s, beta %s",
+      alpha,
+      beta
+    ))
   }
 
   ## Step 1: define set J_SN as almost binding
