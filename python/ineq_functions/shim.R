@@ -40,7 +40,7 @@ G_restriction <- function(W_data,
                           rng_seed,
                           An_vec = NULL,
                           hat_r_inf = NULL) {
-  if (cvalue == "SPUR1" && (is.null(An_vec) || is.null(hat_r_inf))) {
+  if ((cvalue == "SPUR1" || test0 == "RC-CCK") && (is.null(An_vec) || is.null(hat_r_inf))) {
     stop("SPUR1 requires An_vec and hat_r_inf to be defined")
   }
 
@@ -54,7 +54,7 @@ G_restriction <- function(W_data,
   # Set test statistic
   ## 1. CCK
   ## 2. RC-CCK
-  T_n <-
+  test_stat <-
     switch(test0,
       CCK = max(sqrt(n) * m_hat0),
       `RC-CCK` = max(-min(sqrt(n) * (m_hat0 + hat_r_inf), 0)),
@@ -67,7 +67,7 @@ G_restriction <- function(W_data,
   ## 2. SN as in eq (40)
   ## 3. SN2S as in eq (41)
   ## 4. EB2S as in eq (48)
-  c_value <-
+  critical_value <-
     switch(cvalue,
       SPUR1 = cvalue_SPUR1(-X_data, num_boots, alpha_input, An_vec, rng_seed),
       SN = cvalue_SN(X_data, alpha_input),
@@ -80,7 +80,7 @@ G_restriction <- function(W_data,
         )
       )
     )
-  return(c(T_n, c_value))
+  return(c(test_stat, critical_value))
 }
 # Moment inequality function defined in eq (26)
 # input:

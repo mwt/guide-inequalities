@@ -19,9 +19,9 @@ def clean_args(f):
     This decorator cleans the arguments before passing them to the R function.
     """
 
-    def inner_func(*args):
+    def inner_func(*args, **kwargs):
         args = [robjects.NULL if x is None else x for x in args]
         with np_cv_rules.context():
-            return f(*args)
+            return f(*args, **kwargs)
 
     return inner_func
