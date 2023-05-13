@@ -26,7 +26,7 @@ num_boots = 1000
 
 print("No IV, CCK, SN")
 print(
-    ineq.G_restriction(
+    ineq.g_restriction(
         W_data,
         A_matrix,
         theta0,
@@ -43,7 +43,7 @@ print(
 )
 print("No IV, CCK, SN2S")
 print(
-    ineq.G_restriction(
+    ineq.g_restriction(
         W_data,
         A_matrix,
         theta0,
@@ -60,7 +60,7 @@ print(
 )
 print("No IV, CCK, EB2S")
 print(
-    ineq.G_restriction(
+    ineq.g_restriction(
         W_data,
         A_matrix,
         theta0,

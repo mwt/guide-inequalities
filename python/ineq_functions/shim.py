@@ -13,42 +13,15 @@ R.source(r_shim_path)
 # to which the numpy conversion rules are added.
 np_cv_rules = default_converter + numpy2ri.converter
 
-def cvalue_EB2S(*args):
-    args = [robjects.NULL if x is None else x for x in args]
-    with np_cv_rules.context():
-        return R.cvalue_EB2S(*args)
-    
-def cvalue_SN2S(*args):
-    args = [robjects.NULL if x is None else x for x in args]
-    with np_cv_rules.context():
-        return R.cvalue_SN2S(*args)
-    
-def cvalue_SN(*args):
-    args = [robjects.NULL if x is None else x for x in args]
-    with np_cv_rules.context():
-        return R.cvalue_SN(*args)
 
-def G_restriction(*args):
-    args = [robjects.NULL if x is None else x for x in args]
-    with np_cv_rules.context():
-        return R.G_restriction(*args)
+def clean_args(f):
+    """
+    This decorator cleans the arguments before passing them to the R function.
+    """
 
-def m_function(*args):
-    args = [robjects.NULL if x is None else x for x in args]
-    with np_cv_rules.context():
-        return R.m_function(*args)
-    
-def m_hat(*args):
-    args = [robjects.NULL if x is None else x for x in args]
-    with np_cv_rules.context():
-        return R.m_hat(*args)
-    
-def MomentFunct_L(*args):
-    args = [robjects.NULL if x is None else x for x in args]
-    with np_cv_rules.context():
-        return R.MomentFunct_L(*args)
+    def inner_func(*args):
+        args = [robjects.NULL if x is None else x for x in args]
+        with np_cv_rules.context():
+            return f(*args)
 
-def MomentFunct_U(*args):
-    args = [robjects.NULL if x is None else x for x in args]
-    with np_cv_rules.context():
-        return R.MomentFunct_U(*args)
+    return inner_func
