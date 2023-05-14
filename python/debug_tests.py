@@ -15,9 +15,7 @@ A_matrix = load_data("A")
 D_matrix = load_data("D")
 IV_matrix = load_data("IV")
 J0_vec = load_data("J0")
-num_market = np.shape(A_matrix)[0]
-num_product = np.shape(D_matrix)[0] - 1
-W_data = D_matrix[:, :-1]
+W_data = D_matrix[:, 1:]
 Vbar = 500
 theta0 = np.array([7, 12])
 alpha = 0.05
@@ -59,22 +57,22 @@ print(
     )
 )
 print("No IV, CCK, EB2S")
-print(
-    ineq.g_restriction(
-        W_data,
-        A_matrix,
-        theta0,
-        J0_vec,
-        Vbar,
-        None,
-        1,
-        "CCK",
-        "EB2S",
-        alpha,
-        num_boots,
-        rng_seed,
-    )
-)
+#print(
+#    ineq.g_restriction(
+#        W_data,
+#        A_matrix,
+#        theta0,
+#        J0_vec,
+#        Vbar,
+#        None,
+#        1,
+#        "CCK",
+#        "EB2S",
+#        alpha,
+#        num_boots,
+#        rng_seed,
+#    )
+#)
 
 print("M hat")
 print(ineq.m_hat(ineq.m_function(W_data, A_matrix, theta0, J0_vec, Vbar, None, "all")))

@@ -2,9 +2,23 @@ import numpy as np
 from .shim import R, clean_args
 
 # m_function = clean_args(R.m_function)
-m_hat = clean_args(R.m_hat)
+# m_hat = clean_args(R.m_hat)
 MomentFunct_L = clean_args(R.MomentFunct_L)
 MomentFunct_U = clean_args(R.MomentFunct_U)
+
+
+def m_hat(X_data, xi_draw=None, fun_type=0):
+    # if type 1 is selected, then we select using xi_draw the rows of X_data
+    if fun_type == 1:
+        X_data = X_data[xi_draw.astype(int) - 1, :]
+
+    # Compute the mean of each column of X_data
+    mean_X_data = np.mean(X_data, axis=0)
+    # Compute the standard deviation of each column of X_data
+    std_X_data = np.std(X_data, axis=0)
+
+    # as in eq (A.13) and similar to eq. (4.2) in Andrews and Kwon (2023)
+    return mean_X_data / std_X_data
 
 
 def m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0):
@@ -20,7 +34,7 @@ def m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0):
 
     # Take sum of columns of W_data
     aux1 = np.sum(W_data, axis=0)
-    aux1 = aux1[J0_vec[:, 0].astype(int)]
+    aux1 = aux1[J0_vec[:, 0].astype(int) - 1]
 
     # Condition on grid0
     match grid0:
@@ -29,7 +43,7 @@ def m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0):
             mu_indx = np.where(aux1 > 0)
         case 1 | 2:
             ml_indx = np.where((aux1 < n) & (J0_vec[:, 1] == grid0))
-            mu_indx = np.where(aux1 > 1)
+            mu_indx = np.where((aux1 > 0) & (J0_vec[:, 1] == grid0))
         case _:
             raise ValueError("grid0 must be either all, 1, or 2")
 
@@ -44,10 +58,10 @@ def m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0):
 
         for market_index in range(n):
             # Subset vector of estimated revenue differential in market i
-            A_vec = A_matrix[market_index, 1:(J0+1)]
+            A_vec = A_matrix[market_index, 1 : (J0 + 1)]
             # Subset vector of product portfolio of coca-cola and
             # energy-products in market i
-            D_vec = W_data[market_index, 1:(J0+1)]
+            D_vec = W_data[market_index, 1 : (J0 + 1)]
 
             # Compute lower and upper bounds
             ml_vec = MomentFunct_L(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
@@ -71,10 +85,10 @@ def m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0):
 
         for market_index in range(n):
             # Subset vector of estimated revenue differential in market i
-            A_vec = A_matrix[market_index, 1:J0]
+            A_vec = A_matrix[market_index, 1 : (J0 + 1)]
             # Subset vector of product portfolio of coca-cola and
             # energy-products in market i
-            D_vec = W_data[market_index, 1:J0]
+            D_vec = W_data[market_index, 1 : (J0 + 1)]
 
             # Compute lower and upper bounds
             ml_vec = MomentFunct_L(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)

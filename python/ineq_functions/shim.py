@@ -20,7 +20,6 @@ def clean_args(f):
     """
 
     def inner_func(*args, **kwargs):
-        args = [robjects.NULL if x is None else x for x in args]
         with np_cv_rules.context():
             return f(*args, **kwargs)
 

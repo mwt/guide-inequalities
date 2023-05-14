@@ -56,7 +56,7 @@ G_restriction <- function(W_data,
   ## 2. RC-CCK
   test_stat <-
     switch(test0,
-      CCK = sqrt(n) * m_hat0,
+      CCK = max(sqrt(n) * m_hat0),
       `RC-CCK` = max(-min(sqrt(n) * (m_hat0 + hat_r_inf), 0)),
       stop(sprintf("test0 must be one of CCK, RC-CCK. You entered %s.", cvalue))
     )
