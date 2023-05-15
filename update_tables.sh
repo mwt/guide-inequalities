@@ -23,8 +23,10 @@ fi
 
 ## R
 if [ ! -f ./r/_results/tables-tex/table_1.tex ]; then
-    cd 'r' && {Rscript --vanilla "table_1.R"
-    cd -}
+    cd 'r' && {
+        Rscript --vanilla "table_1.R"
+        cd -
+    }
 fi
 
 # Insert the new tables
