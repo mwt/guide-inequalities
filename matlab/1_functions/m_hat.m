@@ -1,4 +1,4 @@
-% Compute a standarized sample mean of the moment functions as in eq (A.13)
+% Compute a standardized sample mean of the moment functions as in eq (A.13)
 
 % Comments:
 % - this function is useful for the procedure in Andrews and Kwon (2023)

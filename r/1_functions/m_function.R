@@ -3,7 +3,7 @@
 # there are four main steps
 # step 1: select moments with non-zero variance using ml_indx & mu_indx
 # step 2: compute all the moment functions
-# step 3: select the cumputed moments using ml_indx & mu_indx defined in step 1
+# step 3: select the computed moments using ml_indx & mu_indx defined in step 1
 
 # comment:
 # - all the inputs are included in 'Amatrix200701_fake.mat'.
