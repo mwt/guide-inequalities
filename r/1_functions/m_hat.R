@@ -12,9 +12,7 @@
 
 # output:
 # - salida      1 x k
-m_hat <- function(X_data,
-                  xi_draw = NA,
-                  type = 0) {
+m_hat <- function(X_data, xi_draw = NA, type = 0) {
   n <- nrow(X_data)
 
   if (type == 1) {

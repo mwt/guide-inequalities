@@ -9,29 +9,17 @@
 
 # output:
 # - salida      1 x J0      vector of the moment function.
-MomentFunct_U <- function(A_vec,
-                          D_vec,
-                          Z_vec,
-                          J0_vec,
-                          theta,
-                          Vbar) {
-  # number of products to evaluate one-product deviation
-  J0 <- nrow(J0_vec)
+MomentFunct_U <- function(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar) {
   # number of firms
-  S0 <- length(unique(J0_vec[, 2]))
+  num_firms <- length(unique(J0_vec[, 2]))
 
-  if (S0 != length(theta)) {
+  if (num_firms != length(theta)) {
     stop("error on dimension of theta")
-  } else {
-    salida <- rep(0, J0)
-
-    for (jj0 in 1:J0) {
-      jj2 <- J0_vec[jj0, 2]
-      theta_jj0 <- theta[jj2]
-      # as in eq (26)
-      salida[jj0] <-
-        ((A_vec[jj0] + theta_jj0) * D_vec[jj0] - Vbar * (1 - D_vec[jj0])) * Z_vec[jj0]
-    }
-    return(salida)
   }
+
+  # Create vector of theta values matched to the firm of each product
+  theta_vector <- theta[J0_vec[, 2]]
+
+  # Run equation (27) for each product
+  ((A_vec + theta_vector) * D_vec - Vbar * (1 - D_vec)) * Z_vec
 }

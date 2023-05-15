@@ -3,8 +3,8 @@ from .shim import R, clean_args
 
 # m_function = clean_args(R.m_function)
 # m_hat = clean_args(R.m_hat)
-MomentFunct_L = clean_args(R.MomentFunct_L)
-MomentFunct_U = clean_args(R.MomentFunct_U)
+# MomentFunct_L = clean_args(R.MomentFunct_L)
+# MomentFunct_U = clean_args(R.MomentFunct_U)
 
 
 def m_hat(X_data, xi_draw=None, fun_type=0):
@@ -22,8 +22,9 @@ def m_hat(X_data, xi_draw=None, fun_type=0):
 
 
 def m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0):
+    # Get number of rows in A_matrix and J0_vec
     n = A_matrix.shape[0]
-    J0 = J0_vec.shape[0]
+    num_products = J0_vec.shape[0]
 
     # Check size of W_data
     if W_data.shape[0] != n:
@@ -54,14 +55,14 @@ def m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0):
         X_data = np.empty((n, ml_indx[0].size + mu_indx[0].size))
 
         # Create dummy IV vector
-        Z_vec = np.ones(J0)
+        Z_vec = np.ones(num_products)
 
         for market_index in range(n):
             # Subset vector of estimated revenue differential in market i
-            A_vec = A_matrix[market_index, 1 : (J0 + 1)]
+            A_vec = A_matrix[market_index, 1 : (num_products + 1)]
             # Subset vector of product portfolio of coca-cola and
             # energy-products in market i
-            D_vec = W_data[market_index, 1 : (J0 + 1)]
+            D_vec = W_data[market_index, J0_vec[:, 0].astype(int) - 1]
 
             # Compute lower and upper bounds
             ml_vec = MomentFunct_L(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
@@ -75,7 +76,7 @@ def m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0):
         X_data = np.empty((n, 4 * (ml_indx[0].size + mu_indx[0].size)))
 
         # Create dummy IV vector
-        Z_vec = np.ones(J0)
+        Z_vec = np.ones(num_products)
         # employment rate
         Z3_vec = (IV_matrix[:, 1] > np.median(IV_matrix[:, 1])).astype(int)
         # average income in market
@@ -85,10 +86,10 @@ def m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0):
 
         for market_index in range(n):
             # Subset vector of estimated revenue differential in market i
-            A_vec = A_matrix[market_index, 1 : (J0 + 1)]
+            A_vec = A_matrix[market_index, 1 : (num_products + 1)]
             # Subset vector of product portfolio of coca-cola and
             # energy-products in market i
-            D_vec = W_data[market_index, 1 : (J0 + 1)]
+            D_vec = W_data[market_index, J0_vec[:, 0].astype(int) - 1]
 
             # Compute lower and upper bounds
             ml_vec = MomentFunct_L(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
@@ -118,3 +119,79 @@ def m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0):
             )
 
     return X_data
+
+
+def MomentFunct_L(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar: float):
+    """Moment inequality function defined in eq (26)
+
+    Parameters
+    ----------
+        A_vec: array_like
+            J0 x 1 vector of estimated revenue differential in a market.
+        D_vec: array_like
+            J0 x 1 vector of product portfolio in a market.
+        Z_vec: array_like
+            J0 x 1 vector of instruments in a market.
+        J0_vec: array_like
+            J0 x 2 array of products of coca-cola and energy-product.
+        theta: array_like
+            d_theta x 1 parameter of interest.
+        Vbar: float
+            Tuning parameter as in Assumption 4.2
+
+    Returns
+    -------
+        array_like
+            1 x J0 vector of the moment function.
+    """
+    # Get number of firms
+    num_firms = np.unique(J0_vec[:, 1]).shape[0]
+
+    if num_firms != theta.shape[0]:
+        raise ValueError(
+            f"theta must have the same number of elements as num_firms (i.e., {num_firms})"
+        )
+
+    # Create vector of theta values matched to the firm of each product
+    theta_vector = theta[J0_vec[:, 1].astype(int) - 1]
+
+    # Run equation (26) for each product
+    return ((A_vec - theta_vector) * (1 - D_vec) - Vbar * D_vec) * Z_vec
+
+
+def MomentFunct_U(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar: float):
+    """Moment inequality function defined in eq (27)
+
+    Parameters
+    ----------
+        A_vec: array_like
+            J0 x 1 vector of estimated revenue differential in a market.
+        D_vec: array_like
+            J0 x 1 vector of product portfolio in a market.
+        Z_vec: array_like
+            J0 x 1 vector of instruments in a market.
+        J0_vec: array_like
+            J0 x 2 array of products of coca-cola and energy-product.
+        theta: array_like
+            d_theta x 1 parameter of interest.
+        Vbar: float
+            Tuning parameter as in Assumption 4.2
+
+    Returns
+    -------
+        array_like
+            1 x J0 vector of the moment function.
+    """
+    # Get number of firms
+    num_firms = np.unique(J0_vec[:, 1]).shape[0]
+
+    if num_firms != theta.shape[0]:
+        raise ValueError(
+            f"theta must have the same number of elements as num_firms (i.e., {num_firms})"
+        )
+
+    # Create vector of theta values matched to the firm of each product
+    theta_vector = theta[J0_vec[:, 1].astype(int) - 1]
+
+    # Run equation (27) for each product
+    return ((A_vec + theta_vector) * D_vec - Vbar * (1 - D_vec)) * Z_vec
