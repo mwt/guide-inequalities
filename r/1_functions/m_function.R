@@ -22,18 +22,9 @@
 # output:
 # - salida          n x J1          vector of the moment function.
 
-m_function <- function(W_data,
-                       A_matrix,
-                       theta,
-                       J0_vec,
-                       Vbar,
-                       IV_matrix,
-                       grid0) {
+m_function <- function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0) {
   n <- nrow(A_matrix)
   J0 <- nrow(J0_vec)
-
-  # Initialize output
-  X_data <- NULL
 
   if (nrow(W_data) != n) {
     stop(sprintf("Wrong number of observations! %s != %s.", nrow(A_matrix), n))
@@ -59,6 +50,10 @@ m_function <- function(W_data,
 
   ## step 2: compute all the moment functions
   if (is.null(IV_matrix)) {
+    # Initialize output
+    X_data <- matrix(NA, nrow = n, ncol = length(ml_indx) + length(mu_indx))
+
+    # Create dummy IV vector
     Z_vec <- rep(1, J0)
 
     for (mm0 in 1:n) {
@@ -72,9 +67,14 @@ m_function <- function(W_data,
       mu_vec <-
         MomentFunct_U(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
 
-      X_data <- rbind(X_data, c(ml_vec[ml_indx], mu_vec[mu_indx]))
+      X_data[mm0, ] <- c(ml_vec[ml_indx], mu_vec[mu_indx])
     }
   } else {
+    # Initialize output
+    X_data <-
+      matrix(NA, nrow = n, ncol = 4 * (length(ml_indx) + length(mu_indx)))
+
+    # Create dummy IV vector
     Z_vec <- rep(1, J0)
     # employment rate
     Z3_vec <-
@@ -110,18 +110,15 @@ m_function <- function(W_data,
       mu_vec7 <-
         MomentFunct_U(A_vec, D_vec, Z7_vec, J0_vec, theta, Vbar)
 
-      X_data <- rbind(
-        X_data,
-        c(
-          ml_vec[ml_indx],
-          mu_vec[mu_indx],
-          ml_vec3[ml_indx],
-          mu_vec3[mu_indx],
-          ml_vec5[ml_indx],
-          mu_vec5[mu_indx],
-          ml_vec7[ml_indx],
-          mu_vec7[mu_indx]
-        )
+      X_data[mm0, ] <- c(
+        ml_vec[ml_indx],
+        mu_vec[mu_indx],
+        ml_vec3[ml_indx],
+        mu_vec3[mu_indx],
+        ml_vec5[ml_indx],
+        mu_vec5[mu_indx],
+        ml_vec7[ml_indx],
+        mu_vec7[mu_indx]
       )
     }
   }
