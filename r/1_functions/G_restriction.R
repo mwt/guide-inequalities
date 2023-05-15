@@ -1,4 +1,4 @@
-# This function find the test statistic and critical value as in Section 5
+# This function finds the test statistic and critical value as in Section 5
 # - the test statistic is as in eq. (38)
 # - the critical value is as in eq. (40), (41) and (48)
 #

@@ -1,29 +1,33 @@
 import numpy as np
 
 
-def m_hat(X_data, xi_draw=None, fun_type: int = 0):
+def m_hat(X_data: np.ndarray, xi_draw: np.ndarray | None = None, fun_type: int = 0):
     """Compute a standardized sample mean of the moment functions as in eq (A.13)
 
     Parameters
     ----------
-        X_data: array_like
-            Matrix of the moment functions with n rows (output of :func:`ineq_functions.m_function`).
-        xi_draw: array_like, optional
-            Vector of row indices to draw from X. Indexing starts at 1 to maintain consistency with R and MATLAB.
-        fun_type: {0, 1}, optional
-            Type of operation to use. 0: use all rows of X_data, 1: use rows of X_data selected by xi_draw.
+    X_data : array_like
+        Matrix of the moment functions with n rows (output of
+        :func:`ineq_functions.m_function`).
+    xi_draw : array_like or None, optional
+        Vector of row indices to draw from X. Indexing starts at 1 to maintain
+        consistency with R and MATLAB.
+    fun_type : {0, 1}, optional
+        Type of operation to use. 0: use all rows of X_data, 1: use rows of
+        X_data selected by xi_draw.
 
     Returns
     -------
-        array_like
-            Vector of the standardized sample mean of the moment functions.
+    array_like
+        Vector of the standardized sample mean of the moment functions.
 
     Notes
     -----
-     - this function is useful for the procedure in Andrews and Kwon (2023)
-     - define X_ij = m_j(W_i,theta), n: sample size, k: number of moments
-     - define mu_j as sample mean of X_ij and sigma_j std. of X_ij
-     - this function compute the vector mu_j./sigma_j
+      - this function is useful for the procedure in Andrews and Kwon (2023)
+      - define :math:`X_{ij} = m_j(W_i,theta)`, n: sample size, k: number of moments
+      - define :math:`mu_j` as sample mean of :math:`X_{ij}` and
+        :math:`sigma_j` std. of :math:`X_ij`
+      - this function computes the vector :math:`mu_j / sigma_j`
     """
     # if type 1 is selected, then we select using xi_draw the rows of X_data
     if fun_type == 1:
@@ -38,35 +42,43 @@ def m_hat(X_data, xi_draw=None, fun_type: int = 0):
     return mean_X_data / std_X_data
 
 
-def m_function(W_data, A_matrix, theta, J0_vec, Vbar: float, IV_matrix, grid0):
+def m_function(
+    W_data: np.ndarray,
+    A_matrix: np.ndarray,
+    theta: np.ndarray,
+    J0_vec: np.ndarray,
+    Vbar: float,
+    IV_matrix: np.ndarray | None = None,
+    grid0: int | str = 'all',
+) -> np.ndarray:
     """Moment inequality function defined in eq (28)
 
     There are four main steps:
-    1. Select moments with non-zero variance using ml_indx & mu_indx
-    2. Compute all the moment functions
-    3. Select the computed moment functions using ml_indx & mu_indx
+     1. Select moments with non-zero variance using ml_indx & mu_indx.
+     2. Compute all the moment functions.
+     3. Select the computed moment functions using ml_indx & mu_indx.
 
     Parameters
     ----------
-        W_data: array_like
-            n x J0 matrix of product portfolio.
-        A_matrix: array_like
-            n x (J0 + 1) matrix of estimated revenue differential.
-        theta: array_like
-            d_theta x 1 parameter of interest.
-        J0_vec: array_like
-            J0 x 2 matrix of ownership by two firms.
-        Vbar: float
-            Tuning parameter as in Assumption 4.2
-        IV_matrix: array_like
-            n x d_IV matrix of instruments or None if no instruments are used.
-        grid0: {1, 2, 'all'}
-            Grid direction to use for the estimation of the model.
+    W_data : array_like
+        n x J0 matrix of product portfolio.
+    A_matrix : array_like
+        n x (J0 + 1) matrix of estimated revenue differential.
+    theta : array_like
+        d_theta x 1 parameter of interest.
+    J0_vec : array_like
+        J0 x 2 matrix of ownership by two firms.
+    Vbar : float
+        Tuning parameter as in Assumption 4.2
+    IV_matrix : array_like, optional
+        n x d_IV matrix of instruments or None if no instruments are used.
+    grid0 : {1, 2, 'all'}, default='all'
+        Grid direction to use for the estimation of the model.
 
     Returns
     -------
-        array_like
-            Matrix of the moment functions with n rows.
+    array_like
+        Matrix of the moment functions with n rows.
     """
     # Get number of rows in A_matrix and J0_vec
     n = A_matrix.shape[0]
@@ -167,28 +179,35 @@ def m_function(W_data, A_matrix, theta, J0_vec, Vbar: float, IV_matrix, grid0):
     return X_data
 
 
-def MomentFunct_L(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar: float):
+def MomentFunct_L(
+    A_vec: np.ndarray,
+    D_vec: np.ndarray,
+    Z_vec: np.ndarray,
+    J0_vec: np.ndarray,
+    theta: np.ndarray,
+    Vbar: float,
+) -> np.ndarray:
     """Moment inequality function defined in eq (26)
 
     Parameters
     ----------
-        A_vec: array_like
-            J0 x 1 vector of estimated revenue differential in a market.
-        D_vec: array_like
-            J0 x 1 vector of product portfolio in a market.
-        Z_vec: array_like
-            J0 x 1 vector of instruments in a market.
-        J0_vec: array_like
-            J0 x 2 array of products of coca-cola and energy-product.
-        theta: array_like
-            d_theta x 1 parameter of interest.
-        Vbar: float
-            Tuning parameter as in Assumption 4.2
+    A_vec : array_like
+        J0 x 1 vector of estimated revenue differential in a market.
+    D_vec : array_like
+        J0 x 1 vector of product portfolio in a market.
+    Z_vec : array_like
+        J0 x 1 vector of instruments in a market.
+    J0_vec : array_like
+        J0 x 2 array of products of coca-cola and energy-product.
+    theta : array_like
+        d_theta x 1 parameter of interest.
+    Vbar : float
+        Tuning parameter as in Assumption 4.2
 
     Returns
     -------
-        array_like
-            1 x J0 vector of the moment function.
+    array_like
+        1 x J0 vector of the moment function.
     """
     # Get number of firms
     num_firms = np.unique(J0_vec[:, 1]).shape[0]
@@ -205,28 +224,35 @@ def MomentFunct_L(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar: float):
     return ((A_vec - theta_vector) * (1 - D_vec) - Vbar * D_vec) * Z_vec
 
 
-def MomentFunct_U(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar: float):
+def MomentFunct_U(
+    A_vec: np.ndarray,
+    D_vec: np.ndarray,
+    Z_vec: np.ndarray,
+    J0_vec: np.ndarray,
+    theta: np.ndarray,
+    Vbar: float,
+) -> np.ndarray:
     """Moment inequality function defined in eq (27)
 
     Parameters
     ----------
-        A_vec: array_like
-            J0 x 1 vector of estimated revenue differential in a market.
-        D_vec: array_like
-            J0 x 1 vector of product portfolio in a market.
-        Z_vec: array_like
-            J0 x 1 vector of instruments in a market.
-        J0_vec: array_like
-            J0 x 2 array of products of coca-cola and energy-product.
-        theta: array_like
-            d_theta x 1 parameter of interest.
-        Vbar: float
-            Tuning parameter as in Assumption 4.2
+    A_vec : array_like
+        J0 x 1 vector of estimated revenue differential in a market.
+    D_vec : array_like
+        J0 x 1 vector of product portfolio in a market.
+    Z_vec : array_like
+        J0 x 1 vector of instruments in a market.
+    J0_vec : array_like
+        J0 x 2 array of products of coca-cola and energy-product.
+    theta : array_like
+        d_theta x 1 parameter of interest.
+    Vbar : float
+        Tuning parameter as in Assumption 4.2
 
     Returns
     -------
-        array_like
-            1 x J0 vector of the moment function.
+    array_like
+        1 x J0 vector of the moment function.
     """
     # Get number of firms
     num_firms = np.unique(J0_vec[:, 1]).shape[0]
