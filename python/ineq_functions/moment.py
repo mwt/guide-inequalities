@@ -34,12 +34,12 @@ def m_hat(X_data: np.ndarray, xi_draw: np.ndarray | None = None, fun_type: int =
         X_data = X_data[xi_draw.astype(int) - 1, :]
 
     # Compute the mean of each column of X_data
-    mean_X_data = np.mean(X_data, axis=0)
+    mu_hat = np.mean(X_data, axis=0)
     # Compute the standard deviation of each column of X_data
-    std_X_data = np.std(X_data, axis=0)
+    sigma_hat = np.std(X_data, axis=0)
 
     # as in eq (A.13) and similar to eq. (4.2) in Andrews and Kwon (2023)
-    return mean_X_data / std_X_data
+    return mu_hat / sigma_hat
 
 
 def m_function(
@@ -49,7 +49,7 @@ def m_function(
     J0_vec: np.ndarray,
     Vbar: float,
     IV_matrix: np.ndarray | None = None,
-    grid0: int | str = 'all',
+    grid0: int | str = "all",
 ) -> np.ndarray:
     """Moment inequality function defined in eq (28)
 

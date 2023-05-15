@@ -57,22 +57,22 @@ print(
     )
 )
 print("No IV, CCK, EB2S")
-#print(
-#    ineq.g_restriction(
-#        W_data,
-#        A_matrix,
-#        theta0,
-#        J0_vec,
-#        Vbar,
-#        None,
-#        1,
-#        "CCK",
-#        "EB2S",
-#        alpha,
-#        num_boots,
-#        rng_seed,
-#    )
-#)
+print(
+    ineq.g_restriction(
+        W_data,
+        A_matrix,
+        theta0,
+        J0_vec,
+        Vbar,
+        None,
+        1,
+        "CCK",
+        "EB2S",
+        alpha,
+        num_boots,
+        rng_seed,
+    )
+)
 
 print("M hat")
 print(ineq.m_hat(ineq.m_function(W_data, A_matrix, theta0, J0_vec, Vbar, None, "all")))

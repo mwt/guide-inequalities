@@ -24,38 +24,32 @@ cvalue_SN2S <- function(X_data, alpha_input, beta_input) {
     ))
   }
 
-  ## Step 1: define set J_SN as almost binding
+  # Step 1: define set J_SN as almost binding
+  ## Run the first stage from cvalue_SN
+  cvalue0 <- cvalue_SN(X_data, beta) # as in eq (40)
 
-  c_sn0 <- cvalue_SN(X_data, beta) # as in eq (40)
-  # number of moments inequalities that are almost binding
-  contar <- 0
+  ## Compute the sample mean of each column of X_data
+  mu_hat <- Rfast::colmeans(X_data)
 
-  for (jj in 1:k) {
-    mu_hat <- mean(X_data[, jj])
-    sigma_hat <- sd(X_data[, jj])
+  ## Compute the standard deviation of each column of X_data
+  ## normalize by n instead of n-1 as in matlab code
+  sigma_hat <- Rfast::colVars(X_data, std = T) * sqrt((n - 1) / n)
 
-    # Studentized statistic for each moment inequality
-    test0 <- sqrt(n) * mu_hat / sigma_hat
+  ## Studentized statistic for each moment inequality
+  test0 <- sqrt(n) * mu_hat / sigma_hat
 
-    if (test0 > (-2 * c_sn0)) {
-      # moments inequalities that are almost binding
-      contar <- contar + 1
-    }
-  }
-
-  # as in eq (39)
-  k_hat <- contar
+  ## Number of moment inequalities that are almost binding as in eq (39)
+  k_hat <- sum(test0 > (-2 * cvalue0))
 
   ## Step 2: calculate critical value using a subset of moment inequalities
 
   if (k_hat > 0) {
     qq1 <- qnorm(1 - (alpha - 2 * beta) / k_hat)
     # as in eq (41)
-    c_sn1 <- qq1 / sqrt(1 - qq1^2 / n)
+    cvalue1 <- qq1 / sqrt(1 - qq1^2 / n)
   } else {
-    c_sn1 <- 0
+    cvalue1 <- 0
   }
 
-  c_value <- c_sn1
-  return(c_value)
+  return(cvalue1)
 }
