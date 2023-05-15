@@ -98,11 +98,11 @@ def m_function(
     # Condition on grid0
     match grid0:
         case "all":
-            ml_indx = np.where(aux1 < n)
-            mu_indx = np.where(aux1 > 0)
+            ml_indx = np.asarray(aux1 < n).nonzero()
+            mu_indx = np.asarray(aux1 > 0).nonzero()
         case 1 | 2:
-            ml_indx = np.where((aux1 < n) & (J0_vec[:, 1] == grid0))
-            mu_indx = np.where((aux1 > 0) & (J0_vec[:, 1] == grid0))
+            ml_indx = np.asarray((aux1 < n) & (J0_vec[:, 1] == grid0)).nonzero()
+            mu_indx = np.asarray((aux1 > 0) & (J0_vec[:, 1] == grid0)).nonzero()
         case _:
             raise ValueError("grid0 must be either all, 1, or 2")
 

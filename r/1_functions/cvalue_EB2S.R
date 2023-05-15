@@ -9,11 +9,7 @@
 # output
 # - c_value         1 x 1    critical value
 
-cvalue_EB2S <- function(X_data,
-                        BB_input,
-                        alpha_input,
-                        beta_input,
-                        rng_seed) {
+cvalue_EB2S <- function(X_data, BB_input, alpha_input, beta_input, rng_seed) {
   ## Step 1: paramater setting
   # sample size
   n <- nrow(X_data)
@@ -37,7 +33,7 @@ cvalue_EB2S <- function(X_data,
 
   # to replicate results
   set.seed(rng_seed, kind = "Mersenne-Twister")
-  draws_vector <- matrix(sample.int(n, n * BB, replace = T),
+  xi_draw <- matrix(sample.int(n, n * BB, replace = T),
     nrow = n,
     ncol = BB
   )
@@ -51,7 +47,7 @@ cvalue_EB2S <- function(X_data,
 
   for (kk in 1:BB) {
     # draw from the empirical distribution
-    XX_draw <- X_data[draws_vector[, kk], ]
+    XX_draw <- X_data[xi_draw[, kk], ]
     # as in eq (45)
     WEB_matrix[kk, ] <-
       sqrt(n) * (1 / n) * (rep(1, n) %*% (XX_draw - rep(1, n) %*% t(mu_hat))) / sigma_hat
