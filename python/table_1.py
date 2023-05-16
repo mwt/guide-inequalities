@@ -2,9 +2,16 @@ import time
 from pathlib import Path
 
 import numpy as np
+from numba import njit, prange
 import texttable as tt
+from latextable import draw_latex
 
 import ineq_functions as ineq
+
+# Make folders for results
+results_dir = Path(__file__).resolve().parent / "_results"
+tables_dir = results_dir / "tables-tex"
+tables_dir.mkdir(parents=True, exist_ok=True)
 
 
 def load_data(name):
@@ -93,6 +100,11 @@ for sim0 in range(4):
     results["comp_time"][sim0] = toc - tic
     print("~> time:", results["comp_time"][sim0])
 
+# Save results
+(results_dir / sim["sim_name"]).mkdir(exist_ok=True)
+for key, value in results.items():
+    np.save(results_dir / sim["sim_name"] / key, value)
+
 # Make and print the table
 tableObj = tt.Texttable(0)
 
@@ -129,5 +141,8 @@ the_table = np.vstack(
 )
 
 tableObj.add_rows(the_table)
-
 print(tableObj.draw())
+
+# Save table
+with open(tables_dir / "table_1.tex", "w", encoding="utf8") as f:
+    f.write(draw_latex(tableObj))
