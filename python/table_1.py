@@ -2,8 +2,8 @@ import time
 from pathlib import Path
 
 import numpy as np
-from numba import njit, prange
 import texttable as tt
+from joblib import Parallel, delayed
 from latextable import draw_latex
 
 import ineq_functions as ineq
@@ -26,14 +26,15 @@ settings = {
     "Vbar": [500, 500, 1000, 1000],
     "test_stat": ["CCK", "CCK", "CCK", "CCK"],
     "cv": ["SN2S", "EB2S", "SN2S", "EB2S"],
-    "alpha": [0.05, 0.05, 0.05, 0.05],
-    "IV": [None, None, None, None],
+    "alpha": 0.05,
+    "IV": None,
 }
 
 sim = {
     "grid_size": 1401,
     "rng_seed": 20220826,
     "num_boots": 1000,
+    "num_robots": 4,
     "sim_name": "table_1",
 }
 sim["grid_theta"] = (
@@ -56,25 +57,35 @@ for sim_i in range(4):
         cv_vec = np.empty(sim["grid_size"])
 
         # Step 1: find test stat. Tn(theta) and c.value(theta) using G_restriction
+        def theta0(theta, theta_index):
+            the_theta = np.zeros(2)
+            the_theta[theta_index] = theta
+            return the_theta
 
-        for grid_i, theta in enumerate(sim["grid_theta"][theta_index]):
-            theta0 = np.zeros(2)
-            theta0[theta_index] = theta
-
-            Test_vec[grid_i], cv_vec[grid_i] = ineq.g_restriction(
-                W_data=dgp["W"],
-                A_matrix=dgp["A"],
-                theta0=theta0,
-                J0_vec=dgp["J0"],
-                Vbar=settings["Vbar"][sim_i],
-                IV_matrix=settings["IV"][sim_i],
-                grid0=theta_index + 1,
-                test0=settings["test_stat"][sim_i],
-                cvalue=settings["cv"][sim_i],
-                alpha=settings["alpha"][sim_i],
-                num_boots=sim["num_boots"],
-                rng_seed=sim["rng_seed"],
+        output = np.array(
+            Parallel(n_jobs=sim["num_robots"])(
+                delayed(ineq.g_restriction)(
+                    W_data=dgp["W"],
+                    A_matrix=dgp["A"],
+                    theta0=theta0(theta, theta_index),
+                    J0_vec=dgp["J0"],
+                    Vbar=settings["Vbar"][sim_i],
+                    IV_matrix=settings["IV"],
+                    grid0=theta_index + 1,
+                    test0=settings["test_stat"][sim_i],
+                    cvalue=settings["cv"][sim_i],
+                    alpha=settings["alpha"],
+                    num_boots=sim["num_boots"],
+                    rng_seed=sim["rng_seed"],
+                )
+                for theta in sim["grid_theta"][theta_index]
             )
+        )
+
+        # Because g_function returns a list, and Parallel returns it's runs in
+        # a list, test_vec and cv_vec are the columns of the output matrix!
+        Test_vec = output[:, 0]
+        cv_vec = output[:, 1]
 
         # Theta values for which the null is not rejected
         CS_vec = sim["grid_theta"][theta_index][Test_vec <= cv_vec]

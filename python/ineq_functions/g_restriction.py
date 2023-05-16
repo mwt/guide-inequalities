@@ -19,7 +19,7 @@ def g_restriction(
     rng_seed: int,
     An_vec: np.ndarray | None = None,
     hat_r_inf: float | None = None,
-) -> tuple[float, float]:
+) -> list[float, float]:
     """This high-level function parses arguments and calls the appropriate
     function for the test statistic and critical value.
 
@@ -115,4 +115,4 @@ def g_restriction(
         case _:
             raise ValueError("cvalue must be either SPUR1, SN, SN2S, or EB2S")
 
-    return test_stat, critical_value
+    return [test_stat, critical_value]
