@@ -47,58 +47,54 @@ results = {
     "comp_time": np.empty(4),
 }
 
-for sim0 in range(4):
-    print("Simulation:", sim0 + 1)
+for sim_i in range(4):
+    print("Simulation:", sim_i + 1)
     # Obtain the time at the beginning of the simulation
     tic = time.perf_counter()
     for theta_index in range(2):
-        reject_H = np.empty(sim["grid_size"])
         Test_vec = np.empty(sim["grid_size"])
         cv_vec = np.empty(sim["grid_size"])
 
         # Step 1: find test stat. Tn(theta) and c.value(theta) using G_restriction
 
-        for i, theta in enumerate(sim["grid_theta"][theta_index]):
+        for grid_i, theta in enumerate(sim["grid_theta"][theta_index]):
             theta0 = np.zeros(2)
             theta0[theta_index] = theta
 
-            Test_vec[i], cv_vec[i] = ineq.g_restriction(
+            Test_vec[grid_i], cv_vec[grid_i] = ineq.g_restriction(
                 W_data=dgp["W"],
                 A_matrix=dgp["A"],
                 theta0=theta0,
                 J0_vec=dgp["J0"],
-                Vbar=settings["Vbar"][sim0],
-                IV_matrix=settings["IV"][sim0],
+                Vbar=settings["Vbar"][sim_i],
+                IV_matrix=settings["IV"][sim_i],
                 grid0=theta_index + 1,
-                test0=settings["test_stat"][sim0],
-                cvalue=settings["cv"][sim0],
-                alpha=settings["alpha"][sim0],
+                test0=settings["test_stat"][sim_i],
+                cvalue=settings["cv"][sim_i],
+                alpha=settings["alpha"][sim_i],
                 num_boots=sim["num_boots"],
                 rng_seed=sim["rng_seed"],
             )
-
-        # reject_H = (Test_vec > cv_vec)
 
         # Theta values for which the null is not rejected
         CS_vec = sim["grid_theta"][theta_index][Test_vec <= cv_vec]
 
         # Create results objects
-        results["Tn_vec"][theta_index][:, sim0] = Test_vec
+        results["Tn_vec"][theta_index][:, sim_i] = Test_vec
 
         if len(CS_vec) == 0:
             # it may be the CI is empty
-            results["CI_vec"][theta_index][sim0,] = [np.NaN, np.NaN]
-            # in this case, we report [nan, argmin test statistic]
-            results["CI_vec"][theta_index][sim0, 2] = np.min(
-                sim["grid_theta"][theta_index]
-            )
+            results["CI_vec"][theta_index][sim_i,] = [
+                np.NaN,
+                np.min(sim["grid_theta"][theta_index]),
+            ]
         else:
-            results["CI_vec"][theta_index][sim0,] = [np.min(CS_vec), np.max(CS_vec)]
+            results["CI_vec"][theta_index][sim_i,] = [np.min(CS_vec), np.max(CS_vec)]
 
     # Stop the timer
     toc = time.perf_counter()
-    results["comp_time"][sim0] = toc - tic
-    print("~> time:", results["comp_time"][sim0])
+    results["comp_time"][sim_i] = toc - tic
+    print("~> time:", results["comp_time"][sim_i])
 
 # Save results
 (results_dir / sim["sim_name"]).mkdir(exist_ok=True)
