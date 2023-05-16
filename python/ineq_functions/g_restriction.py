@@ -14,7 +14,7 @@ def g_restriction(
     grid0: np.ndarray,
     test0: str,
     cvalue: str,
-    alpha_input: float,
+    alpha: float,
     num_boots: int,
     rng_seed: int,
     An_vec: np.ndarray | None = None,
@@ -43,7 +43,7 @@ def g_restriction(
         Test statistic to use.
     cvalue : {'SPUR1', 'SN', 'SN2S', 'EB2S'}
         Critical value to use.
-    alpha_input : float
+    alpha : float
         Significance level.
     num_boots : int
         Number of bootstrap replications.
@@ -80,7 +80,7 @@ def g_restriction(
     n = X_data.shape[0]
 
     # see Section 4.2.2 in Chernozhukov et al. (2019)
-    beta_input = alpha_input / 50
+    beta = alpha / 50
 
     # Set test statistic
     ## 1. CCK
@@ -103,14 +103,14 @@ def g_restriction(
     ## 4. EB2S as in eq (48)
     match cvalue:
         # case "SPUR1":
-        #    critical_value = cvalue_SPUR1(-X_data, num_boots, alpha_input, An_vec, rng_seed)
+        #    critical_value = cvalue_SPUR1(-X_data, num_boots, alpha, An_vec, rng_seed)
         case "SN":
-            critical_value = cvalue_SN(X_data, alpha_input)
+            critical_value = cvalue_SN(X_data, alpha)
         case "SN2S":
-            critical_value = cvalue_SN2S(X_data, alpha_input, beta_input)
+            critical_value = cvalue_SN2S(X_data, alpha, beta)
         case "EB2S":
             critical_value = cvalue_EB2S(
-                X_data, num_boots, alpha_input, beta_input, rng_seed
+                X_data, num_boots, alpha, beta, rng_seed
             )
         case _:
             raise ValueError("cvalue must be either SPUR1, SN, SN2S, or EB2S")
