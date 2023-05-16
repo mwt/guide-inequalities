@@ -48,4 +48,10 @@ $(pandoc -f latex -t gfm ./matlab/_results/tables-tex/table_2.tex)
 
 $(pandoc -f latex -t gfm ./r/_results/tables-tex/table_1.tex)
 
+### Python tables
+
+#### Table 1
+
+$(pandoc -f latex -t gfm ./python/_results/tables-tex/table_1.tex)
+
 EOF
