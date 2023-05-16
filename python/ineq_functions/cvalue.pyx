@@ -1,6 +1,17 @@
 import numpy as np
 from scipy.special import ndtri
 
+# "cimport" is used to import special compile-time information
+# about the numpy module (this is stored in a file numpy.pxd which is
+# currently part of the Cython distribution).
+cimport numpy as np
+
+# It's necessary to call "import_array" if you use any part of the
+# numpy PyArray_* API. From Cython 3, accessing attributes like
+# ".shape" on a typed Numpy array use this API. Therefore we recommend
+# always calling "import_array" whenever you "cimport numpy"
+np.import_array()
+
 
 def base_SN(n: int, k: int, alpha: float) -> float:
     """Base function for the SN test statistic defined in eq (40) of

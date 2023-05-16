@@ -1,7 +1,18 @@
 import numpy as np
 
+# "cimport" is used to import special compile-time information
+# about the numpy module (this is stored in a file numpy.pxd which is
+# currently part of the Cython distribution).
+cimport numpy as np
 
-def m_hat(X_data: np.ndarray, xi_draw: np.ndarray | None = None, fun_type: int = 0):
+# It's necessary to call "import_array" if you use any part of the
+# numpy PyArray_* API. From Cython 3, accessing attributes like
+# ".shape" on a typed Numpy array use this API. Therefore we recommend
+# always calling "import_array" whenever you "cimport numpy"
+np.import_array()
+
+
+def m_hat(X_data: np.ndarray):
     """Compute a standardized sample mean of the moment functions as in eq (A.13)
 
     Parameters
@@ -9,12 +20,6 @@ def m_hat(X_data: np.ndarray, xi_draw: np.ndarray | None = None, fun_type: int =
     X_data : array_like
         Matrix of the moment functions with n rows (output of
         :func:`ineq_functions.m_function`).
-    xi_draw : array_like or None, optional
-        Vector of row indices to draw from X. Indexing starts at 1 to maintain
-        consistency with R and MATLAB.
-    fun_type : {0, 1}, optional
-        Type of operation to use. 0: use all rows of X_data, 1: use rows of
-        X_data selected by xi_draw.
 
     Returns
     -------
@@ -29,10 +34,6 @@ def m_hat(X_data: np.ndarray, xi_draw: np.ndarray | None = None, fun_type: int =
         :math:`sigma_j` std. of :math:`X_ij`
       - this function computes the vector :math:`mu_j / sigma_j`
     """
-    # if type 1 is selected, then we select using xi_draw the rows of X_data
-    if fun_type == 1:
-        X_data = X_data[xi_draw.astype(int) - 1, :]
-
     # Compute the mean of each column of X_data
     mu_hat = np.mean(X_data, axis=0)
     # Compute the standard deviation of each column of X_data
@@ -96,15 +97,14 @@ def m_function(
     aux1 = aux1[J0_vec[:, 0].astype(int) - 1]
 
     # Condition on grid0
-    match grid0:
-        case "all":
-            ml_indx = np.asarray(aux1 < n).nonzero()
-            mu_indx = np.asarray(aux1 > 0).nonzero()
-        case 1 | 2:
-            ml_indx = np.asarray((aux1 < n) & (J0_vec[:, 1] == grid0)).nonzero()
-            mu_indx = np.asarray((aux1 > 0) & (J0_vec[:, 1] == grid0)).nonzero()
-        case _:
-            raise ValueError("grid0 must be either all, 1, or 2")
+    if grid0 == "all":
+        ml_indx = np.asarray(aux1 < n).nonzero()
+        mu_indx = np.asarray(aux1 > 0).nonzero()
+    elif grid0 in (1,2):
+        ml_indx = np.asarray((aux1 < n) & (J0_vec[:, 1] == grid0)).nonzero()
+        mu_indx = np.asarray((aux1 > 0) & (J0_vec[:, 1] == grid0)).nonzero()
+    else:
+        raise ValueError("grid0 must be either all, 1, or 2")
 
     ## step 2: compute all the moment functions
 

@@ -10,7 +10,7 @@ def g_restriction(
     theta0: np.ndarray,
     J0_vec: np.ndarray,
     Vbar: float,
-    IV_matrix,
+    IV_matrix: np.ndarray | None,
     grid0: np.ndarray,
     test0: str,
     cvalue: str,
@@ -50,10 +50,10 @@ def g_restriction(
     rng_seed : int
         Random number generator seed (for replication purposes).
     An_vec : array_like, optional
-        If using SPUR 1, a n x 1 vector of An values as in eq. (4.25) in 
+        If using SPUR 1, a n x 1 vector of An values as in eq. (4.25) in
         Andrews and Kwon (2023).
     hat_r_inf : float, optional
-        If using RC-CCK, the lower value of the test as in eq. (4.4) in 
+        If using RC-CCK, the lower value of the test as in eq. (4.4) in
         Andrews and Kwon (2023).
 
     Returns
@@ -67,7 +67,7 @@ def g_restriction(
     -----
       - The test statistic is defined in eq (38)
       - The possible critical values are defined in eq (40), (41), and (48)
-      - This function also includes the re-centered test statistic as in 
+      - This function also includes the re-centered test statistic as in
         Section 8.2.2 and critical value SPUR1 as in Appendix Section C.
     """
     if (cvalue == "SPUR1" or test0 == "RC-CCK") and (
@@ -109,9 +109,7 @@ def g_restriction(
         case "SN2S":
             critical_value = cvalue_SN2S(X_data, alpha, beta)
         case "EB2S":
-            critical_value = cvalue_EB2S(
-                X_data, num_boots, alpha, beta, rng_seed
-            )
+            critical_value = cvalue_EB2S(X_data, num_boots, alpha, beta, rng_seed)
         case _:
             raise ValueError("cvalue must be either SPUR1, SN, SN2S, or EB2S")
 

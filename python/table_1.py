@@ -2,7 +2,6 @@ import time
 from pathlib import Path
 
 import numpy as np
-from numba import njit, prange
 import texttable as tt
 from latextable import draw_latex
 
