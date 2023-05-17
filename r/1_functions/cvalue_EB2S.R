@@ -42,37 +42,21 @@ cvalue_EB2S <- function(X_data, alpha, beta, bootstrap_replications=NULL, rng_se
         set.seed(rng_seed, kind = "Mersenne-Twister")
       }
       # Generate indices if not specified
-      BB <- bootstrap_replications
-      bootstrap_indices <- 
-        matrix(sample.int(n, n * BB, replace = T), nrow = n, ncol = BB)
+      bootstrap_indices <- sample.int(n, n * BB, replace = T)
     }
-  } else {
-    BB <- ncol(bootstrap_indices)
   }
 
-  # matrix to save components of the empirical bootstrap test statistic
-  WEB_matrix <- matrix(NA, BB, k)
-  for (kk in 1:BB) {
-    # draw from the empirical distribution
-    XX_draw <- X_data[bootstrap_indices[, kk], ]
-    # as in eq (45)
-    # (double transpose is because R broadcasts column vectors)
-    WEB_matrix[kk, ] <- t(
-      sqrt(n) * (1 / n) * Rfast::rowsums((t(XX_draw) - mu_hat)) / sigma_hat
-    )
-  }
-    
-  ## We could do something vectorized instead of the above loop, e.g.
-  ## Indexing trick, stricture is now:
-  ## [ Col1 from BB1, Col2 from BB1, ... Col1 from BB2, Col2 from BB2, ... ]
-  #  X_samples <- matrix(X_data[bootstrap_indices, ], nrow = n)
-  #  X_means <- matrix(Rfast::colsums(X_samples)/n, nrow = BB, ncol = k, byrow = F)
-  ## Follow the steps in eq (45)
-  ## (double transpose is because R broadcasts column vectors)
-  #  WEB_matrix <- t(
-  #   (sqrt(n) * (t(X_means) - mu_hat)) / sigma_hat
-  #  )
-  ## However, this is actually significantly slower than just looping
+  # Indexing trick, the inner matrix has structure:
+  # [ Col1 from BB1, Col2 from BB1, ... Col1 from BB2, Col2 from BB2, ... ]
+  X_means <- matrix(
+    Rfast::colsums(matrix(X_data[bootstrap_indices, ], nrow = n))/n,
+    ncol = k
+  )
+  # Follow the steps in eq (45)
+  # (double transpose is because R broadcasts column vectors)
+  WEB_matrix <- t(
+    (sqrt(n) * (t(X_means) - mu_hat)) / sigma_hat
+  )
     
   ## Take maximum of each sample
   WEB_vector <- Rfast::rowMaxs(WEB_matrix, value = T)

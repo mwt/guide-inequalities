@@ -100,13 +100,8 @@ results <- list(
 # Generate bootstrap indices
 # number of markets
 n <- nrow(dgp$A)
-BB <- sim$bootstrap_replications
-set.seed(rng_seed, kind = "Mersenne-Twister")
-bootstrap_indices <- matrix(
-  sample.int(n, n * sim$bootstrap_replications, replace = T),
-  nrow = n,
-  ncol = sim$bootstrap_replications
-)
+set.seed(sim$rng_seed, kind = "Mersenne-Twister")
+bootstrap_indices <- sample.int(n, n * sim$bootstrap_replications, replace = T)
 
 # Parallel computing
 cl <- parallel::makePSOCKcluster(sim$num_robots)
@@ -118,7 +113,7 @@ doParallel::registerDoParallel(cl)
 #            ii) conlist() confidence interevals
 
 for (sim0 in 1:4) {
-  tictoc::tic(paste0("case ", sim0))
+  tictoc::tic(paste("Simulation", sim0))
 
   for (theta_index in 1:2) {
     # Temporary in-loop variables (for each theta)
@@ -218,7 +213,7 @@ colnames(the_table) <- c(
 # Save the table
 print(
   xtable(the_table, digits = 4),
-  include.rownames = F,
+  include.rownames = FALSE,
   sanitize.colnames.function = identity,
   file = file.path(table_dir, paste0(sim$sim_name, ".tex"))
 )
