@@ -27,7 +27,7 @@ function salida = MomentFunct_L(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
 
             jj2 = J0_vec(jj0, 2);
             theta_jj0 = theta(jj2);
-            salida(jj0) = ((A_vec(jj0) - theta_jj0) .* (1 - D_vec(jj0)) - Vbar * D_vec(jj0)) * Z_vec(jj0); % as in eq (26)
+            salida(jj0) = ((A_vec(jj0) - theta_jj0) * (1 - D_vec(jj0)) - Vbar * D_vec(jj0)) * Z_vec(jj0); % as in eq (26)
         end
 
     end

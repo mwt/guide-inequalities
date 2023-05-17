@@ -98,11 +98,11 @@ def m_function(
     # Condition on grid0
     match grid0:
         case "all":
-            ml_indx = np.asarray(aux1 < n).nonzero()
-            mu_indx = np.asarray(aux1 > 0).nonzero()
+            ml_indx = (aux1 < n).nonzero()[0]
+            mu_indx = (aux1 > 0).nonzero()[0]
         case 1 | 2:
-            ml_indx = np.asarray((aux1 < n) & (J0_vec[:, 1] == grid0)).nonzero()
-            mu_indx = np.asarray((aux1 > 0) & (J0_vec[:, 1] == grid0)).nonzero()
+            ml_indx = ((aux1 < n) & (J0_vec[:, 1] == grid0)).nonzero()[0]
+            mu_indx = ((aux1 > 0) & (J0_vec[:, 1] == grid0)).nonzero()[0]
         case _:
             raise ValueError("grid0 must be either all, 1, or 2")
 
@@ -110,24 +110,23 @@ def m_function(
 
     if IV_matrix is None:
         # Initialize X_data
-        X_data = np.empty((n, ml_indx[0].size + mu_indx[0].size))
+        X_data = np.empty((n, ml_indx.size + mu_indx.size))
 
         # Create dummy IV vector
         Z_vec = np.ones(num_products)
 
-        for market_index in range(n):
-            # Subset vector of estimated revenue differential in market i
-            A_vec = A_matrix[market_index, 1 : (num_products + 1)]
-            # Subset vector of product portfolio of coca-cola and
-            # energy-products in market i
-            D_vec = W_data[market_index, J0_vec[:, 0].astype(int) - 1]
+        # Subset vector of estimated revenue differential in market i
+        A_vec = A_matrix[:, 1 : (num_products + 1)]
+        # Subset vector of product portfolio of coca-cola and
+        # energy-products in market i
+        D_vec = W_data[:, J0_vec[:, 0].astype(int) - 1]
 
-            # Compute lower and upper bounds
-            ml_vec = MomentFunct_L(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
-            mu_vec = MomentFunct_U(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
+        # Compute lower and upper bounds
+        ml_vec = MomentFunct_L(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
+        mu_vec = MomentFunct_U(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
 
-            # Create new row of X_data
-            X_data[market_index, :] = np.concatenate((ml_vec[ml_indx], mu_vec[mu_indx]))
+        # Create new row of X_data
+        X_data = np.hstack((ml_vec[:, ml_indx], mu_vec[:, mu_indx]))
 
     else:
         # Initialize X_data
@@ -136,45 +135,44 @@ def m_function(
         # Create dummy IV vector
         Z_vec = np.ones(num_products)
         # employment rate
-        Z3_vec = (IV_matrix[:, 1] > np.median(IV_matrix[:, 1])).astype(int)
+        Z3_vec = (IV_matrix[0:num_products, 1] > np.median(IV_matrix[:, 1])).astype(int)
         # average income in market
-        Z5_vec = (IV_matrix[:, 2] > np.median(IV_matrix[:, 2])).astype(int)
+        Z5_vec = (IV_matrix[0:num_products, 2] > np.median(IV_matrix[:, 2])).astype(int)
         # median income in market
-        Z7_vec = (IV_matrix[:, 3] > np.median(IV_matrix[:, 3])).astype(int)
+        Z7_vec = (IV_matrix[0:num_products, 3] > np.median(IV_matrix[:, 3])).astype(int)
 
-        for market_index in range(n):
-            # Subset vector of estimated revenue differential in market i
-            A_vec = A_matrix[market_index, 1 : (num_products + 1)]
-            # Subset vector of product portfolio of coca-cola and
-            # energy-products in market i
-            D_vec = W_data[market_index, J0_vec[:, 0].astype(int) - 1]
+        # Subset vector of estimated revenue differential in market i
+        A_vec = A_matrix[:, 1 : (num_products + 1)]
+        # Subset vector of product portfolio of coca-cola and
+        # energy-products in market i
+        D_vec = W_data[:, J0_vec[:, 0].astype(int) - 1]
 
-            # Compute lower and upper bounds
-            ml_vec = MomentFunct_L(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
-            mu_vec = MomentFunct_U(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
+        # Compute lower and upper bounds
+        ml_vec = MomentFunct_L(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
+        mu_vec = MomentFunct_U(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
 
-            ml_vec3 = MomentFunct_L(A_vec, D_vec, Z3_vec, J0_vec, theta, Vbar)
-            mu_vec3 = MomentFunct_U(A_vec, D_vec, Z3_vec, J0_vec, theta, Vbar)
+        ml_vec3 = MomentFunct_L(A_vec, D_vec, Z3_vec, J0_vec, theta, Vbar)
+        mu_vec3 = MomentFunct_U(A_vec, D_vec, Z3_vec, J0_vec, theta, Vbar)
 
-            ml_vec5 = MomentFunct_L(A_vec, D_vec, Z5_vec, J0_vec, theta, Vbar)
-            mu_vec5 = MomentFunct_U(A_vec, D_vec, Z5_vec, J0_vec, theta, Vbar)
+        ml_vec5 = MomentFunct_L(A_vec, D_vec, Z5_vec, J0_vec, theta, Vbar)
+        mu_vec5 = MomentFunct_U(A_vec, D_vec, Z5_vec, J0_vec, theta, Vbar)
 
-            ml_vec7 = MomentFunct_L(A_vec, D_vec, Z7_vec, J0_vec, theta, Vbar)
-            mu_vec7 = MomentFunct_U(A_vec, D_vec, Z7_vec, J0_vec, theta, Vbar)
+        ml_vec7 = MomentFunct_L(A_vec, D_vec, Z7_vec, J0_vec, theta, Vbar)
+        mu_vec7 = MomentFunct_U(A_vec, D_vec, Z7_vec, J0_vec, theta, Vbar)
 
-            # Create new row of X_data
-            X_data[market_index, :] = np.concatenate(
-                (
-                    ml_vec[ml_indx],
-                    mu_vec[mu_indx],
-                    ml_vec3[ml_indx],
-                    mu_vec3[mu_indx],
-                    ml_vec5[ml_indx],
-                    mu_vec5[mu_indx],
-                    ml_vec7[ml_indx],
-                    mu_vec7[mu_indx],
-                )
+        # Create new row of X_data
+        X_data = np.hstack(
+            (
+                ml_vec[:, ml_indx],
+                mu_vec[:, mu_indx],
+                ml_vec3[:, ml_indx],
+                mu_vec3[:, mu_indx],
+                ml_vec5[:, ml_indx],
+                mu_vec5[:, mu_indx],
+                ml_vec7[:, ml_indx],
+                mu_vec7[:, mu_indx],
             )
+        )
 
     return X_data
 
