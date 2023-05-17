@@ -109,7 +109,7 @@ def cvalue_EB2S(
     X_data: np.ndarray,
     alpha: float,
     beta: float | None = None,
-    BB: int | None = None,
+    bootstrap_replications: int | None = None,
     rng_seed: int | None = None,
     bootstrap_indices: np.ndarray | None = None,
 ) -> float:
@@ -125,15 +125,15 @@ def cvalue_EB2S(
         Significance level for the first stage test.
     beta : float, default: alpha / 50
         Significance level for the second stage test.
-    BB : int, optional
+    bootstrap_replications : int, optional
         Number of bootstrap replications. Required if bootstrap_indices
         is not specified.
     rng_seed : int, optional
         Random number generator seed (for replication purposes). If not
         specified, the system seed will be used as-is.
     bootstrap_indices : array_like, optional
-        Integer array of shape (BB, n) for the bootstrap replications. If this is
-        specified, BB and rng_seed will be ignored. If this is not specified, BB
+        Integer array of shape (bootstrap_replications, n) for the bootstrap replications. If this is
+        specified, bootstrap_replications and rng_seed will be ignored. If this is not specified, bootstrap_replications
         is required.
 
     Returns
@@ -150,12 +150,16 @@ def cvalue_EB2S(
 
     # Obtain random numbers for the bootstrap
     if bootstrap_indices is None:
-        if BB is None:
-            raise ValueError("BB must be specified if bootstrap_indices is not.")
+        if bootstrap_replications is None:
+            raise ValueError(
+                "bootstrap_replications must be specified if bootstrap_indices is not."
+            )
         else:
             if rng_seed is not None:
                 np.random.seed(rng_seed)
-            bootstrap_indices = np.random.randint(0, n, size=(BB, n))
+            bootstrap_indices = np.random.randint(
+                0, n, size=(bootstrap_replications, n)
+            )
 
     ## Compute the mean of each column of X_data
     mu_hat = np.mean(X_data, axis=0)
