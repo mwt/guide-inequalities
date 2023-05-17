@@ -53,9 +53,6 @@ dgp <- sapply(datasets, function(dataset) {
     show_col_types = F
   )))
 }, simplify = F)
-
-dgp$num_market <- nrow(dgp$A)
-dgp$num_product <- nrow(dgp$D) - 1
 dgp$W_data <- dgp$D[, -1]
 
 # Settings (cell arrays are used to loop over each of the four different specifications)
@@ -87,7 +84,7 @@ sim <- list(
     )
   ),
   rng_seed = 20220826,
-  num_boots = 1000,
+  bootstrap_replications = 1000,
   num_robots = 4,
   sim_name = "table_1"
 )
@@ -98,6 +95,17 @@ results <- list(
     matrix(NA, nrow = length(grid), ncol = 4)
   }),
   comp_time = rep(NA, 4)
+)
+
+# Generate bootstrap indices
+# number of markets
+n <- nrow(dgp$A)
+BB <- sim$bootstrap_replications
+set.seed(rng_seed, kind = "Mersenne-Twister")
+bootstrap_indices <- matrix(
+  sample.int(n, n * sim$bootstrap_replications, replace = T),
+  nrow = n,
+  ncol = sim$bootstrap_replications
 )
 
 # Parallel computing
@@ -118,26 +126,25 @@ for (sim0 in 1:4) {
 
     # Step 1: find test stat. Tn(theta) and c.value(theta) using G_restriction
     test_H0 <- foreach::foreach(
-      theta = sim$grid_theta[[theta_index]],
+      theta_i = sim$grid_theta[[theta_index]],
       .combine = "rbind"
     ) %dopar% {
-      theta0 <- numeric(2)
-      theta0[theta_index] <- theta
+      theta <- numeric(2)
+      theta[theta_index] <- theta_i
 
       # test_H0: [T_n, c_value]
       G_restriction(
         W_data = dgp$W_data,
         A_matrix = dgp$A,
-        theta0 = theta0,
+        theta = theta,
         J0_vec = dgp$J0,
         Vbar = settings$Vbar[[sim0]],
         IV_matrix = settings$IV[[sim0]],
         grid0 = theta_index,
         test0 = settings$test_stat[[sim0]],
         cvalue = settings$cv[[sim0]],
-        alpha_input = settings$alpha[[sim0]],
-        num_boots = sim$num_boots,
-        rng_seed = sim$rng_seed
+        alpha = settings$alpha[[sim0]],
+        bootstrap_indices = bootstrap_indices,
       )
     }
 

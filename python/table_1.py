@@ -21,6 +21,7 @@ def load_data(name):
 
 dgp = {i: load_data(i) for i in ["A", "D", "J0"]}
 dgp["W"] = dgp["D"][:, 1:]
+n = dgp["A"].shape[0]
 
 settings = {
     "Vbar": [500, 500, 1000, 1000],
@@ -33,7 +34,7 @@ settings = {
 sim = {
     "grid_size": 1401,
     "rng_seed": 20220826,
-    "num_boots": 1000,
+    "bootstrap_replications": 1000,
     "num_robots": 4,
     "sim_name": "table_1",
 }
@@ -47,6 +48,12 @@ results = {
     "Tn_vec": (np.empty((sim["grid_size"], 4)), np.empty((sim["grid_size"], 4))),
     "comp_time": np.empty(4),
 }
+
+# Generate bootstrap indices
+np.random.seed(sim["rng_seed"])
+bootstrap_indices = np.random.randint(
+    0, n, size=(sim["bootstrap_replications"], n)
+)
 
 for sim_i in range(4):
     print("Simulation:", sim_i + 1)
@@ -67,7 +74,7 @@ for sim_i in range(4):
                 delayed(ineq.g_restriction)(
                     W_data=dgp["W"],
                     A_matrix=dgp["A"],
-                    theta0=theta0(theta, theta_index),
+                    theta=theta0(theta, theta_index),
                     J0_vec=dgp["J0"],
                     Vbar=settings["Vbar"][sim_i],
                     IV_matrix=settings["IV"],
@@ -75,8 +82,7 @@ for sim_i in range(4):
                     test0=settings["test_stat"][sim_i],
                     cvalue=settings["cv"][sim_i],
                     alpha=settings["alpha"],
-                    num_boots=sim["num_boots"],
-                    rng_seed=sim["rng_seed"],
+                    bootstrap_indices=bootstrap_indices,
                 )
                 for theta in sim["grid_theta"][theta_index]
             )

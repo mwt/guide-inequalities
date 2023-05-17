@@ -7,7 +7,7 @@ from .moment import m_function, m_hat
 def g_restriction(
     W_data: np.ndarray,
     A_matrix: np.ndarray,
-    theta0: np.ndarray,
+    theta: np.ndarray,
     J0_vec: np.ndarray,
     Vbar: float,
     IV_matrix,
@@ -15,8 +15,9 @@ def g_restriction(
     test0: str,
     cvalue: str,
     alpha: float,
-    num_boots: int,
-    rng_seed: int,
+    bootstrap_replications: int | None = None,
+    rng_seed: int | None = None,
+    bootstrap_indices: np.ndarray | None = None,
     An_vec: np.ndarray | None = None,
     hat_r_inf: float | None = None,
 ) -> list[float, float]:
@@ -45,15 +46,22 @@ def g_restriction(
         Critical value to use.
     alpha : float
         Significance level.
-    num_boots : int
-        Number of bootstrap replications.
-    rng_seed : int
-        Random number generator seed (for replication purposes).
+    bootstrap_replications : int, optional
+        Number of bootstrap replications. Required if bootstrap_indices
+        is not specified.
+    rng_seed : int, optional
+        Random number generator seed (for replication purposes). If not
+        specified, the system seed will be used as-is.
+    bootstrap_indices : array_like, optional
+        Integer array of shape (bootstrap_replications, n) for the bootstrap
+        replications. If this is specified, bootstrap_replications and rng_seed
+        will be ignored. If this is not specified, bootstrap_replications is
+        required.
     An_vec : array_like, optional
-        If using SPUR 1, a n x 1 vector of An values as in eq. (4.25) in 
+        If using SPUR 1, a n x 1 vector of An values as in eq. (4.25) in
         Andrews and Kwon (2023).
     hat_r_inf : float, optional
-        If using RC-CCK, the lower value of the test as in eq. (4.4) in 
+        If using RC-CCK, the lower value of the test as in eq. (4.4) in
         Andrews and Kwon (2023).
 
     Returns
@@ -67,7 +75,7 @@ def g_restriction(
     -----
       - The test statistic is defined in eq (38)
       - The possible critical values are defined in eq (40), (41), and (48)
-      - This function also includes the re-centered test statistic as in 
+      - This function also includes the re-centered test statistic as in
         Section 8.2.2 and critical value SPUR1 as in Appendix Section C.
     """
     if (cvalue == "SPUR1" or test0 == "RC-CCK") and (
@@ -75,7 +83,7 @@ def g_restriction(
     ):
         raise ValueError("An_vec and hat_r_inf must be provided for SPUR1 and RC-CCK")
 
-    X_data = m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, grid0)
+    X_data = m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0)
     m_hat0 = m_hat(X_data)
     n = X_data.shape[0]
 
@@ -103,14 +111,14 @@ def g_restriction(
     ## 4. EB2S as in eq (48)
     match cvalue:
         # case "SPUR1":
-        #    critical_value = cvalue_SPUR1(-X_data, num_boots, alpha, An_vec, rng_seed)
+        #    critical_value = cvalue_SPUR1(-X_data, bootstrap_replications, alpha, An_vec, rng_seed)
         case "SN":
             critical_value = cvalue_SN(X_data, alpha)
         case "SN2S":
             critical_value = cvalue_SN2S(X_data, alpha, beta)
         case "EB2S":
             critical_value = cvalue_EB2S(
-                X_data, num_boots, alpha, beta, rng_seed
+                X_data, alpha, beta, bootstrap_replications, rng_seed, bootstrap_indices
             )
         case _:
             raise ValueError("cvalue must be either SPUR1, SN, SN2S, or EB2S")

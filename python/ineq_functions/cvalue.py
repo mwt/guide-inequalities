@@ -107,10 +107,11 @@ def cvalue_SN2S(X_data: np.ndarray, alpha: float, beta: float | None = None) -> 
 
 def cvalue_EB2S(
     X_data: np.ndarray,
-    BB: int,
     alpha: float,
     beta: float | None = None,
+    BB: int | None = None,
     rng_seed: int | None = None,
+    bootstrap_indices: np.ndarray | None = None,
 ) -> float:
     """Calculate the c-value for the EB2S test statistic defined in eq (48) of
     Section 5 in Canay, Illanes, and Velez (2023)
@@ -120,14 +121,20 @@ def cvalue_EB2S(
     X_data : array_like
         Matrix of the moment functions with n rows (output of
         :func:`ineq_functions.m_function`).
-    BB : int
-        Number of bootstrap replications.
     alpha : float
         Significance level for the first stage test.
     beta : float, default: alpha / 50
         Significance level for the second stage test.
+    BB : int, optional
+        Number of bootstrap replications. Required if bootstrap_indices
+        is not specified.
     rng_seed : int, optional
-        Random number generator seed (for replication purposes).
+        Random number generator seed (for replication purposes). If not
+        specified, the system seed will be used as-is.
+    bootstrap_indices : array_like, optional
+        Integer array of shape (BB, n) for the bootstrap replications. If this is
+        specified, BB and rng_seed will be ignored. If this is not specified, BB
+        is required.
 
     Returns
     -------
@@ -142,9 +149,13 @@ def cvalue_EB2S(
     ## Step 1: Algorithm of the Empirical Bootstrap as in Section 5.2
 
     # Obtain random numbers for the bootstrap
-    if rng_seed is not None:
-        np.random.seed(rng_seed)
-    bootstrap_indices = np.random.randint(0, n, size=(BB, n))
+    if bootstrap_indices is None:
+        if BB is None:
+            raise ValueError("BB must be specified if bootstrap_indices is not.")
+        else:
+            if rng_seed is not None:
+                np.random.seed(rng_seed)
+            bootstrap_indices = np.random.randint(0, n, size=(BB, n))
 
     ## Compute the mean of each column of X_data
     mu_hat = np.mean(X_data, axis=0)
