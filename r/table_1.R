@@ -194,6 +194,7 @@ formated_CI <- sapply(results$CI_vec, function(CI_mat) {
 # Make table as matrix
 the_table <- cbind(
   settings$Vbar,
+  settings$cv,
   formated_CI,
   sprintf("%.2f", results$comp_time)
 )
@@ -201,6 +202,7 @@ the_table <- cbind(
 # Add colnames
 colnames(the_table) <- c(
   "$\\Bar{V}$",
+  "Crit. Value",
   "$\\theta_1$: Coca-Cola",
   "$\\theta_2$: Energy Brands",
   "Comp. Time"

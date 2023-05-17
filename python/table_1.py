@@ -97,10 +97,12 @@ for sim_i in range(4):
             # it may be the CI is empty
             results["CI_vec"][theta_index][sim_i,] = [
                 np.NaN,
-                np.min(sim["grid_theta"][theta_index]),
+                sim["grid_theta"][theta_index][np.argmin(Test_vec)],
             ]
         else:
-            results["CI_vec"][theta_index][sim_i,] = [np.min(CS_vec), np.max(CS_vec)]
+            results["CI_vec"][theta_index][
+                sim_i,
+            ] = [np.min(CS_vec), np.max(CS_vec)]
 
     # Stop the timer
     toc = time.perf_counter()
@@ -115,10 +117,11 @@ for key, value in results.items():
 # Make and print the table
 tableObj = tt.Texttable(0)
 
-tableObj.set_cols_align(["l", "c", "c", "c"])
-tableObj.set_cols_dtype(["i", "t", "t", "f"])
+tableObj.set_cols_align(["l", "l", "c", "c", "c"])
+tableObj.set_cols_dtype(["i", "t", "t", "t", "f"])
 
 the_table = np.array(settings["Vbar"])
+the_table = np.column_stack((the_table, settings["cv"]))
 for ci_theta in results["CI_vec"]:
     the_table = np.column_stack(
         (
@@ -139,6 +142,7 @@ the_table = np.vstack(
     (
         [
             "$\\Bar{V}$",
+            "Crit. Value",
             "$\\theta_1$: Coca-Cola",
             "$\\theta_2$: Energy Brands",
             "Comp. Time",
