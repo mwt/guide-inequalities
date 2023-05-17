@@ -16,13 +16,13 @@ rng_seed = 20220826;
 num_boots = 1000;
 
 % Function Calls
-% Table 1 function calls
+% Table 2 function calls
 disp("No IV, CCK, SN")
-disp(G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, [], 1, 'CCK', 'SN', alpha, num_boots, rng_seed))
+disp(G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, 1, 'CCK', 'SN', alpha, num_boots, rng_seed))
 disp("No IV, CCK, SN2S")
-disp(G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, [], 1, 'CCK', 'SN2S', alpha, num_boots, rng_seed))
+disp(G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, 1, 'CCK', 'SN2S', alpha, num_boots, rng_seed))
 disp("No IV, CCK, EB2S")
-disp(G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, [], 1, 'CCK', 'EB2S', alpha, num_boots, rng_seed))
+disp(G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, 1, 'CCK', 'EB2S', alpha, num_boots, rng_seed))
 
 disp("M hat")
-disp(m_hat(m_function(W_data, A_matrix, theta0, J0_vec, Vbar, [], 'all'),[],0))
+disp(m_hat(m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, 'all'),[],0))

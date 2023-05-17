@@ -113,17 +113,17 @@ def m_function(
         X_data = np.empty((n, ml_indx.size + mu_indx.size))
 
         # Create dummy IV vector
-        Z_vec = np.ones(num_products)
+        Z_mat = np.ones(num_products)
 
         # Subset vector of estimated revenue differential in market i
-        A_vec = A_matrix[:, 1 : (num_products + 1)]
+        A_subset = A_matrix[:, 1 : (num_products + 1)]
         # Subset vector of product portfolio of coca-cola and
         # energy-products in market i
-        D_vec = W_data[:, J0_vec[:, 0].astype(int) - 1]
+        D_mat = W_data[:, J0_vec[:, 0].astype(int) - 1]
 
         # Compute lower and upper bounds
-        ml_vec = MomentFunct_L(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
-        mu_vec = MomentFunct_U(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
+        ml_vec = MomentFunct_L(A_subset, D_mat, Z_mat, J0_vec, theta, Vbar)
+        mu_vec = MomentFunct_U(A_subset, D_mat, Z_mat, J0_vec, theta, Vbar)
 
         # Create new row of X_data
         X_data = np.hstack((ml_vec[:, ml_indx], mu_vec[:, mu_indx]))
@@ -133,32 +133,32 @@ def m_function(
         X_data = np.empty((n, 4 * (ml_indx[0].size + mu_indx[0].size)))
 
         # Create dummy IV vector
-        Z_vec = np.ones(num_products)
+        Z_mat = np.ones(num_products)
         # employment rate
-        Z3_vec = (IV_matrix[0:num_products, 1] > np.median(IV_matrix[:, 1])).astype(int)
+        Z3_mat = (IV_matrix[0:num_products, 1] > np.median(IV_matrix[:, 1])).astype(int)
         # average income in market
-        Z5_vec = (IV_matrix[0:num_products, 2] > np.median(IV_matrix[:, 2])).astype(int)
+        Z5_mat = (IV_matrix[0:num_products, 2] > np.median(IV_matrix[:, 2])).astype(int)
         # median income in market
-        Z7_vec = (IV_matrix[0:num_products, 3] > np.median(IV_matrix[:, 3])).astype(int)
+        Z7_mat = (IV_matrix[0:num_products, 3] > np.median(IV_matrix[:, 3])).astype(int)
 
         # Subset vector of estimated revenue differential in market i
-        A_vec = A_matrix[:, 1 : (num_products + 1)]
+        A_subset = A_matrix[:, 1 : (num_products + 1)]
         # Subset vector of product portfolio of coca-cola and
         # energy-products in market i
-        D_vec = W_data[:, J0_vec[:, 0].astype(int) - 1]
+        D_mat = W_data[:, J0_vec[:, 0].astype(int) - 1]
 
         # Compute lower and upper bounds
-        ml_vec = MomentFunct_L(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
-        mu_vec = MomentFunct_U(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
+        ml_vec = MomentFunct_L(A_subset, D_mat, Z_mat, J0_vec, theta, Vbar)
+        mu_vec = MomentFunct_U(A_subset, D_mat, Z_mat, J0_vec, theta, Vbar)
 
-        ml_vec3 = MomentFunct_L(A_vec, D_vec, Z3_vec, J0_vec, theta, Vbar)
-        mu_vec3 = MomentFunct_U(A_vec, D_vec, Z3_vec, J0_vec, theta, Vbar)
+        ml_vec3 = MomentFunct_L(A_subset, D_mat, Z3_mat, J0_vec, theta, Vbar)
+        mu_vec3 = MomentFunct_U(A_subset, D_mat, Z3_mat, J0_vec, theta, Vbar)
 
-        ml_vec5 = MomentFunct_L(A_vec, D_vec, Z5_vec, J0_vec, theta, Vbar)
-        mu_vec5 = MomentFunct_U(A_vec, D_vec, Z5_vec, J0_vec, theta, Vbar)
+        ml_vec5 = MomentFunct_L(A_subset, D_mat, Z5_mat, J0_vec, theta, Vbar)
+        mu_vec5 = MomentFunct_U(A_subset, D_mat, Z5_mat, J0_vec, theta, Vbar)
 
-        ml_vec7 = MomentFunct_L(A_vec, D_vec, Z7_vec, J0_vec, theta, Vbar)
-        mu_vec7 = MomentFunct_U(A_vec, D_vec, Z7_vec, J0_vec, theta, Vbar)
+        ml_vec7 = MomentFunct_L(A_subset, D_mat, Z7_mat, J0_vec, theta, Vbar)
+        mu_vec7 = MomentFunct_U(A_subset, D_mat, Z7_mat, J0_vec, theta, Vbar)
 
         # Create new row of X_data
         X_data = np.hstack(
@@ -178,9 +178,9 @@ def m_function(
 
 
 def MomentFunct_L(
-    A_vec: np.ndarray,
-    D_vec: np.ndarray,
-    Z_vec: np.ndarray,
+    A_subset: np.ndarray,
+    D_mat: np.ndarray,
+    Z_mat: np.ndarray,
     J0_vec: np.ndarray,
     theta: np.ndarray,
     Vbar: float,
@@ -189,12 +189,12 @@ def MomentFunct_L(
 
     Parameters
     ----------
-    A_vec : array_like
-        J0 x 1 vector of estimated revenue differential in a market.
-    D_vec : array_like
-        J0 x 1 vector of product portfolio in a market.
-    Z_vec : array_like
-        J0 x 1 vector of instruments in a market.
+    A_subset : array_like
+        n X J0 matrix of estimated revenue differential in a market.
+    D_mat : array_like
+        n X J0 matrix of product portfolio in a market.
+    Z_mat : array_like
+        n X J0 matrix of instruments in a market.
     J0_vec : array_like
         J0 x 2 array of products of coca-cola and energy-product.
     theta : array_like
@@ -219,13 +219,13 @@ def MomentFunct_L(
     theta_vector = theta[J0_vec[:, 1].astype(int) - 1]
 
     # Run equation (26) for each product
-    return ((A_vec - theta_vector) * (1 - D_vec) - Vbar * D_vec) * Z_vec
+    return ((A_subset - theta_vector[np.newaxis, :]) * (1 - D_mat) - Vbar * D_mat) * Z_mat[np.newaxis, :]
 
 
 def MomentFunct_U(
-    A_vec: np.ndarray,
-    D_vec: np.ndarray,
-    Z_vec: np.ndarray,
+    A_subset: np.ndarray,
+    D_mat: np.ndarray,
+    Z_mat: np.ndarray,
     J0_vec: np.ndarray,
     theta: np.ndarray,
     Vbar: float,
@@ -234,12 +234,12 @@ def MomentFunct_U(
 
     Parameters
     ----------
-    A_vec : array_like
-        J0 x 1 vector of estimated revenue differential in a market.
-    D_vec : array_like
-        J0 x 1 vector of product portfolio in a market.
-    Z_vec : array_like
-        J0 x 1 vector of instruments in a market.
+    A_subset : array_like
+        n X J0 matrix of estimated revenue differential in a market.
+    D_mat : array_like
+        n X J0 matrix of product portfolio in a market.
+    Z_mat : array_like
+        n X J0 matrix of instruments in a market.
     J0_vec : array_like
         J0 x 2 array of products of coca-cola and energy-product.
     theta : array_like
@@ -264,4 +264,4 @@ def MomentFunct_U(
     theta_vector = theta[J0_vec[:, 1].astype(int) - 1]
 
     # Run equation (27) for each product
-    return ((A_vec + theta_vector) * D_vec - Vbar * (1 - D_vec)) * Z_vec
+    return ((A_subset + theta_vector[np.newaxis, :]) * D_mat - Vbar * (1 - D_mat)) * Z_mat[np.newaxis, :]
