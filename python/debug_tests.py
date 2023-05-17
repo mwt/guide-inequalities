@@ -22,57 +22,57 @@ alpha = 0.05
 rng_seed = 20220826
 num_boots = 1000
 
-#print("No IV, CCK, SN")
-#print(
-#    ineq.g_restriction(
-#        W_data,
-#        A_matrix,
-#        theta0,
-#        J0_vec,
-#        Vbar,
-#        IV_matrix,
-#        1,
-#        "CCK",
-#        "SN",
-#        alpha,
-#        num_boots,
-#        rng_seed,
-#    )
-#)
-#print("No IV, CCK, SN2S")
-#print(
-#    ineq.g_restriction(
-#        W_data,
-#        A_matrix,
-#        theta0,
-#        J0_vec,
-#        Vbar,
-#        IV_matrix,
-#        1,
-#        "CCK",
-#        "SN2S",
-#        alpha,
-#        num_boots,
-#        rng_seed,
-#    )
-#)
-#print("No IV, CCK, EB2S")
-#print(
-#    ineq.g_restriction(
-#        W_data,
-#        A_matrix,
-#        theta0,
-#        J0_vec,
-#        Vbar,
-#        IV_matrix,
-#        1,
-#        "CCK",
-#        "EB2S",
-#        alpha,
-#        num_boots,
-#        rng_seed,
-#    )
-#)
+print("No IV, CCK, SN")
+print(
+    ineq.g_restriction(
+        W_data,
+        A_matrix,
+        theta0,
+        J0_vec,
+        Vbar,
+        IV_matrix,
+        1,
+        "CCK",
+        "SN",
+        alpha,
+        num_boots,
+        rng_seed,
+    )
+)
+print("No IV, CCK, SN2S")
+print(
+    ineq.g_restriction(
+        W_data,
+        A_matrix,
+        theta0,
+        J0_vec,
+        Vbar,
+        IV_matrix,
+        1,
+        "CCK",
+        "SN2S",
+        alpha,
+        num_boots,
+        rng_seed,
+    )
+)
+print("No IV, CCK, EB2S")
+print(
+    ineq.g_restriction(
+        W_data,
+        A_matrix,
+        theta0,
+        J0_vec,
+        Vbar,
+        IV_matrix,
+        1,
+        "CCK",
+        "EB2S",
+        alpha,
+        num_boots,
+        rng_seed,
+    )
+)
 
 print("M hat")
 print(ineq.m_hat(ineq.m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, "all")))
