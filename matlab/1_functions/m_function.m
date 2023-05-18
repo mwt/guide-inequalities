@@ -96,9 +96,9 @@ function salida = m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, g
 
         else
             Z_vec = ones(J0, 1);
-            Z3_vec = 1 * (IV_matrix(1:J0, 2) > median(IV_matrix(:, 2))); % employment rate
-            Z5_vec = 1 * (IV_matrix(1:J0, 3) > median(IV_matrix(:, 3))); % average income in market
-            Z7_vec = 1 * (IV_matrix(1:J0, 4) > median(IV_matrix(:, 4))); % median income in market
+            Z3_vec = Z_vec * (IV_matrix(mm0, 2) > median(IV_matrix(:, 2))); % employment rate
+            Z5_vec = Z_vec * (IV_matrix(mm0, 3) > median(IV_matrix(:, 3))); % average income in market
+            Z7_vec = Z_vec * (IV_matrix(mm0, 4) > median(IV_matrix(:, 4))); % median income in market
 
             ml_vec = MomentFunct_L(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar);
             ml_vec3 = MomentFunct_L(A_vec, D_vec, Z3_vec, J0_vec, theta, Vbar);
