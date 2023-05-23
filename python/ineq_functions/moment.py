@@ -109,9 +109,6 @@ def m_function(
     ## step 2: compute all the moment functions
 
     if IV_matrix is None:
-        # Initialize X_data
-        X_data = np.empty((n, ml_indx.size + mu_indx.size))
-
         # Create dummy IV "matrix"
         Z_mat = np.array([1])
 
@@ -129,9 +126,6 @@ def m_function(
         X_data = np.hstack((ml_vec[:, ml_indx], mu_vec[:, mu_indx]))
 
     else:
-        # Initialize X_data
-        X_data = np.empty((n, 4 * (ml_indx[0].size + mu_indx[0].size)))
-
         # Create dummy IV "matrix"
         Z_mat = np.array([1])
         # employment rate
