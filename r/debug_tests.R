@@ -41,4 +41,4 @@ print("No IV, CCK, EB2S")
 print(G_restriction(W_data, A_matrix, theta, J0_vec, Vbar, NULL, 1, 'CCK', 'EB2S', alpha, num_boots, rng_seed))
 
 print("M hat")
-print(m_hat(m_function(W_data, A_matrix, theta0, J0_vec, Vbar, NULL, grid0 = 'all')))
+print(m_hat(m_function(W_data, A_matrix, theta, J0_vec, Vbar, NULL, grid0 = 'all')))
