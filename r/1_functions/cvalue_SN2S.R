@@ -1,18 +1,15 @@
 ## compute critical value defined in eq (41) of section 5 in Canay, Illanes, and Velez (2023)
 # input
 # - X_data          n x k    matrix of evaluated moment functions
-# - alpha_input     1 x 1    significance level
-# - beta_input      1 x 1    tuning parameter to select moments
+# - alpha     1 x 1    significance level
+# - beta      1 x 1    tuning parameter to select moments
 
 # output
 # - c_value         1 x 1    critical value
 
-cvalue_SN2S <- function(X_data, alpha_input, beta_input) {
+cvalue_SN2S <- function(X_data, alpha, beta) {
   ## Step 0: parameter setting
   n <- nrow(X_data) # sample size
-  k <- ncol(X_data) # number of moments
-  alpha <- alpha_input
-  beta <- beta_input
 
   if (beta < alpha / 2) {
     #     cat('Two step SN-method is running');
@@ -36,10 +33,10 @@ cvalue_SN2S <- function(X_data, alpha_input, beta_input) {
   sigma_hat <- Rfast::colVars(X_data, std = T) * sqrt((n - 1) / n)
 
   ## Studentized statistic for each moment inequality
-  test0 <- sqrt(n) * mu_hat / sigma_hat
+  test_stat0 <- sqrt(n) * mu_hat / sigma_hat
 
   ## Number of moment inequalities that are almost binding as in eq (39)
-  k_hat <- sum(test0 > (-2 * cvalue0))
+  k_hat <- sum(test_stat0 > (-2 * cvalue0))
 
   ## Step 2: calculate critical value using a subset of moment inequalities
 
