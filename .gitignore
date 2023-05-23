@@ -3,6 +3,7 @@
 ###############################################################################
 # Use underscore folders (eg. _results) for output and temporary files
 _*/
+.vscode
 # Apple
 .DS_Store
 .AppleDouble

@@ -130,9 +130,9 @@ for ci_theta in results["CI_vec"]:
             the_table,
             np.apply_along_axis(
                 lambda x: "["
-                + "{:.2f}".format(x[0])
+                + "{:.1f}".format(x[0])
                 + ", "
-                + "{:.2f}".format(x[1])
+                + "{:.1f}".format(x[1])
                 + "]",
                 1,
                 ci_theta,
