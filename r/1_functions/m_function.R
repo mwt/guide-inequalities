@@ -50,77 +50,58 @@ m_function <- function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0) 
 
   ## step 2: compute all the moment functions
   if (is.null(IV_matrix)) {
-    # Initialize output
-    X_data <- matrix(NA, nrow = n, ncol = length(ml_indx) + length(mu_indx))
-
     # Create dummy IV vector
-    Z_vec <- rep(1, J0)
+    Z_mat <- 1
 
-    for (mm0 in 1:n) {
-      # vector of estimated revenue differential in market mm0
-      A_vec <- A_matrix[mm0, 2:(J0 + 1)]
-      # vector of product portfolio of coca-cola and energy-products in market mm0
-      D_vec <- W_data[mm0, J0_vec[, 1]]
+    # Subset vector of estimated revenue differential in market i
+    A_vec <- A_matrix[, 2:(J0 + 1)]
+    # Subset vector of product portfolio of coca-cola and
+    # energy-products in market i
+    D_vec <- W_data[, J0_vec[, 1]]
 
-      ml_vec <-
-        MomentFunct_L(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
-      mu_vec <-
-        MomentFunct_U(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
+    ml_vec <- MomentFunct_L(A_vec, D_vec, Z_mat, J0_vec, theta, Vbar)
+    mu_vec <- MomentFunct_U(A_vec, D_vec, Z_mat, J0_vec, theta, Vbar)
 
-      X_data[mm0, ] <- c(ml_vec[ml_indx], mu_vec[mu_indx])
-    }
+    X_data <- cbind(ml_vec[, ml_indx], mu_vec[, mu_indx])
   } else {
-    # Initialize output
-    X_data <-
-      matrix(NA, nrow = n, ncol = 4 * (length(ml_indx) + length(mu_indx)))
-
-    # Create dummy IV vector
-    Z_vec <- rep(1, J0)
+    # Create dummy IV "matrix"
+    Z0_mat <- 1
     # employment rate
-    Z3_vec <-
-      as.numeric(IV_matrix[, 2] > median(IV_matrix[, 2]))
+    Z3_mat <- as.numeric(IV_matrix[, 2] > median(IV_matrix[, 2]))
     # average income in market
-    Z5_vec <-
-      as.numeric(IV_matrix[, 3] > median(IV_matrix[, 3]))
+    Z5_mat <- as.numeric(IV_matrix[, 3] > median(IV_matrix[, 3]))
     # median income in market
-    Z7_vec <-
-      as.numeric(IV_matrix[, 4] > median(IV_matrix[, 4]))
+    Z7_vec <- as.numeric(IV_matrix[, 4] > median(IV_matrix[, 4]))
 
-    for (mm0 in 1:n) {
-      # vector of estimated revenue differential in market mm0
-      A_vec <- A_matrix[mm0, 2:(J0 + 1)]
-      # vector of product portfolio of coca-cola and energy-products in market mm0
-      D_vec <- W_data[mm0, J0_vec[, 1]]
+    # Subset vector of estimated revenue differential in market i
+    A_vec <- A_matrix[, 2:(J0 + 1)]
+    # Subset vector of product portfolio of coca-cola and
+    # energy-products in market i
+    D_vec <- W_data[, J0_vec[, 1]]
 
-      ml_vec <-
-        MomentFunct_L(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
-      ml_vec3 <-
-        MomentFunct_L(A_vec, D_vec, Z3_vec, J0_vec, theta, Vbar)
-      ml_vec5 <-
-        MomentFunct_L(A_vec, D_vec, Z5_vec, J0_vec, theta, Vbar)
-      ml_vec7 <-
-        MomentFunct_L(A_vec, D_vec, Z7_vec, J0_vec, theta, Vbar)
+    # Compute lower and upper bounds
+    ml_vec0 <- MomentFunct_L(A_vec, D_vec, Z0_mat, J0_vec, theta, Vbar)
+    mu_vec0 <- MomentFunct_U(A_vec, D_vec, Z0_mat, J0_vec, theta, Vbar)
 
-      mu_vec <-
-        MomentFunct_U(A_vec, D_vec, Z_vec, J0_vec, theta, Vbar)
-      mu_vec3 <-
-        MomentFunct_U(A_vec, D_vec, Z3_vec, J0_vec, theta, Vbar)
-      mu_vec5 <-
-        MomentFunct_U(A_vec, D_vec, Z5_vec, J0_vec, theta, Vbar)
-      mu_vec7 <-
-        MomentFunct_U(A_vec, D_vec, Z7_vec, J0_vec, theta, Vbar)
+    ml_vec3 <- MomentFunct_L(A_vec, D_vec, Z3_mat, J0_vec, theta, Vbar)
+    mu_vec3 <- MomentFunct_U(A_vec, D_vec, Z3_mat, J0_vec, theta, Vbar)
 
-      X_data[mm0, ] <- c(
-        ml_vec[ml_indx],
-        mu_vec[mu_indx],
-        ml_vec3[ml_indx],
-        mu_vec3[mu_indx],
-        ml_vec5[ml_indx],
-        mu_vec5[mu_indx],
-        ml_vec7[ml_indx],
-        mu_vec7[mu_indx]
-      )
-    }
+    ml_vec5 <- MomentFunct_L(A_vec, D_vec, Z5_mat, J0_vec, theta, Vbar)
+    mu_vec5 <- MomentFunct_U(A_vec, D_vec, Z5_mat, J0_vec, theta, Vbar)
+
+    ml_vec7 <- MomentFunct_L(A_vec, D_vec, Z7_vec, J0_vec, theta, Vbar)
+    mu_vec7 <- MomentFunct_U(A_vec, D_vec, Z7_vec, J0_vec, theta, Vbar)
+
+    X_data <- cbind(
+      ml_vec0[, ml_indx],
+      mu_vec0[, mu_indx],
+      ml_vec3[, ml_indx],
+      mu_vec3[, mu_indx],
+      ml_vec5[, ml_indx],
+      mu_vec5[, mu_indx],
+      ml_vec7[, ml_indx],
+      mu_vec7[, mu_indx]
+    )
   }
 
   ## step 3: select the computed moments using ml_indx & mu_indx defined in step 1

@@ -127,7 +127,7 @@ def m_function(
 
     else:
         # Create dummy IV "matrix"
-        Z_mat = np.array([1])
+        Z0_mat = np.array([1])
         # employment rate
         Z3_mat = (IV_matrix[:, 1] > np.median(IV_matrix[:, 1])).astype(int)
         # average income in market
@@ -142,8 +142,8 @@ def m_function(
         D_mat = W_data[:, J0_vec[:, 0].astype(int) - 1]
 
         # Compute lower and upper bounds
-        ml_vec = MomentFunct_L(A_subset, D_mat, Z_mat, J0_vec, theta, Vbar)
-        mu_vec = MomentFunct_U(A_subset, D_mat, Z_mat, J0_vec, theta, Vbar)
+        ml_vec0 = MomentFunct_L(A_subset, D_mat, Z0_mat, J0_vec, theta, Vbar)
+        mu_vec0 = MomentFunct_U(A_subset, D_mat, Z0_mat, J0_vec, theta, Vbar)
 
         ml_vec3 = MomentFunct_L(A_subset, D_mat, Z3_mat, J0_vec, theta, Vbar)
         mu_vec3 = MomentFunct_U(A_subset, D_mat, Z3_mat, J0_vec, theta, Vbar)
@@ -157,8 +157,8 @@ def m_function(
         # Create new row of X_data
         X_data = np.hstack(
             (
-                ml_vec[:, ml_indx],
-                mu_vec[:, mu_indx],
+                ml_vec0[:, ml_indx],
+                mu_vec0[:, mu_indx],
                 ml_vec3[:, ml_indx],
                 mu_vec3[:, mu_indx],
                 ml_vec5[:, ml_indx],

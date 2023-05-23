@@ -17,7 +17,7 @@ IV_matrix = load_data("IV")
 J0_vec = load_data("J0")
 W_data = D_matrix[:, 1:]
 Vbar = 500
-theta0 = np.array([7, 12])
+theta = np.array([7, 12])
 alpha = 0.05
 rng_seed = 20220826
 num_boots = 1000
@@ -27,7 +27,7 @@ print(
     ineq.g_restriction(
         W_data,
         A_matrix,
-        theta0,
+        theta,
         J0_vec,
         Vbar,
         IV_matrix,
@@ -44,7 +44,7 @@ print(
     ineq.g_restriction(
         W_data,
         A_matrix,
-        theta0,
+        theta,
         J0_vec,
         Vbar,
         IV_matrix,
@@ -61,7 +61,7 @@ print(
     ineq.g_restriction(
         W_data,
         A_matrix,
-        theta0,
+        theta,
         J0_vec,
         Vbar,
         IV_matrix,
@@ -75,4 +75,4 @@ print(
 )
 
 print("M hat")
-print(ineq.m_hat(ineq.m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, "all")))
+print(ineq.m_hat(ineq.m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, "all")))
