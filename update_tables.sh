@@ -28,6 +28,12 @@ if [ ! -f ./r/_results/tables-tex/table_1.tex ]; then
         cd -
     }
 fi
+if [ ! -f ./r/_results/tables-tex/table_2.tex ]; then
+    cd 'r' && {
+        Rscript --vanilla "table_2.R"
+        cd -
+    }
+fi
 
 ## Python
 # Create venv if it doesn't exist
@@ -78,6 +84,10 @@ $(pandoc -f latex -t gfm ./matlab/_results/tables-tex/table_2.tex)
 #### Table 1
 
 $(pandoc -f latex -t gfm ./r/_results/tables-tex/table_1.tex)
+
+#### Table 2
+
+$(pandoc -f latex -t gfm ./r/_results/tables-tex/table_2.tex)
 
 ### Python tables
 

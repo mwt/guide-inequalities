@@ -1,4 +1,4 @@
-# Table 1 in Section 8.1 in Canay, Illanes and Velez (2023)
+# Table 2 in Section 8.2.1 in Canay, Illanes and Velez (2023)
 
 if (!dir.exists("_results")) {
   dir.create("_results")
@@ -24,7 +24,7 @@ invisible(lapply(
 ))
 
 # Import data
-datasets <- c("A", "D", "J0")
+datasets <- c("A", "D", "IV", "J0")
 data_path <- file.path("..", "data")
 dgp <- sapply(datasets, function(dataset) {
   unname(as.matrix(readr::read_csv(
@@ -46,7 +46,7 @@ settings <- list(
   # significance level
   alpha = 0.05,
   # no IVs
-  IV = NULL
+  IV = dgp$IV
 )
 
 # Technical settings (lists are used to loop over the two parameters: theta1 and theta2)
@@ -66,7 +66,7 @@ sim <- list(
   rng_seed = 20220826,
   bootstrap_replications = 1000,
   num_robots = 4,
-  sim_name = "table_1"
+  sim_name = "table_2"
 )
 
 results <- list(

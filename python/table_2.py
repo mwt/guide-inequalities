@@ -1,3 +1,6 @@
+""" Table 2 in Section 8.2.1 in Canay, Illanes and Velez (2023)
+"""
+
 import time
 from pathlib import Path
 
@@ -104,7 +107,9 @@ for sim_i in range(4):
                 sim["grid_theta"][theta_index][np.argmin(Test_vec)],
             ]
         else:
-            results["CI_vec"][theta_index][sim_i,] = [np.min(CS_vec), np.max(CS_vec)]
+            results["CI_vec"][theta_index][
+                sim_i,
+            ] = [np.min(CS_vec), np.max(CS_vec)]
 
     # Stop the timer
     toc = time.perf_counter()
