@@ -83,7 +83,7 @@ def cvalue_SN2S(X_data: np.ndarray, alpha: float, beta: float | None = None) -> 
 
     # Step 1: define set J_SN as almost binding
     ## Run the first stage from cvalue_SN
-    cvalue0 = cvalue_SN(X_data, alpha)
+    cvalue0 = cvalue_SN(X_data, beta)
 
     ## Compute the mean of each column of X_data
     mu_hat = np.mean(X_data, axis=0)
