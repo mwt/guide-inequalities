@@ -51,9 +51,7 @@ results = {
 
 # Generate bootstrap indices
 np.random.seed(sim["rng_seed"])
-bootstrap_indices = np.random.randint(
-    0, n, size=(sim["bootstrap_replications"], n)
-)
+bootstrap_indices = np.random.randint(0, n, size=(sim["bootstrap_replications"], n))
 
 for sim_i in range(4):
     print("Simulation:", sim_i + 1)
@@ -106,9 +104,7 @@ for sim_i in range(4):
                 sim["grid_theta"][theta_index][np.argmin(Test_vec)],
             ]
         else:
-            results["CI_vec"][theta_index][
-                sim_i,
-            ] = [np.min(CS_vec), np.max(CS_vec)]
+            results["CI_vec"][theta_index][sim_i,] = [np.min(CS_vec), np.max(CS_vec)]
 
     # Stop the timer
     toc = time.perf_counter()
@@ -161,5 +157,5 @@ tableObj.add_rows(the_table)
 print(tableObj.draw())
 
 # Save table
-with open(tables_dir / "table_1.tex", "w", encoding="utf8") as f:
+with open(tables_dir / (sim["sim_name"] + ".tex"), "w", encoding="utf8") as f:
     f.write(draw_latex(tableObj))

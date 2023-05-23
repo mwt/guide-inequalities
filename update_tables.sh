@@ -29,6 +29,37 @@ if [ ! -f ./r/_results/tables-tex/table_1.tex ]; then
     }
 fi
 
+## Python
+# Create venv if it doesn't exist
+if [ ! -d ./python/.venv ]; then
+    echo "Creating python Virtual Environment (venv)"
+    cd 'python' && {
+        python3 -m venv .venv
+        source .venv/bin/activate
+        pip install -r requirements.txt
+        deactivate
+        cd -
+    }
+fi
+
+# Run the python scripts if tables don't exist
+if [ ! -f ./python/_results/tables-tex/table_1.tex ]; then
+    cd 'python' && {
+        source .venv/bin/activate
+        python3 "table_1.py"
+        deactivate
+        cd -
+    } || echo "Maybe there is a problem with the python venv? Try deleting it and running this script again."
+fi
+if [ ! -f ./python/_results/tables-tex/table_2.tex ]; then
+    cd 'python' && {
+        source .venv/bin/activate
+        python3 "table_2.py"
+        deactivate
+        cd -
+    } || echo "Maybe there is a problem with the python venv? Try deleting it and running this script again."
+fi
+
 # Insert the new tables
 cat <<EOF >>README.md
 
@@ -53,5 +84,9 @@ $(pandoc -f latex -t gfm ./r/_results/tables-tex/table_1.tex)
 #### Table 1
 
 $(pandoc -f latex -t gfm ./python/_results/tables-tex/table_1.tex)
+
+#### Table 2
+
+$(pandoc -f latex -t gfm ./python/_results/tables-tex/table_2.tex)
 
 EOF

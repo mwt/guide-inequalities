@@ -112,8 +112,8 @@ def m_function(
         # Initialize X_data
         X_data = np.empty((n, ml_indx.size + mu_indx.size))
 
-        # Create dummy IV vector
-        Z_mat = np.ones(num_products)
+        # Create dummy IV "matrix"
+        Z_mat = np.array([1])
 
         # Subset vector of estimated revenue differential in market i
         A_subset = A_matrix[:, 1 : (num_products + 1)]
@@ -132,14 +132,14 @@ def m_function(
         # Initialize X_data
         X_data = np.empty((n, 4 * (ml_indx[0].size + mu_indx[0].size)))
 
-        # Create dummy IV vector
-        Z_mat = np.ones(num_products)
+        # Create dummy IV "matrix"
+        Z_mat = np.array([1])
         # employment rate
-        Z3_mat = (IV_matrix[0:num_products, 1] > np.median(IV_matrix[:, 1])).astype(int)
+        Z3_mat = (IV_matrix[:, 1] > np.median(IV_matrix[:, 1])).astype(int)
         # average income in market
-        Z5_mat = (IV_matrix[0:num_products, 2] > np.median(IV_matrix[:, 2])).astype(int)
+        Z5_mat = (IV_matrix[:, 2] > np.median(IV_matrix[:, 2])).astype(int)
         # median income in market
-        Z7_mat = (IV_matrix[0:num_products, 3] > np.median(IV_matrix[:, 3])).astype(int)
+        Z7_mat = (IV_matrix[:, 3] > np.median(IV_matrix[:, 3])).astype(int)
 
         # Subset vector of estimated revenue differential in market i
         A_subset = A_matrix[:, 1 : (num_products + 1)]
@@ -219,7 +219,9 @@ def MomentFunct_L(
     theta_vector = theta[J0_vec[:, 1].astype(int) - 1]
 
     # Run equation (26) for each product
-    return ((A_subset - theta_vector[np.newaxis, :]) * (1 - D_mat) - Vbar * D_mat) * Z_mat[np.newaxis, :]
+    return (
+        (A_subset - theta_vector[np.newaxis, :]) * (1 - D_mat) - Vbar * D_mat
+    ) * Z_mat[:, np.newaxis]
 
 
 def MomentFunct_U(
@@ -264,4 +266,6 @@ def MomentFunct_U(
     theta_vector = theta[J0_vec[:, 1].astype(int) - 1]
 
     # Run equation (27) for each product
-    return ((A_subset + theta_vector[np.newaxis, :]) * D_mat - Vbar * (1 - D_mat)) * Z_mat[np.newaxis, :]
+    return (
+        (A_subset + theta_vector[np.newaxis, :]) * D_mat - Vbar * (1 - D_mat)
+    ) * Z_mat[:, np.newaxis]
