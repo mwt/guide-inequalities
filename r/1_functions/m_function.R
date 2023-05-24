@@ -54,13 +54,13 @@ m_function <- function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0) 
     Z_mat <- 1
 
     # Subset vector of estimated revenue differential in market i
-    A_vec <- A_matrix[, 2:(J0 + 1)]
+    A_subset <- A_matrix[, 2:(J0 + 1)]
     # Subset vector of product portfolio of coca-cola and
     # energy-products in market i
-    D_vec <- W_data[, J0_vec[, 1]]
+    D_mat <- W_data[, J0_vec[, 1]]
 
-    ml_vec <- MomentFunct_L(A_vec, D_vec, Z_mat, J0_vec, theta, Vbar)
-    mu_vec <- MomentFunct_U(A_vec, D_vec, Z_mat, J0_vec, theta, Vbar)
+    ml_vec <- MomentFunct_L(A_subset, D_mat, Z_mat, J0_vec, theta, Vbar)
+    mu_vec <- MomentFunct_U(A_subset, D_mat, Z_mat, J0_vec, theta, Vbar)
 
     X_data <- cbind(ml_vec[, ml_indx], mu_vec[, mu_indx])
   } else {
@@ -71,26 +71,26 @@ m_function <- function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0) 
     # average income in market
     Z5_mat <- as.numeric(IV_matrix[, 3] > median(IV_matrix[, 3]))
     # median income in market
-    Z7_vec <- as.numeric(IV_matrix[, 4] > median(IV_matrix[, 4]))
+    Z7_mat <- as.numeric(IV_matrix[, 4] > median(IV_matrix[, 4]))
 
     # Subset vector of estimated revenue differential in market i
-    A_vec <- A_matrix[, 2:(J0 + 1)]
+    A_subset <- A_matrix[, 2:(J0 + 1)]
     # Subset vector of product portfolio of coca-cola and
     # energy-products in market i
-    D_vec <- W_data[, J0_vec[, 1]]
+    D_mat <- W_data[, J0_vec[, 1]]
 
     # Compute lower and upper bounds
-    ml_vec0 <- MomentFunct_L(A_vec, D_vec, Z0_mat, J0_vec, theta, Vbar)
-    mu_vec0 <- MomentFunct_U(A_vec, D_vec, Z0_mat, J0_vec, theta, Vbar)
+    ml_vec0 <- MomentFunct_L(A_subset, D_mat, Z0_mat, J0_vec, theta, Vbar)
+    mu_vec0 <- MomentFunct_U(A_subset, D_mat, Z0_mat, J0_vec, theta, Vbar)
 
-    ml_vec3 <- MomentFunct_L(A_vec, D_vec, Z3_mat, J0_vec, theta, Vbar)
-    mu_vec3 <- MomentFunct_U(A_vec, D_vec, Z3_mat, J0_vec, theta, Vbar)
+    ml_vec3 <- MomentFunct_L(A_subset, D_mat, Z3_mat, J0_vec, theta, Vbar)
+    mu_vec3 <- MomentFunct_U(A_subset, D_mat, Z3_mat, J0_vec, theta, Vbar)
 
-    ml_vec5 <- MomentFunct_L(A_vec, D_vec, Z5_mat, J0_vec, theta, Vbar)
-    mu_vec5 <- MomentFunct_U(A_vec, D_vec, Z5_mat, J0_vec, theta, Vbar)
+    ml_vec5 <- MomentFunct_L(A_subset, D_mat, Z5_mat, J0_vec, theta, Vbar)
+    mu_vec5 <- MomentFunct_U(A_subset, D_mat, Z5_mat, J0_vec, theta, Vbar)
 
-    ml_vec7 <- MomentFunct_L(A_vec, D_vec, Z7_vec, J0_vec, theta, Vbar)
-    mu_vec7 <- MomentFunct_U(A_vec, D_vec, Z7_vec, J0_vec, theta, Vbar)
+    ml_vec7 <- MomentFunct_L(A_subset, D_mat, Z7_mat, J0_vec, theta, Vbar)
+    mu_vec7 <- MomentFunct_U(A_subset, D_mat, Z7_mat, J0_vec, theta, Vbar)
 
     X_data <- cbind(
       ml_vec0[, ml_indx],
