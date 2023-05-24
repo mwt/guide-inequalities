@@ -15,7 +15,7 @@
 
 % output
 
-% '_results/tables-tex/table_B2.tex'     confidence intervals and comp.time
+% '_results/tables-tex/table_b2.tex'     confidence intervals and comp.time
 
 % comment:
 % the first column of A_matrix and D_matrix were used to index the markets,
@@ -56,7 +56,7 @@ sim.grid_Theta = [reshape(grid1, [1 sim.num_points])', reshape(grid2, [1 sim.num
 sim.rng_seed = 20220826;
 sim.num_boots = 1000;
 sim.num_robots = 4; % number of parallel workers
-sim.sim_name = 'table_B2';
+sim.sim_name = 'table_b2';
 
 results = struct;
 results.CI_vec = {zeros(4, 2), zeros(4, 2)}; % specs x {LB, UB}

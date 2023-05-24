@@ -25,7 +25,7 @@ function c_value = cvalue_SPUR1(X_data, num_boots, alpha_input, An_vec, rng_seed
 
     Snstar_vec = max(-min(Tn_vec + An_vec, 0)); % An_vec: 1 x num_boots, Tn_vec: k x num_boots,
 
-    %% Step 3: Finde critical value
+    %% Step 3: Find critical value
 
     qq_alpha = quantile(Snstar_vec, 1 - alpha); % conditional (1-alpha)-quantile of Snstar_vec given random sample X_data
     c_value = qq_alpha;

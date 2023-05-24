@@ -18,11 +18,17 @@ num_boots = 1000;
 % Function Calls
 % Table 2 function calls
 disp("No IV, CCK, SN")
-disp(G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, 1, 'CCK', 'SN', alpha, num_boots, rng_seed))
+disp(G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, [], 1, 'CCK', 'SN', alpha, num_boots, rng_seed))
 disp("No IV, CCK, SN2S")
-disp(G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, 1, 'CCK', 'SN2S', alpha, num_boots, rng_seed))
+disp(G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, [], 1, 'CCK', 'SN2S', alpha, num_boots, rng_seed))
 disp("No IV, CCK, EB2S")
-disp(G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, 1, 'CCK', 'EB2S', alpha, num_boots, rng_seed))
+disp(G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, [], 1, 'CCK', 'EB2S', alpha, num_boots, rng_seed))
+disp("No IV, RC-CCK, SPUR1")
+disp(G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, [], 1, 'RC-CCK', 'SPUR1', alpha, num_boots, rng_seed, zeros(1, num_boots), 0))
 
-disp("M hat")
-disp(m_hat(m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, 'all'),[],0))
+X_data = m_function(W_data, A_matrix, theta0, J0_vec, Vbar, [], 1);
+disp("Std B Vec")
+disp(std_B_vec(-X_data, num_boots, rng_seed))
+
+%disp("M hat")
+%disp(m_hat(m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, 'all'),[],0))

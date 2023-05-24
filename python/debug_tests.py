@@ -30,7 +30,7 @@ print(
         theta,
         J0_vec,
         Vbar,
-        IV_matrix,
+        None,
         1,
         "CCK",
         "SN",
@@ -47,7 +47,7 @@ print(
         theta,
         J0_vec,
         Vbar,
-        IV_matrix,
+        None,
         1,
         "CCK",
         "SN2S",
@@ -64,7 +64,7 @@ print(
         theta,
         J0_vec,
         Vbar,
-        IV_matrix,
+        None,
         1,
         "CCK",
         "EB2S",
@@ -73,6 +73,29 @@ print(
         rng_seed,
     )
 )
+print("No IV, RC-CCK, SPUR1")
+print(
+   ineq.g_restriction(
+       W_data,
+       A_matrix,
+       theta,
+       J0_vec,
+       Vbar,
+       None,
+       1,
+       "RC-CCK",
+       "SPUR1",
+       alpha,
+       num_boots,
+       rng_seed,
+       An_vec=np.zeros(num_boots),
+       hat_r_inf=0,
+   )
+)
 
-print("M hat")
-print(ineq.m_hat(ineq.m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, "all")))
+X_data = ineq.m_function(W_data, A_matrix, theta, J0_vec, Vbar, None, 1)
+print("Std B Vec")
+print(ineq.std_b_vec(-X_data, num_boots, rng_seed))
+
+# print("M hat")
+# print(ineq.m_hat(ineq.m_function(W_data, A_matrix, theta, J0_vec, Vbar, None, "all")))

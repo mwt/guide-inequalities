@@ -59,7 +59,7 @@ def cvalue_SN(X_data: np.ndarray, alpha: float) -> float:
 
 def cvalue_SN2S(X_data: np.ndarray, alpha: float, beta: float | None = None) -> float:
     """Calculate the c-value for the SN2S test statistic defined in eq (41) of
-    Section 5 in Canay, Illanes, and Velez (2023)
+    Section 5 in Canay, Illanes, and Velez (2023).
 
     Parameters
     ----------
@@ -114,7 +114,7 @@ def cvalue_EB2S(
     bootstrap_indices: np.ndarray | None = None,
 ) -> float:
     """Calculate the c-value for the EB2S test statistic defined in eq (48) of
-    Section 5 in Canay, Illanes, and Velez (2023)
+    Section 5 in Canay, Illanes, and Velez (2023).
 
     Parameters
     ----------
@@ -132,9 +132,10 @@ def cvalue_EB2S(
         Random number generator seed (for replication purposes). If not
         specified, the system seed will be used as-is.
     bootstrap_indices : array_like, optional
-        Integer array of shape (bootstrap_replications, n) for the bootstrap replications. If this is
-        specified, bootstrap_replications and rng_seed will be ignored. If this is not specified, bootstrap_replications
-        is required.
+        Integer array of shape (bootstrap_replications, n) for the bootstrap
+        replications. If this is specified, bootstrap_replications and rng_seed
+        will be ignored. If this is not specified, bootstrap_replications is
+        required.
 
     Returns
     -------

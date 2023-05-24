@@ -1,5 +1,6 @@
 import numpy as np
 
+from .andrews_kwon import cvalue_SPUR1
 from .cvalue import cvalue_EB2S, cvalue_SN, cvalue_SN2S
 from .moment import m_function, m_hat
 
@@ -84,7 +85,6 @@ def g_restriction(
         raise ValueError("An_vec and hat_r_inf must be provided for SPUR1 and RC-CCK")
 
     X_data = m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0)
-    m_hat0 = m_hat(X_data)
     n = X_data.shape[0]
 
     # see Section 4.2.2 in Chernozhukov et al. (2019)
@@ -95,11 +95,11 @@ def g_restriction(
     ## 2. RC-CCK
     match test0:
         case "CCK":
+            m_hat0 = m_hat(X_data)
             test_stat = np.sqrt(n) * np.max(m_hat0)
         case "RC-CCK":
-            test_stat = -np.sqrt(n) * np.max(
-                np.min(np.concatenate((m_hat0 + hat_r_inf, 0)))
-            )
+            m_hat0 = m_hat(-X_data)
+            test_stat = np.sqrt(n) * np.max(-1 * (m_hat0 + hat_r_inf).clip(max=0))
         case _:
             raise ValueError("test0 must be either CCK or RC-CCK")
 
@@ -110,8 +110,6 @@ def g_restriction(
     ## 3. SN2S as in eq (41)
     ## 4. EB2S as in eq (48)
     match cvalue:
-        # case "SPUR1":
-        #    critical_value = cvalue_SPUR1(-X_data, bootstrap_replications, alpha, An_vec, rng_seed)
         case "SN":
             critical_value = cvalue_SN(X_data, alpha)
         case "SN2S":
@@ -119,6 +117,15 @@ def g_restriction(
         case "EB2S":
             critical_value = cvalue_EB2S(
                 X_data, alpha, beta, bootstrap_replications, rng_seed, bootstrap_indices
+            )
+        case "SPUR1":
+            critical_value = cvalue_SPUR1(
+                -X_data,
+                alpha,
+                An_vec,
+                bootstrap_replications,
+                rng_seed,
+                bootstrap_indices,
             )
         case _:
             raise ValueError("cvalue must be either SPUR1, SN, SN2S, or EB2S")

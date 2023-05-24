@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def m_hat(X_data: np.ndarray, xi_draw: np.ndarray | None = None, fun_type: int = 0):
+def m_hat(X_data: np.ndarray, axis: int = 0) -> np.ndarray:
     """Compute a standardized sample mean of the moment functions as in eq (A.13)
 
     Parameters
@@ -9,12 +9,8 @@ def m_hat(X_data: np.ndarray, xi_draw: np.ndarray | None = None, fun_type: int =
     X_data : array_like
         Matrix of the moment functions with n rows (output of
         :func:`ineq_functions.m_function`).
-    xi_draw : array_like or None, optional
-        Vector of row indices to draw from X. Indexing starts at 1 to maintain
-        consistency with R and MATLAB.
-    fun_type : {0, 1}, optional
-        Type of operation to use. 0: use all rows of X_data, 1: use rows of
-        X_data selected by xi_draw.
+    axis : int, default=0
+        Axis along which the mean and standard deviation are computed.
 
     Returns
     -------
@@ -29,17 +25,17 @@ def m_hat(X_data: np.ndarray, xi_draw: np.ndarray | None = None, fun_type: int =
         :math:`sigma_j` std. of :math:`X_ij`
       - this function computes the vector :math:`mu_j / sigma_j`
     """
-    # if type 1 is selected, then we select using xi_draw the rows of X_data
-    if fun_type == 1:
-        X_data = X_data[xi_draw.astype(int) - 1, :]
-
     # Compute the mean of each column of X_data
-    mu_hat = np.mean(X_data, axis=0)
+    mu_hat = np.mean(X_data, axis=axis)
     # Compute the standard deviation of each column of X_data
-    sigma_hat = np.std(X_data, axis=0)
+    sigma_hat = np.std(X_data, axis=axis)
 
     # as in eq (A.13) and similar to eq. (4.2) in Andrews and Kwon (2023)
-    return mu_hat / sigma_hat
+    # use np.divide to avoid division by zero (treat 0/0 as 0)
+    not_zero_over_zero = np.logical_or(sigma_hat != 0, mu_hat != 0)
+    return np.divide(
+        mu_hat, sigma_hat, out=np.zeros_like(mu_hat), where=not_zero_over_zero
+    )
 
 
 def m_function(
