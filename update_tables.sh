@@ -20,6 +20,15 @@ fi
 if [ ! -f ./matlab/_results/tables-tex/table_2.tex ]; then
     matlab -batch "run('matlab/table_2.m')"
 fi
+if [ ! -f ./matlab/_results/tables-tex/table_3.tex ]; then
+    matlab -batch "run('matlab/table_3.m')"
+fi
+if [ ! -f ./matlab/_results/tables-tex/table_4.tex ]; then
+    matlab -batch "run('matlab/table_4.m')"
+fi
+if [ ! -f ./matlab/_results/tables-tex/table_b2.tex ]; then
+    matlab -batch "run('matlab/table_b2.m')"
+fi
 
 ## R
 if [ ! -f ./r/_results/tables-tex/table_1.tex ]; then
@@ -78,6 +87,18 @@ $(pandoc -f latex -t gfm ./matlab/_results/tables-tex/table_1.tex)
 #### Table 2
 
 $(pandoc -f latex -t gfm ./matlab/_results/tables-tex/table_2.tex)
+
+#### Table 3
+
+$(pandoc -f latex -t gfm ./matlab/_results/tables-tex/table_3.tex)
+
+#### Table 4
+
+$(pandoc -f latex -t gfm ./matlab/_results/tables-tex/table_4.tex)
+
+#### Table B2
+
+$(pandoc -f latex -t gfm ./matlab/_results/tables-tex/table_b2.tex)
 
 ### R tables
 

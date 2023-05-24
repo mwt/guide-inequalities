@@ -1,4 +1,4 @@
-% This function finds the test statistic and critical value as in Section 5
+% This function find the test statistic and critical value as in Section 5
 % - the test statistic is as in eq. (38)
 % - the critical value is as in eq. (40), (41) and (48)
 %
@@ -61,15 +61,14 @@ function salida = G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matri
         if strcmp(test0, 'RC-CCK')
 
             X_data = m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, grid0);
-            m_hat0 = m_hat(X_data, [], 0); % as in eq. (4.2) in Andrews and Kwon (2023)
+            m_hat0 = m_hat(-X_data, [], 0); % as in eq. (4.2) in Andrews and Kwon (2023)
             n = size(X_data, 1);
 
             S_n = sqrt(n) * (m_hat0 + hat_r_inf); % re-centering step as in (4.5) in  Andrews and Kwon (2023)
             S_n = max(-min(S_n, 0)); % = max(-S_n) = T_n recentered, since by definition S_n <=0
 
             if strcmp(cvalue, 'SPUR1')
-                X_data = -X_data; % in order to use the same condition on the moments as in eq. (3.1) in Andrews and Kwon (2023)
-                c_value = cvalue_SPUR1(X_data, num_boots, alpha_input, An_vec, rng_seed); % compute the critical value presented in Section 4.4 in Andrews and Kwon (2023)
+                c_value = cvalue_SPUR1(-X_data, num_boots, alpha_input, An_vec, rng_seed); % compute the critical value presented in Section 4.4 in Andrews and Kwon (2023)
             end
 
             if strcmp(cvalue, 'SN2S')
