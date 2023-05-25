@@ -9,7 +9,7 @@ J0_vec = csvread(fullfile('..', 'data', 'J0.csv')); % (product, firm), where fir
 num_market = size(A_matrix, 1);
 num_product = size(D_matrix, 1) - 1;
 W_data = D_matrix(:, 2:end);
-Vbar = 500;
+Vbar = 0;
 theta0 = [7 12]';
 alpha = 0.05;
 rng_seed = 20220826;
@@ -25,10 +25,6 @@ disp("No IV, CCK, EB2S")
 disp(G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, [], 1, 'CCK', 'EB2S', alpha, num_boots, rng_seed))
 disp("No IV, RC-CCK, SPUR1")
 disp(G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, [], 1, 'RC-CCK', 'SPUR1', alpha, num_boots, rng_seed, zeros(1, num_boots), 0))
-
-X_data = m_function(W_data, A_matrix, theta0, J0_vec, Vbar, [], 1);
-disp("Std B Vec")
-disp(std_B_vec(-X_data, num_boots, rng_seed))
 
 %disp("M hat")
 %disp(m_hat(m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, 'all'),[],0))

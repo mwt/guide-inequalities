@@ -16,7 +16,7 @@ D_matrix = load_data("D")
 IV_matrix = load_data("IV")
 J0_vec = load_data("J0")
 W_data = D_matrix[:, 1:]
-Vbar = 500
+Vbar = 0
 theta = np.array([7, 12])
 alpha = 0.05
 rng_seed = 20220826
@@ -92,10 +92,6 @@ print(
        hat_r_inf=0,
    )
 )
-
-X_data = ineq.m_function(W_data, A_matrix, theta, J0_vec, Vbar, None, 1)
-print("Std B Vec")
-print(ineq.std_b_vec(-X_data, num_boots, rng_seed))
 
 # print("M hat")
 # print(ineq.m_hat(ineq.m_function(W_data, A_matrix, theta, J0_vec, Vbar, None, "all")))

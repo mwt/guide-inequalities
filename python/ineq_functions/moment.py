@@ -32,7 +32,7 @@ def m_hat(X_data: np.ndarray, axis: int = 0) -> np.ndarray:
 
     # as in eq (A.13) and similar to eq. (4.2) in Andrews and Kwon (2023)
     # use np.divide to avoid division by zero (treat 0/0 as 0)
-    not_zero_over_zero = np.logical_or(sigma_hat != 0, mu_hat != 0)
+    not_zero_over_zero = (sigma_hat != 0) | (mu_hat != 0)
     return np.divide(
         mu_hat, sigma_hat, out=np.zeros_like(mu_hat), where=not_zero_over_zero
     )
