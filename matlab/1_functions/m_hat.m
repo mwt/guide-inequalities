@@ -26,6 +26,8 @@ function salida = m_hat(X_data, xi_draw, type)
     Xstd = std(X_data, 1);
     Xhat = Xmean ./ Xstd; % as in eq (A.13) and similar to eq. (4.2) in Andrews and Kwon (2023)
 
+    Xhat(Xmean == 0) = 0; % to avoid NaNs (0/0 = 0)
+
     salida = Xhat;
 
 end
