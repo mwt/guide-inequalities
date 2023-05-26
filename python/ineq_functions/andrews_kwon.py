@@ -45,7 +45,7 @@ def cvalue_SPUR1(
     # Step 1: Computation of Bootstrap statistic
 
     std_b0 = std_b_vec(X_data, bootstrap_replications, rng_seed, bootstrap_indices)
-    std_b1 = std_b0[1, :]
+    std_b1 = std_b0[0, :]
     tn_vec = tn_star(
         X_data, std_b1, kappa_n, bootstrap_replications, rng_seed, bootstrap_indices
     )
@@ -53,8 +53,8 @@ def cvalue_SPUR1(
     sn_star_vec = np.max(-1 * (tn_vec + an_vec[:, np.newaxis]).clip(max=0), axis=1)
 
     # Step 2: Computation of critical value
-
-    c_value = np.quantile(sn_star_vec, 1 - alpha)
+    # We use the midpoint interpolation method for consistency with MATLAB
+    c_value = np.quantile(sn_star_vec, 1 - alpha, interpolation='midpoint')
 
     return c_value
 
@@ -186,8 +186,11 @@ def tn_star(
 
     xi_n = (np.sqrt(n) * (m_hat0 + r_hat)) / (std_b1 * kappa_n)
     phi_n = np.zeros_like(xi_n)
-    phi_n[xi_n > 1] = np.Inf
+    phi_n[xi_n > 1] = np.inf
 
-    tn_star_vec = np.sqrt(n) * (m_hat(X_data[bootstrap_indices, :], axis=1) - m_hat0)
+    # Combining (4.17) and (4.18) from Andrews and Kwon (2023)
+    tn_star_vec = (
+        np.sqrt(n) * (m_hat(X_data[bootstrap_indices, :], axis=1) - m_hat0) + phi_n
+    )
 
     return tn_star_vec

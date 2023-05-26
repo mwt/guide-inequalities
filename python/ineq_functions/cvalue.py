@@ -189,10 +189,13 @@ def cvalue_EB2S(
     # Step 2: Critical value
 
     ## Selection of moment inequalities that are almost binding as in eq (46)
-    if np.sum(test_stat0 > (-2 * cvalue0)) > 0:
+    if np.any(test_stat0 > (-2 * cvalue0)):
         WEB_matrix2 = WEB_matrix[:, test_stat0 > (-2 * cvalue0)]
         WEB_vector2 = np.max(WEB_matrix2, axis=1)
-        cvalue1 = np.quantile(WEB_vector2, 1 - alpha + 2 * beta)
+        # We use the midpoint interpolation method for consistency with MATLAB
+        cvalue1 = np.quantile(
+            WEB_vector2, 1 - alpha + 2 * beta, interpolation="midpoint"
+        )
     else:
         cvalue1 = 0
 

@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import numpy as np
-import scipy as sp
 
 import ineq_functions as ineq
 
@@ -19,8 +18,9 @@ W_data = D_matrix[:, 1:]
 Vbar = 0
 theta = np.array([7, 12])
 alpha = 0.05
-rng_seed = 20220826
-num_boots = 1000
+bootstrap_indices = load_data("random").astype(int)
+bootstrap_indices = bootstrap_indices.T - 1
+num_boots = bootstrap_indices.shape[0]
 
 print("No IV, CCK, SN")
 print(
@@ -35,8 +35,7 @@ print(
         "CCK",
         "SN",
         alpha,
-        num_boots,
-        rng_seed,
+        bootstrap_indices=bootstrap_indices,
     )
 )
 print("No IV, CCK, SN2S")
@@ -52,8 +51,7 @@ print(
         "CCK",
         "SN2S",
         alpha,
-        num_boots,
-        rng_seed,
+        bootstrap_indices=bootstrap_indices,
     )
 )
 print("No IV, CCK, EB2S")
@@ -69,29 +67,36 @@ print(
         "CCK",
         "EB2S",
         alpha,
-        num_boots,
-        rng_seed,
+        bootstrap_indices=bootstrap_indices,
     )
 )
 print("No IV, RC-CCK, SPUR1")
 print(
-   ineq.g_restriction(
-       W_data,
-       A_matrix,
-       theta,
-       J0_vec,
-       Vbar,
-       None,
-       1,
-       "RC-CCK",
-       "SPUR1",
-       alpha,
-       num_boots,
-       rng_seed,
-       An_vec=np.zeros(num_boots),
-       hat_r_inf=0,
-   )
+    ineq.g_restriction(
+        W_data,
+        A_matrix,
+        theta,
+        J0_vec,
+        Vbar,
+        None,
+        1,
+        "RC-CCK",
+        "SPUR1",
+        alpha,
+        bootstrap_indices=bootstrap_indices,
+        An_vec=np.zeros(num_boots),
+        hat_r_inf=0,
+    )
 )
+
+# X_data = ineq.m_function(W_data, A_matrix, theta, J0_vec, Vbar, None, 1)
+# n = X_data.shape[0]  # sample size
+# kappa_n = np.sqrt(np.log(n))  # tuning parameter
+# std_b0 = ineq.std_b_vec(X_data=X_data, bootstrap_indices=bootstrap_indices)
+# std_b1 = std_b0[0, :]
+# tn_vec = ineq.tn_star(X_data, std_b1, kappa_n, bootstrap_indices=bootstrap_indices)
+# mhatstar_vec = ineq.m_hat(X_data[bootstrap_indices, :], axis=1)
+# print(tn_vec[0, :])
 
 # print("M hat")
 # print(ineq.m_hat(ineq.m_function(W_data, A_matrix, theta, J0_vec, Vbar, None, "all")))
