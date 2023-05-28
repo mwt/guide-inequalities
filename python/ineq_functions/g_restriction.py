@@ -79,10 +79,10 @@ def g_restriction(
       - This function also includes the re-centered test statistic as in
         Section 8.2.2 and critical value SPUR1 as in Appendix Section C.
     """
-    if (cvalue == "SPUR1" or test0 == "RC-CCK") and (
-        An_vec is None or hat_r_inf is None
-    ):
-        raise ValueError("An_vec and hat_r_inf must be provided for SPUR1 and RC-CCK")
+    if (cvalue == "SPUR1" and An_vec is None):
+        raise ValueError("An_vec must be provided for SPUR1")
+    if (test0 == "RC-CCK" and hat_r_inf is None):
+        raise ValueError("hat_r_inf must be provided for RC-CCK")
 
     X_data = m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0)
     n = X_data.shape[0]

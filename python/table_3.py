@@ -94,15 +94,40 @@ for sim_i in range(4):
             )
             hat_r_inf = np.min(rhat_vec)
             results["hat_r_inf"][sim_i, theta_index] = hat_r_inf
-
-            # Step 1.2: find An_vec
-            # Nonsense temporary value
-            an_vec = np.zeros(sim["bootstrap_replications"])
         else:
             hat_r_inf = None
+
+        if settings["cv"][sim_i] == "SPUR1":
+            # Step 1.2: find An_vec
+            aux1_var = np.array(
+                Parallel(n_jobs=sim["num_robots"])(
+                    delayed(ineq.rhat)(
+                        W_data=dgp["W"],
+                        A_matrix=dgp["A"],
+                        theta=theta0(theta, theta_index),
+                        J0_vec=dgp["J0"],
+                        Vbar=settings["Vbar"][sim_i],
+                        IV_matrix=settings["IV"],
+                        grid0=theta_index + 1,
+                        adjust=hat_r_inf,
+                    )
+                    for theta in sim["grid_theta"][theta_index]
+                )
+            )
+            an_vec = ineq.an_vec(
+                aux1_var,
+                hat_r_inf,
+                W_data=dgp["W"],
+                A_matrix=dgp["A"],
+                theta_grid=sim["grid_theta"][theta_index],
+                J0_vec=dgp["J0"],
+                Vbar=settings["Vbar"][sim_i],
+                IV_matrix=settings["IV"],
+                grid0=theta_index + 1,
+                bootstrap_indices=bootstrap_indices,
+            )
+        else:
             an_vec = None
-
-
 
         # Step 2: find test stat. Tn(theta) and c.value(theta) using G_restriction
         output = np.array(
@@ -168,15 +193,10 @@ for ci_theta in results["CI_vec"]:
     the_table = np.column_stack(
         (
             the_table,
-            np.apply_along_axis(
-                lambda x: "["
-                + "{:.1f}".format(x[0])
-                + ", "
-                + "{:.1f}".format(x[1])
-                + "]",
-                1,
-                ci_theta,
-            ),
+            [
+                "[" + "{:.1f}".format(x[0]) + ", " + "{:.1f}".format(x[1]) + "]"
+                for x in ci_theta
+            ],
         )
     )
 the_table = np.column_stack((the_table, results["comp_time"]))

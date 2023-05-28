@@ -11,6 +11,7 @@ def rhat(
     Vbar: float,
     IV_matrix: np.ndarray | None = None,
     grid0: int | str = "all",
+    adjust: np.ndarray = np.array([0]),
 ) -> float:
     """Find the points of the rhat vector as in Andrews and Kwon (2023)
 
@@ -30,6 +31,8 @@ def rhat(
         n x d_IV matrix of instruments or None if no instruments are used.
     grid0 : {1, 2, 'all'}, default='all'
         Grid direction to use for the estimation of the model.
+    adjust : array_like, optional
+        Adjustment to the m_hat vector. Default is 0.
 
     Returns
     -------
@@ -39,7 +42,120 @@ def rhat(
     # note we use -m_function
     X_data = -1 * m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0)
     m_hat0 = m_hat(X_data)
-    return np.max(-1 * m_hat0.clip(max=0))
+    return np.max(-1 * (m_hat0 + adjust).clip(max=0))
+
+
+def an_vec(
+    aux1_var: np.ndarray,
+    hat_r_inf: float,
+    W_data: np.ndarray,
+    A_matrix: np.ndarray,
+    theta_grid: np.ndarray,
+    J0_vec: np.ndarray,
+    Vbar: float,
+    IV_matrix,
+    grid0: int,
+    bootstrap_replications: int | None = None,
+    rng_seed: int | None = None,
+    bootstrap_indices: np.ndarray | None = None,
+) -> np.ndarray:
+    n = A_matrix.shape[0]
+    tau_n = np.sqrt(np.log(n))
+    kappa_n = np.sqrt(np.log(n))
+
+    boole_of_interest = (aux1_var <= tau_n / np.sqrt(n)) | (aux1_var == 1)
+    theta_of_interest = theta_grid[boole_of_interest]
+
+    if bootstrap_indices is None:
+        BB = bootstrap_replications
+    else:
+        BB = bootstrap_indices.shape[0]
+
+    an_mat = np.zeros((BB, theta_of_interest.shape[0]))
+
+    for i, t in enumerate(theta_of_interest):
+        the_theta = np.zeros(2)
+        the_theta[grid0 - 1] = t
+
+        X_data = -1 * m_function(
+            W_data, A_matrix, the_theta, J0_vec, Vbar, IV_matrix, grid0
+        )
+        b0_vec = std_b_vec(X_data, bootstrap_replications, rng_seed, bootstrap_indices)
+        std_b2 = b0_vec[1, :]
+        std_b3 = b0_vec[2, :]
+        an_mat[:, i] = an_star(
+            X_data,
+            std_b2,
+            std_b3,
+            kappa_n,
+            hat_r_inf,
+            bootstrap_replications,
+            rng_seed,
+            bootstrap_indices,
+        )
+
+    return np.min(an_mat, axis=1)
+
+
+def an_star(
+    X_data: np.ndarray,
+    std_b2: np.ndarray,
+    std_b3: np.ndarray,
+    kappa_n: float,
+    hat_r_inf: float,
+    bootstrap_replications: int | None = None,
+    rng_seed: int | None = None,
+    bootstrap_indices: np.ndarray | None = None,
+) -> np.ndarray:
+    n = X_data.shape[0]
+    k = X_data.shape[1]
+
+    # Obtain random numbers for the bootstrap
+    if bootstrap_indices is None:
+        if bootstrap_replications is None:
+            raise ValueError(
+                "bootstrap_replications must be specified if bootstrap_indices is not."
+            )
+        else:
+            if rng_seed is not None:
+                np.random.seed(rng_seed)
+            bootstrap_indices = np.random.randint(
+                0, n, size=(bootstrap_replications, n)
+            )
+
+    # Step 1: Obtain hat_j_r(theta) as in (4.24) in Andrews and Kwon (2023)
+    m_hat0 = m_hat(X_data)
+    r_hat_vec = -1 * (m_hat0).clip(max=0)
+    r_hat0 = np.max(r_hat_vec)
+
+    # Obtain set of indicies for which this inequality holds
+    hat_j_r = (r_hat_vec >= r_hat0 - std_b3 * kappa_n / np.sqrt(n)).nonzero()[0]
+
+    # Step 2: Compute the objective function
+    hat_b = np.sqrt(n) * (r_hat_vec - hat_r_inf) - std_b3 * kappa_n
+    xi_a = (np.sqrt(n) * (r_hat_vec - hat_r_inf)) / (std_b3 * kappa_n)
+
+    phi_n = np.zeros_like(xi_a)
+    phi_n[xi_a > 1] = np.inf
+
+    # Use the bootstrap
+    vstar = np.sqrt(n) * (m_hat(X_data[bootstrap_indices, :], axis=1) - m_hat0)
+
+    # Obtain plus-minus variable based on sign of vstar (negative if vstar >= 0)
+    pm = 1 - 2 * (vstar >= 0)
+
+    hat_hi_star = (
+        -1 * (np.sqrt(n) * m_hat0 + pm * std_b2 * kappa_n + vstar).clip(max=0)
+    ) - (-1 * (np.sqrt(n) * m_hat0 + pm * std_b2 * kappa_n).clip(max=0))
+
+    aux_vec2 = np.zeros((vstar.shape[0], hat_j_r.shape[0]))
+
+    for i, j in enumerate(hat_j_r):
+        hat_bnew = hat_b
+        hat_bnew[j] = phi_n[j]
+        aux_vec2[:, i] = np.max(hat_bnew + hat_hi_star, axis=1)
+
+    return np.min(aux_vec2, axis=1)
 
 
 def cvalue_SPUR1(

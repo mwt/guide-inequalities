@@ -133,15 +133,10 @@ for ci_theta in results["CI_vec"]:
     the_table = np.column_stack(
         (
             the_table,
-            np.apply_along_axis(
-                lambda x: "["
-                + "{:.1f}".format(x[0])
-                + ", "
-                + "{:.1f}".format(x[1])
-                + "]",
-                1,
-                ci_theta,
-            ),
+            [
+                "[" + "{:.1f}".format(x[0]) + ", " + "{:.1f}".format(x[1]) + "]"
+                for x in ci_theta
+            ],
         )
     )
 the_table = np.column_stack((the_table, results["comp_time"]))
