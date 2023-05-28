@@ -1,5 +1,45 @@
 import numpy as np
-from .moment import m_hat
+
+from .moment import m_function, m_hat
+
+
+def rhat(
+    W_data: np.ndarray,
+    A_matrix: np.ndarray,
+    theta: np.ndarray,
+    J0_vec: np.ndarray,
+    Vbar: float,
+    IV_matrix: np.ndarray | None = None,
+    grid0: int | str = "all",
+) -> float:
+    """Find the points of the rhat vector as in Andrews and Kwon (2023)
+
+    Parameters
+    ----------
+    W_data : array_like
+        n x J0 matrix of product portfolio.
+    A_matrix : array_like
+        n x (J0 + 1) matrix of estimated revenue differential.
+    theta : array_like
+        d_theta x 1 parameter of interest.
+    J0_vec : array_like
+        J0 x 2 matrix of ownership by two firms.
+    Vbar : float
+        Tuning parameter as in Assumption 4.2
+    IV_matrix : array_like, optional
+        n x d_IV matrix of instruments or None if no instruments are used.
+    grid0 : {1, 2, 'all'}, default='all'
+        Grid direction to use for the estimation of the model.
+
+    Returns
+    -------
+    float
+        Value of rhat for a given parameter theta.
+    """
+    # note we use -m_function
+    X_data = -1 * m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0)
+    m_hat0 = m_hat(X_data)
+    return np.max(-1 * m_hat0.clip(max=0))
 
 
 def cvalue_SPUR1(
@@ -54,7 +94,7 @@ def cvalue_SPUR1(
 
     # Step 2: Computation of critical value
     # We use the midpoint interpolation method for consistency with MATLAB
-    c_value = np.quantile(sn_star_vec, 1 - alpha, interpolation='midpoint')
+    c_value = np.quantile(sn_star_vec, 1 - alpha, interpolation="midpoint")
 
     return c_value
 
