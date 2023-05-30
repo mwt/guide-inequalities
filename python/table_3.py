@@ -76,7 +76,7 @@ for sim_i in range(4):
         cv_vec = np.empty(sim["grid_size"])
 
         # Step 1: find hat_r_inf and An_vec
-        if settings["test_stat"][sim_i] == "RC-CCK":
+        if settings["test_stat"][sim_i] == "RC-CCK" or settings["cv"][sim_i] == "SPUR1":
             # Step 1.1: find hat_r_inf
             rhat_vec = np.array(
                 Parallel(n_jobs=sim["num_robots"])(
