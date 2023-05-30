@@ -151,7 +151,7 @@ def an_star(
     aux_vec2 = np.zeros((vstar.shape[0], hat_j_r.shape[0]))
 
     for i, j in enumerate(hat_j_r):
-        hat_bnew = hat_b
+        hat_bnew = hat_b.copy()
         hat_bnew[j] = phi_n[j]
         aux_vec2[:, i] = np.max(hat_bnew + hat_hi_star, axis=1)
 
