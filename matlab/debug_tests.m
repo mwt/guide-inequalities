@@ -26,11 +26,21 @@ disp(G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, [], 1, 'RC-CCK', 'SPU
 
 %disp("M hat")
 %disp(m_hat(m_function(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matrix, 'all'),[],0))
-%X_data = m_function(W_data, A_matrix, theta0, J0_vec, Vbar, [], 1);
-%n = size(X_data, 1); % sample size
-%kappa_n = sqrt(log(n)); % tuning parameter as in Section 4.7.1 in Andrews and Kwon (2023)
-%std_b0 = std_B_vec(X_data, num_boots, rng_seed);
-%std_b1 = std_b0(:, :, 1);
+X_data = m_function(W_data, A_matrix, theta0, J0_vec, Vbar, [], 1);
+n = size(X_data, 1); % sample size
+kappa_n = sqrt(log(n)); % tuning parameter as in Section 4.7.1 in Andrews and Kwon (2023)
+
+std_b0 = std_B_vec(X_data, num_boots, rng_seed);
+std_b1 = std_b0(:, :, 1);
+std_b2 = std_b0(:, :, 2);
+std_b3 = std_b0(:, :, 3);
+
+hat_r_inf = 0.22314601534719314;
+
+an_star0 = An_star(X_data, num_boots, rng_seed, std_b2, std_b3, kappa_n, hat_r_inf);
+disp("An_star")
+disp(an_star0)
+
 %Tn_vec = Tn_star(X_data, num_boots, rng_seed, std_b1, kappa_n);
 %disp(Tn_vec(:, 1))
 %n = size(X_data, 1);

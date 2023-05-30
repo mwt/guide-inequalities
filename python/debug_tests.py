@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import numpy as np
+from joblib import Parallel, delayed
 
 import ineq_functions as ineq
 
@@ -89,9 +90,32 @@ print(
     )
 )
 
-# X_data = ineq.m_function(W_data, A_matrix, theta, J0_vec, Vbar, None, 1)
-# n = X_data.shape[0]  # sample size
-# kappa_n = np.sqrt(np.log(n))  # tuning parameter
+grid_theta = np.linspace(-40, 100, 1401)
+X_data = ineq.m_function(W_data, A_matrix, theta, J0_vec, Vbar, None, 1)
+n = X_data.shape[0]  # sample size
+kappa_n = np.sqrt(np.log(n))  # tuning parameter
+
+b0_vec = ineq.std_b_vec(X_data, bootstrap_indices=bootstrap_indices)
+std_b1 = b0_vec[0, :]
+std_b2 = b0_vec[1, :]
+std_b3 = b0_vec[2, :]
+
+#rhat_vec = np.array(
+#    Parallel(n_jobs=-1)(
+#        delayed(ineq.rhat)(
+#            W_data, A_matrix, np.array([theta, 0]), J0_vec, Vbar, None, 1
+#        )
+#        for theta in grid_theta
+#    )
+#)
+hat_r_inf = 0.22314601534719314
+
+an_star = ineq.an_star(
+    X_data, std_b2, std_b3, kappa_n, hat_r_inf, bootstrap_indices=bootstrap_indices
+)
+print("an_star")
+print(an_star)
+
 # std_b0 = ineq.std_b_vec(X_data=X_data, bootstrap_indices=bootstrap_indices)
 # std_b1 = std_b0[0, :]
 # tn_vec = ineq.tn_star(X_data, std_b1, kappa_n, bootstrap_indices=bootstrap_indices)
