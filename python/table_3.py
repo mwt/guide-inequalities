@@ -59,11 +59,11 @@ bootstrap_indices = np.random.randint(0, n, size=(sim["bootstrap_replications"],
 
 
 # Define the theta0 function
-def theta0(theta, theta_index):
+def theta0(theta, the_theta_index):
     """Returns a vector with zeros everywhere except in the theta_index position
     where it returns theta. This is useful in the loop below."""
     the_theta = np.zeros(2)
-    the_theta[theta_index] = theta
+    the_theta[the_theta_index] = theta
     return the_theta
 
 
@@ -114,7 +114,7 @@ for sim_i in range(4):
                     for theta in sim["grid_theta"][theta_index]
                 )
             )
-            an_vec = ineq.an_vec(
+            an_vec = ineq.compute_an_vec(
                 aux1_var,
                 hat_r_inf,
                 W_data=dgp["W"],

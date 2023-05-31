@@ -45,7 +45,7 @@ def rhat(
     return np.max(-1 * (m_hat0 + adjust).clip(max=0))
 
 
-def an_vec(
+def compute_an_vec(
     aux1_var: np.ndarray,
     hat_r_inf: float,
     W_data: np.ndarray,
@@ -59,6 +59,43 @@ def an_vec(
     rng_seed: int | None = None,
     bootstrap_indices: np.ndarray | None = None,
 ) -> np.ndarray:
+    """Find the infimum An star as in Andrews and Kwon (2023)
+
+    Parameters
+    ----------
+    aux1_var : array_like
+        Vector of auxiliary variables with dimension n.
+    hat_r_inf : float
+        Value of rhat at the parameter of interest.
+    W_data : array_like
+        n x J0 matrix of product portfolio.
+    A_matrix : array_like
+        n x (J0 + 1) matrix of estimated revenue differential.
+    theta_grid : array_like
+        Grid of parameter values to search. The value will be set at the index
+        of theta corresponding to `grid0`. Other dimensions will be set to 0.
+    J0_vec : array_like
+        J0 x 2 matrix of ownership by two firms.
+    Vbar : float
+        Tuning parameter as in Assumption 4.2
+    IV_matrix : array_like, optional
+        n x d_IV matrix of instruments or None if no instruments are used.
+    grid0 : {1, 2}
+        Grid direction to use for the estimation of the model.
+    bootstrap_replications : int, optional
+        Number of bootstrap replications to use. If None, then bootstrap_indices must be
+        specified.
+    rng_seed : int, optional
+        Seed for the random number generator.
+    bootstrap_indices : array_like, optional
+        n x bootstrap_replications matrix of bootstrap indices. If None, then
+        bootstrap_replications must be specified.
+
+    Returns
+    -------
+    array_like
+        Vector of An star values with dimension bootstrap_replications.
+    """
     n = A_matrix.shape[0]
     tau_n = np.sqrt(np.log(n))
     kappa_n = np.sqrt(np.log(n))
@@ -66,11 +103,17 @@ def an_vec(
     boole_of_interest = (aux1_var <= tau_n / np.sqrt(n)) | (aux1_var == 1)
     theta_of_interest = theta_grid[boole_of_interest]
 
-    if bootstrap_indices is None:
+    # Obtain number of bootstrap replications
+    if bootstrap_indices is not None:
+        BB = bootstrap_indices.shape[0]
+    elif bootstrap_replications is not None:
         BB = bootstrap_replications
     else:
-        BB = bootstrap_indices.shape[0]
+        raise ValueError(
+            "Either bootstrap_replications or bootstrap_indices must be specified."
+        )
 
+    # Initialize matrix to store results
     an_mat = np.zeros((BB, theta_of_interest.shape[0]))
 
     for i, t in enumerate(theta_of_interest):
@@ -107,8 +150,32 @@ def an_star(
     rng_seed: int | None = None,
     bootstrap_indices: np.ndarray | None = None,
 ) -> np.ndarray:
+    """Computes the objective function that appears in inf problem defined in
+    eq. (4.25) in Andrews and Kwon (2023).
+
+    Parameters
+    ----------
+    X_data : array_like
+        Matrix of the moment functions with n rows (output of
+        :func:`ineq_functions.m_function`).
+    std_b2 : array_like
+        Vector of scaling factors as in eq. (4.21) of Andrews and Kwon (2023).
+        (second column of output of :func:`ineq_functions.std_b_vec`).
+    std_b3 : array_like
+        Vector of scaling factors as in eq. (4.22) of Andrews and Kwon (2023).
+        (third column of output of :func:`ineq_functions.std_b_vec`).
+    kappa_n : float
+        Tuning parameter as in (4.20) of Andrews and Kwon (2023).
+    hat_r_inf : float
+        Estimator of the minimal relaxation of the moment ineq. as in (4.4) in
+        Andrews and Kwon (2023) (min of output of :func:`ineq_functions.r_hat`).
+
+    Returns
+    -------
+    array_like
+        Vector of An star values with dimension bootstrap_replications.
+    """
     n = X_data.shape[0]
-    k = X_data.shape[1]
 
     # Obtain random numbers for the bootstrap
     if bootstrap_indices is None:
