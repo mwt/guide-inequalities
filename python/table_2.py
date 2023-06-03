@@ -80,9 +80,9 @@ for sim_i in range(4):
                     Vbar=settings["Vbar"][sim_i],
                     IV_matrix=settings["IV"],
                     grid0=theta_index + 1,
+                    alpha=settings["alpha"],
                     test0=settings["test_stat"][sim_i],
                     cvalue=settings["cv"][sim_i],
-                    alpha=settings["alpha"],
                     bootstrap_indices=bootstrap_indices,
                 )
                 for theta in sim["grid_theta"][theta_index]
