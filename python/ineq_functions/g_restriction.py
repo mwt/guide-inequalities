@@ -22,6 +22,7 @@ def g_restriction(
     bootstrap_indices: np.ndarray | None = None,
     An_vec: np.ndarray | None = None,
     hat_r_inf: float | None = None,
+    dist_data: np.ndarray | None = None,
 ) -> list[float, float]:
     """This high-level function parses arguments and calls the appropriate
     function for the test statistic and critical value.
@@ -69,6 +70,8 @@ def g_restriction(
     hat_r_inf : float, optional
         If using RC-CCK, the lower value of the test as in eq. (4.4) in
         Andrews and Kwon (2023).
+    dist_data : array_like, optional
+        n x (J + 1) matrix of distances between product factories and cities.
 
     Returns
     -------
@@ -89,7 +92,9 @@ def g_restriction(
     if test0 == "RC-CCK" and hat_r_inf is None:
         raise ValueError("hat_r_inf must be provided for RC-CCK")
 
-    X_data = m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0)
+    X_data = m_function(
+        W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0, dist_data
+    )
     n = X_data.shape[0]
 
     # see Section 4.2.2 in Chernozhukov et al. (2019)
@@ -136,3 +141,8 @@ def g_restriction(
             raise ValueError("cvalue must be either SPUR1, SN, SN2S, or EB2S")
 
     return [test_stat, critical_value]
+
+
+def g_restriction_diff(*args, **kwargs):
+    """Wrapper function for :func:`g_restriction` to be used with scipy.optimize"""
+    return np.subtract(*g_restriction(*args, **kwargs))
