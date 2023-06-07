@@ -46,7 +46,6 @@ def m_function(
     Vbar: float,
     IV_matrix: np.ndarray | None = None,
     grid0: int | str = "all",
-    dist_data: np.ndarray | None = None,
 ) -> np.ndarray:
     """Moment inequality function defined in eq (28)
 
@@ -71,8 +70,6 @@ def m_function(
         n x d_IV matrix of instruments or None if no instruments are used.
     grid0 : {1, 2, 'all'}, default='all'
         Grid direction to use for the estimation of the model.
-    dist_data : array_like, optional
-        n x (J + 1) matrix of distances between product factories and cities.
 
     Returns
     -------
@@ -105,26 +102,21 @@ def m_function(
         case _:
             raise ValueError("grid0 must be either all, 1, or 2")
 
-    # Subset vector of estimated revenue differential in market i
-    A_subset = A_matrix[:, 1 : (num_products + 1)]
-    # Subset vector of product portfolio of coca-cola and
-    # energy-products in market i
-    D_mat = W_data[:, J0_vec[:, 0].astype(int) - 1]
-
-    if dist_data is None:
-        dist_subset = None
-    else:
-        dist_subset = dist_data[J0_vec[:, 0].astype(int) - 1, 1 : (num_products + 1)]
-
     ## step 2: compute all the moment functions
 
     if IV_matrix is None:
         # Create dummy IV "matrix"
         Z_mat = np.array([1])
 
+        # Subset vector of estimated revenue differential in market i
+        A_subset = A_matrix[:, 1 : (num_products + 1)]
+        # Subset vector of product portfolio of coca-cola and
+        # energy-products in market i
+        D_mat = W_data[:, J0_vec[:, 0].astype(int) - 1]
+
         # Compute lower and upper bounds
-        ml_vec = MomentFunct_L(A_subset, D_mat, Z_mat, J0_vec, theta, Vbar, dist_subset)
-        mu_vec = MomentFunct_U(A_subset, D_mat, Z_mat, J0_vec, theta, Vbar, dist_subset)
+        ml_vec = MomentFunct_L(A_subset, D_mat, Z_mat, J0_vec, theta, Vbar)
+        mu_vec = MomentFunct_U(A_subset, D_mat, Z_mat, J0_vec, theta, Vbar)
 
         # Create new row of X_data
         X_data = np.hstack((ml_vec[:, ml_indx], mu_vec[:, mu_indx]))
@@ -139,34 +131,24 @@ def m_function(
         # median income in market
         Z7_mat = (IV_matrix[:, 3] > np.median(IV_matrix[:, 3])).astype(int)
 
+        # Subset vector of estimated revenue differential in market i
+        A_subset = A_matrix[:, 1 : (num_products + 1)]
+        # Subset vector of product portfolio of coca-cola and
+        # energy-products in market i
+        D_mat = W_data[:, J0_vec[:, 0].astype(int) - 1]
+
         # Compute lower and upper bounds
-        ml_vec0 = MomentFunct_L(
-            A_subset, D_mat, Z0_mat, J0_vec, theta, Vbar, dist_subset
-        )
-        mu_vec0 = MomentFunct_U(
-            A_subset, D_mat, Z0_mat, J0_vec, theta, Vbar, dist_subset
-        )
+        ml_vec0 = MomentFunct_L(A_subset, D_mat, Z0_mat, J0_vec, theta, Vbar)
+        mu_vec0 = MomentFunct_U(A_subset, D_mat, Z0_mat, J0_vec, theta, Vbar)
 
-        ml_vec3 = MomentFunct_L(
-            A_subset, D_mat, Z3_mat, J0_vec, theta, Vbar, dist_subset
-        )
-        mu_vec3 = MomentFunct_U(
-            A_subset, D_mat, Z3_mat, J0_vec, theta, Vbar, dist_subset
-        )
+        ml_vec3 = MomentFunct_L(A_subset, D_mat, Z3_mat, J0_vec, theta, Vbar)
+        mu_vec3 = MomentFunct_U(A_subset, D_mat, Z3_mat, J0_vec, theta, Vbar)
 
-        ml_vec5 = MomentFunct_L(
-            A_subset, D_mat, Z5_mat, J0_vec, theta, Vbar, dist_subset
-        )
-        mu_vec5 = MomentFunct_U(
-            A_subset, D_mat, Z5_mat, J0_vec, theta, Vbar, dist_subset
-        )
+        ml_vec5 = MomentFunct_L(A_subset, D_mat, Z5_mat, J0_vec, theta, Vbar)
+        mu_vec5 = MomentFunct_U(A_subset, D_mat, Z5_mat, J0_vec, theta, Vbar)
 
-        ml_vec7 = MomentFunct_L(
-            A_subset, D_mat, Z7_mat, J0_vec, theta, Vbar, dist_subset
-        )
-        mu_vec7 = MomentFunct_U(
-            A_subset, D_mat, Z7_mat, J0_vec, theta, Vbar, dist_subset
-        )
+        ml_vec7 = MomentFunct_L(A_subset, D_mat, Z7_mat, J0_vec, theta, Vbar)
+        mu_vec7 = MomentFunct_U(A_subset, D_mat, Z7_mat, J0_vec, theta, Vbar)
 
         # Create new row of X_data
         X_data = np.hstack(
@@ -192,7 +174,6 @@ def MomentFunct_L(
     J0_vec: np.ndarray,
     theta: np.ndarray,
     Vbar: float,
-    dist_subset: np.ndarray | None = None,
 ) -> np.ndarray:
     """Moment inequality function defined in eq (26)
 
@@ -209,9 +190,7 @@ def MomentFunct_L(
     theta : array_like
         d_theta x 1 parameter of interest.
     Vbar : float
-        Tuning parameter as in Assumption 4.2.
-    dist_subset : array_like, optional
-        A J0 x J0 matrix of distance between products in a market, by default None.
+        Tuning parameter as in Assumption 4.2
 
     Returns
     -------
@@ -220,22 +199,6 @@ def MomentFunct_L(
     """
     # Get number of firms
     num_firms = np.unique(J0_vec[:, 1]).shape[0]
-
-    # Get indices that match theta values to the firm of each product
-    j1i = J0_vec[:, 1].astype(int) - 1
-
-    if dist_subset is None:
-        # Create vector of theta values matched to the firm of each product
-        theta_vector = theta[j1i]
-    else:
-        # Reshape theta to be num_firms x 3
-        theta = theta.reshape(num_firms, 3)
-        # Create g_theta vector as in Section 8.2.3
-        theta_vector = (
-            theta[j1i, 0]
-            + theta[j1i, 1] * dist_subset
-            + theta[j1i, 2] * (dist_subset**2)
-        )
 
     if num_firms != theta.shape[0]:
         raise ValueError(
@@ -258,7 +221,6 @@ def MomentFunct_U(
     J0_vec: np.ndarray,
     theta: np.ndarray,
     Vbar: float,
-    dist_subset: np.ndarray | None = None,
 ) -> np.ndarray:
     """Moment inequality function defined in eq (27)
 
@@ -275,9 +237,7 @@ def MomentFunct_U(
     theta : array_like
         d_theta x 1 parameter of interest.
     Vbar : float
-        Tuning parameter as in Assumption 4.2.
-    dist_subset : array_like, optional
-        A J0 x J0 matrix of distance between products in a market, by default None.
+        Tuning parameter as in Assumption 4.2
 
     Returns
     -------
@@ -287,26 +247,13 @@ def MomentFunct_U(
     # Get number of firms
     num_firms = np.unique(J0_vec[:, 1]).shape[0]
 
-    # Get indices that match theta values to the firm of each product
-    j1i = J0_vec[:, 1].astype(int) - 1
-
-    if dist_subset is None:
-        # Create vector of theta values matched to the firm of each product
-        theta_vector = theta[j1i]
-    else:
-        # Reshape theta to be num_firms x 3
-        theta = theta.reshape(num_firms, 3)
-        # Create g_theta vector as in Section 8.2.3
-        theta_vector = (
-            theta[j1i, 0]
-            + theta[j1i, 1] * dist_subset
-            + theta[j1i, 2] * (dist_subset**2)
-        )
-
     if num_firms != theta.shape[0]:
         raise ValueError(
             f"theta must have the same number of elements as num_firms (i.e., {num_firms})"
         )
+
+    # Create vector of theta values matched to the firm of each product
+    theta_vector = theta[J0_vec[:, 1].astype(int) - 1]
 
     # Run equation (27) for each product
     return (
