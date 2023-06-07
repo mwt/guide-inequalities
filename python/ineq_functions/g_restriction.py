@@ -6,9 +6,9 @@ from .moment import m_function, m_hat
 
 
 def g_restriction(
+    theta: np.ndarray,
     W_data: np.ndarray,
     A_matrix: np.ndarray,
-    theta: np.ndarray,
     J0_vec: np.ndarray,
     Vbar: float,
     IV_matrix,

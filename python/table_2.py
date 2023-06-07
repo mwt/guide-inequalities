@@ -73,9 +73,9 @@ for sim_i in range(4):
         output = np.array(
             Parallel(n_jobs=sim["num_robots"])(
                 delayed(ineq.g_restriction)(
+                    theta=theta0(theta, theta_index),
                     W_data=dgp["W"],
                     A_matrix=dgp["A"],
-                    theta=theta0(theta, theta_index),
                     J0_vec=dgp["J0"],
                     Vbar=settings["Vbar"][sim_i],
                     IV_matrix=settings["IV"],

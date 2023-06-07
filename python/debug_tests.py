@@ -25,79 +25,79 @@ bootstrap_indices = load_data("random").astype(int)
 bootstrap_indices = bootstrap_indices.T - 1
 num_boots = bootstrap_indices.shape[0]
 
-# print("No IV, CCK, SN")
-# print(
-#     ineq.g_restriction(
-#         W_data,
-#         A_matrix,
-#         theta,
-#         J0_vec,
-#         Vbar,
-#         None,
-#         1,
-#         alpha,
-#         "CCK",
-#         "SN",
-#         bootstrap_indices=bootstrap_indices,
-#     )
-# )
-# print("No IV, CCK, SN2S")
-# print(
-#     ineq.g_restriction(
-#         W_data,
-#         A_matrix,
-#         theta,
-#         J0_vec,
-#         Vbar,
-#         None,
-#         1,
-#         alpha,
-#         "CCK",
-#         "SN2S",
-#         bootstrap_indices=bootstrap_indices,
-#     )
-# )
-# print("No IV, CCK, EB2S")
-# print(
-#     ineq.g_restriction(
-#         W_data,
-#         A_matrix,
-#         theta,
-#         J0_vec,
-#         Vbar,
-#         None,
-#         1,
-#         alpha,
-#         "CCK",
-#         "EB2S",
-#         bootstrap_indices=bootstrap_indices,
-#     )
-# )
-# print("No IV, RC-CCK, SPUR1")
-# print(
-#     ineq.g_restriction(
-#         W_data,
-#         A_matrix,
-#         theta,
-#         J0_vec,
-#         Vbar,
-#         None,
-#         1,
-#         alpha,
-#         "RC-CCK",
-#         "SPUR1",
-#         bootstrap_indices=bootstrap_indices,
-#         An_vec=np.zeros(num_boots),
-#         hat_r_inf=0,
-#     )
-# )
+print("No IV, CCK, SN")
+print(
+    ineq.g_restriction(
+        theta,
+        W_data,
+        A_matrix,
+        J0_vec,
+        Vbar,
+        None,
+        1,
+        alpha,
+        "CCK",
+        "SN",
+        bootstrap_indices=bootstrap_indices,
+    )
+)
+print("No IV, CCK, SN2S")
+print(
+    ineq.g_restriction(
+        theta,
+        W_data,
+        A_matrix,
+        J0_vec,
+        Vbar,
+        None,
+        1,
+        alpha,
+        "CCK",
+        "SN2S",
+        bootstrap_indices=bootstrap_indices,
+    )
+)
+print("No IV, CCK, EB2S")
+print(
+    ineq.g_restriction(
+        theta,
+        W_data,
+        A_matrix,
+        J0_vec,
+        Vbar,
+        None,
+        1,
+        alpha,
+        "CCK",
+        "EB2S",
+        bootstrap_indices=bootstrap_indices,
+    )
+)
+print("No IV, RC-CCK, SPUR1")
+print(
+    ineq.g_restriction(
+        theta,
+        W_data,
+        A_matrix,
+        J0_vec,
+        Vbar,
+        None,
+        1,
+        alpha,
+        "RC-CCK",
+        "SPUR1",
+        bootstrap_indices=bootstrap_indices,
+        An_vec=np.zeros(num_boots),
+        hat_r_inf=0,
+    )
+)
 
 print("G restriction fmin")
 print(
     ineq.g_restriction_diff(
+        theta6,
         W_data,
         A_matrix,
-        theta6,
         J0_vec,
         Vbar,
         None,
