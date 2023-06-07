@@ -32,10 +32,7 @@ def m_hat(X_data: np.ndarray, axis: int = 0) -> np.ndarray:
 
     # as in eq (A.13) and similar to eq. (4.2) in Andrews and Kwon (2023)
     # use np.divide to avoid division by zero (treat 0/0 as 0)
-    not_zero_over_zero = (sigma_hat != 0) | (mu_hat != 0)
-    return np.divide(
-        mu_hat, sigma_hat, out=np.zeros_like(mu_hat), where=not_zero_over_zero
-    )
+    return np.divide(mu_hat, sigma_hat, out=np.zeros_like(mu_hat), where=mu_hat != 0)
 
 
 def m_function(
@@ -114,7 +111,8 @@ def m_function(
     if dist_data is None:
         dist_subset = None
     else:
-        dist_subset = dist_data[J0_vec[:, 0].astype(int) - 1, 1 : (num_products + 1)]
+        # Note that we skip the first column of dist_data, so there is no `-1`
+        dist_subset = dist_data[:, J0_vec[:, 0].astype(int)]
 
     ## step 2: compute all the moment functions
 
@@ -211,7 +209,7 @@ def MomentFunct_L(
     Vbar : float
         Tuning parameter as in Assumption 4.2.
     dist_subset : array_like, optional
-        A J0 x J0 matrix of distance between products in a market, by default None.
+        n x J0 matrix of distance between products in a market, by default None.
 
     Returns
     -------
@@ -226,7 +224,7 @@ def MomentFunct_L(
 
     if dist_subset is None:
         # Create vector of theta values matched to the firm of each product
-        theta_vector = theta[j1i]
+        theta_vector = theta[np.newaxis, j1i]
     else:
         # Reshape theta to be num_firms x 3
         theta = theta.reshape(num_firms, 3)
@@ -242,12 +240,9 @@ def MomentFunct_L(
             f"theta must have the same number of elements as num_firms (i.e., {num_firms})"
         )
 
-    # Create vector of theta values matched to the firm of each product
-    theta_vector = theta[J0_vec[:, 1].astype(int) - 1]
-
     # Run equation (26) for each product
     return (
-        (A_subset - theta_vector[np.newaxis, :]) * (1 - D_mat) - Vbar * D_mat
+        (A_subset - theta_vector) * (1 - D_mat) - Vbar * D_mat
     ) * Z_mat[:, np.newaxis]
 
 
@@ -277,7 +272,7 @@ def MomentFunct_U(
     Vbar : float
         Tuning parameter as in Assumption 4.2.
     dist_subset : array_like, optional
-        A J0 x J0 matrix of distance between products in a market, by default None.
+        n x J0 matrix of distance between products in a market, by default None.
 
     Returns
     -------
@@ -292,7 +287,7 @@ def MomentFunct_U(
 
     if dist_subset is None:
         # Create vector of theta values matched to the firm of each product
-        theta_vector = theta[j1i]
+        theta_vector = theta[np.newaxis, j1i]
     else:
         # Reshape theta to be num_firms x 3
         theta = theta.reshape(num_firms, 3)
@@ -310,5 +305,5 @@ def MomentFunct_U(
 
     # Run equation (27) for each product
     return (
-        (A_subset + theta_vector[np.newaxis, :]) * D_mat - Vbar * (1 - D_mat)
+        (A_subset + theta_vector) * D_mat - Vbar * (1 - D_mat)
     ) * Z_mat[:, np.newaxis]
