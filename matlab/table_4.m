@@ -29,7 +29,7 @@ mkdir('_results');
 dgp = struct;
 dgp.A_matrix = csvread(fullfile('..', 'data', 'A.csv'));
 dgp.D_matrix = csvread(fullfile('..', 'data', 'D.csv'));
-dgp.Dist_matrix = csvread(fullfile('..', 'data', 'Dist.csv'))/1000;
+dgp.Dist_matrix = csvread(fullfile('..', 'data', 'Dist.csv')) / 1000;
 dgp.J0_vec = csvread(fullfile('..', 'data', 'J0.csv')); % (product, firm), where firm = 1 coca-cola, firm=2 energy-products
 
 dgp.num_market = size(dgp.A_matrix, 1);
