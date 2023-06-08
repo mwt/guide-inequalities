@@ -116,7 +116,7 @@ for sim_i in range(4):
                 args=(theta_index,),
                 method="SLSQP",
                 jac=lambda x, i: np.array([1 if j == i else 0 for j in range(6)]),
-                bounds=[(sim["lb"][sim_i, theta_index], sim["ub"][sim_i, theta_index])],
+                bounds=[(sim["lb"][sim_i, t_i], sim["ub"][sim_i, t_i]) for t_i in range(6)],
                 constraints=nonlinear_constraint,
                 tol=1e-8,
             )
@@ -127,7 +127,7 @@ for sim_i in range(4):
                 args=(theta_index,),
                 method="SLSQP",
                 jac=lambda x, i: np.array([-1 if j == i else 0 for j in range(6)]),
-                bounds=[(sim["lb"][sim_i, theta_index], sim["ub"][sim_i, theta_index])],
+                bounds=[(sim["lb"][sim_i, t_i], sim["ub"][sim_i, t_i]) for t_i in range(6)],
                 constraints=nonlinear_constraint,
                 tol=1e-8,
             )
