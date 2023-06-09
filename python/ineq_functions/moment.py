@@ -121,8 +121,8 @@ def m_function(
         Z_mat = np.array([1])
 
         # Compute lower and upper bounds
-        ml_vec = MomentFunct_L(A_subset, D_mat, Z_mat, J0_vec, theta, Vbar, dist_subset)
-        mu_vec = MomentFunct_U(A_subset, D_mat, Z_mat, J0_vec, theta, Vbar, dist_subset)
+        ml_vec = m_fun_lower(A_subset, D_mat, Z_mat, J0_vec, theta, Vbar, dist_subset)
+        mu_vec = m_fun_upper(A_subset, D_mat, Z_mat, J0_vec, theta, Vbar, dist_subset)
 
         # Create new row of X_data
         X_data = np.hstack((ml_vec[:, ml_indx], mu_vec[:, mu_indx]))
@@ -138,33 +138,17 @@ def m_function(
         Z7_mat = (IV_matrix[:, 3] > np.median(IV_matrix[:, 3])).astype(int)
 
         # Compute lower and upper bounds
-        ml_vec0 = MomentFunct_L(
-            A_subset, D_mat, Z0_mat, J0_vec, theta, Vbar, dist_subset
-        )
-        mu_vec0 = MomentFunct_U(
-            A_subset, D_mat, Z0_mat, J0_vec, theta, Vbar, dist_subset
-        )
+        ml_vec0 = m_fun_lower(A_subset, D_mat, Z0_mat, J0_vec, theta, Vbar, dist_subset)
+        mu_vec0 = m_fun_upper(A_subset, D_mat, Z0_mat, J0_vec, theta, Vbar, dist_subset)
 
-        ml_vec3 = MomentFunct_L(
-            A_subset, D_mat, Z3_mat, J0_vec, theta, Vbar, dist_subset
-        )
-        mu_vec3 = MomentFunct_U(
-            A_subset, D_mat, Z3_mat, J0_vec, theta, Vbar, dist_subset
-        )
+        ml_vec3 = m_fun_lower(A_subset, D_mat, Z3_mat, J0_vec, theta, Vbar, dist_subset)
+        mu_vec3 = m_fun_upper(A_subset, D_mat, Z3_mat, J0_vec, theta, Vbar, dist_subset)
 
-        ml_vec5 = MomentFunct_L(
-            A_subset, D_mat, Z5_mat, J0_vec, theta, Vbar, dist_subset
-        )
-        mu_vec5 = MomentFunct_U(
-            A_subset, D_mat, Z5_mat, J0_vec, theta, Vbar, dist_subset
-        )
+        ml_vec5 = m_fun_lower(A_subset, D_mat, Z5_mat, J0_vec, theta, Vbar, dist_subset)
+        mu_vec5 = m_fun_upper(A_subset, D_mat, Z5_mat, J0_vec, theta, Vbar, dist_subset)
 
-        ml_vec7 = MomentFunct_L(
-            A_subset, D_mat, Z7_mat, J0_vec, theta, Vbar, dist_subset
-        )
-        mu_vec7 = MomentFunct_U(
-            A_subset, D_mat, Z7_mat, J0_vec, theta, Vbar, dist_subset
-        )
+        ml_vec7 = m_fun_lower(A_subset, D_mat, Z7_mat, J0_vec, theta, Vbar, dist_subset)
+        mu_vec7 = m_fun_upper(A_subset, D_mat, Z7_mat, J0_vec, theta, Vbar, dist_subset)
 
         # Create new row of X_data
         X_data = np.hstack(
@@ -183,7 +167,7 @@ def m_function(
     return X_data
 
 
-def MomentFunct_L(
+def m_fun_lower(
     A_subset: np.ndarray,
     D_mat: np.ndarray,
     Z_mat: np.ndarray,
@@ -246,7 +230,7 @@ def MomentFunct_L(
     ]
 
 
-def MomentFunct_U(
+def m_fun_upper(
     A_subset: np.ndarray,
     D_mat: np.ndarray,
     Z_mat: np.ndarray,
@@ -278,35 +262,25 @@ def MomentFunct_U(
     -------
     array_like
         1 x J0 vector of the moment function.
+
+    Notes
+    -----
+    Calls m_fun_lower with two substitutions:
+    1. theta is negated
+    2. D_mat replaced with 1 - D_mat
     """
-    # Get number of firms
-    num_firms = np.unique(J0_vec[:, 1]).shape[0]
-
-    # Get indices that match theta values to the firm of each product
-    j1i = J0_vec[:, 1].astype(int) - 1
-
-    if dist_subset is None:
-        # Create vector of theta values matched to the firm of each product
-        theta_vector = theta[np.newaxis, j1i]
-    else:
-        # Reshape theta to be num_firms x 3
-        theta = theta.reshape(num_firms, 3)
-        # Create g_theta vector as in Section 8.2.3
-        theta_vector = (
-            theta[j1i, 0]
-            + theta[j1i, 1] * dist_subset
-            + theta[j1i, 2] * (dist_subset**2)
-        )
-
-    if num_firms != theta.shape[0]:
-        raise ValueError(
-            f"theta must have the same number of elements as num_firms (i.e., {num_firms})"
-        )
-
-    # Run equation (27) for each product
-    return ((A_subset + theta_vector) * D_mat - Vbar * (1 - D_mat)) * Z_mat[
-        :, np.newaxis
-    ]
+    # Moment function upper is moment function lower with two substitutions:
+    # 1. theta is negated
+    # 2. D_mat replaced with 1 - D_mat
+    return m_fun_lower(
+        A_subset=A_subset,
+        D_mat=1 - D_mat,
+        Z_mat=Z_mat,
+        J0_vec=J0_vec,
+        theta=-theta,
+        Vbar=Vbar,
+        dist_subset=dist_subset,
+    )
 
 
 def find_dist(dist_data: np.ndarray, J0_vec: np.ndarray) -> np.ndarray:
