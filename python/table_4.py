@@ -39,7 +39,7 @@ sim = {
     "grid_size": 1401,
     "rng_seed": 20220826,
     "bootstrap_replications": 1000,
-    "sim_name": "table_1",
+    "sim_name": "table_4",
     "lb": np.array(
         [
             [-40, -20, 0, -40, -20, 0, 0, 0],
@@ -60,7 +60,7 @@ sim = {
 sim["x0"] = np.zeros((4, 8))
 
 results = {
-    "CI_vec": [np.full((4, 2), np.nan) for i in range(10)],
+    "CI_vec": [np.full((4, 2), np.nan) for i in range(8)],
     "comp_time": np.empty(4),
 }
 
@@ -116,7 +116,9 @@ for sim_i in range(4):
                 args=(theta_index,),
                 method="SLSQP",
                 jac=lambda x, i: np.array([1 if j == i else 0 for j in range(6)]),
-                bounds=[(sim["lb"][sim_i, t_i], sim["ub"][sim_i, t_i]) for t_i in range(6)],
+                bounds=[
+                    (sim["lb"][sim_i, t_i], sim["ub"][sim_i, t_i]) for t_i in range(6)
+                ],
                 constraints=nonlinear_constraint,
                 tol=1e-8,
             )
@@ -127,7 +129,9 @@ for sim_i in range(4):
                 args=(theta_index,),
                 method="SLSQP",
                 jac=lambda x, i: np.array([-1 if j == i else 0 for j in range(6)]),
-                bounds=[(sim["lb"][sim_i, t_i], sim["ub"][sim_i, t_i]) for t_i in range(6)],
+                bounds=[
+                    (sim["lb"][sim_i, t_i], sim["ub"][sim_i, t_i]) for t_i in range(6)
+                ],
                 constraints=nonlinear_constraint,
                 tol=1e-8,
             )
@@ -140,48 +144,54 @@ for sim_i in range(4):
     results["comp_time"][sim_i] = toc - tic
     print("~> time:", results["comp_time"][sim_i])
 
-
-[print(results["CI_vec"][theta_index]) for theta_index in range(6)]
 # Save results
-# (results_dir / sim["sim_name"]).mkdir(exist_ok=True)
-# for key, value in results.items():
-#    np.save(results_dir / sim["sim_name"] / key, value)
+(results_dir / sim["sim_name"]).mkdir(exist_ok=True)
+for key, value in results.items():
+    np.save(results_dir / sim["sim_name"] / key, value)
+
+# Make and print the table
+tableObj = tt.Texttable(0)
+
+# tableObj.set_cols_align(["c", "c", "c", "c", "c", "c"])
+# tableObj.set_cols_dtype(["t", "t", "t", "t", "t", "t"])
 #
-## Make and print the table
-# tableObj = tt.Texttable(0)
-#
-# tableObj.set_cols_align(["l", "l", "c", "c", "c"])
-# tableObj.set_cols_dtype(["i", "t", "t", "t", "f"])
-#
-# the_table = np.array(settings["Vbar"])
-# the_table = np.column_stack((the_table, settings["cv"]))
-# for ci_theta in results["CI_vec"]:
-#    the_table = np.column_stack(
-#        (
-#            the_table,
-#            [
-#                "[" + "{:.1f}".format(x[0]) + ", " + "{:.1f}".format(x[1]) + "]"
-#                for x in ci_theta
-#            ],
-#        )
-#    )
-# the_table = np.column_stack((the_table, results["comp_time"]))
-# the_table = np.vstack(
-#    (
-#        [
-#            "$\\Bar{V}$",
-#            "Crit. Value",
-#            "$\\theta_1$: Coca-Cola",
-#            "$\\theta_2$: Energy Brands",
-#            "Comp. Time",
-#        ],
-#        the_table,
-#    )
-# )
-#
-# tableObj.add_rows(the_table)
-# print(tableObj.draw())
-#
-## Save table
-# with open(tables_dir / (sim["sim_name"] + ".tex"), "w", encoding="utf8") as f:
-#    f.write(draw_latex(tableObj))
+the_table = np.array(["Coca-", "Cola", "", "", "Energy", "Brands", "", ""])
+the_table = np.column_stack(
+    (
+        the_table,
+        np.array(
+            [
+                f"$\\theta_{{{i},{j}}}$" if j < 4 else f"$\\theta_{{{i}}}$"
+                for i in range(1, 3)
+                for j in range(1, 5)
+            ]
+        ),
+    )
+)
+
+sub_table = []
+for ci_theta in results["CI_vec"]:
+    sub_table += [
+        [
+            "[" + "{:.1f}".format(x[0]) + ", " + "{:.1f}".format(x[1]) + "]"
+            for x in ci_theta
+        ]
+    ]
+
+# the order has the theta_1(mu) and theta_2(mu) at the end
+sorted_sub_table = np.array(sub_table)[[0, 1, 2, 6, 3, 4, 5, 7], :]
+the_table = np.column_stack((the_table, sorted_sub_table))
+the_table = np.vstack(
+    (
+        ["", "Parameter", "Linear", "Quadratic", "Linear", "Quadratic"],
+        the_table,
+        ["Comp. Time", ""] + list(results["comp_time"]),
+    )
+)
+
+tableObj.add_rows(the_table)
+print(tableObj.draw())
+
+# Save table
+with open(tables_dir / (sim["sim_name"] + ".tex"), "w", encoding="utf8") as f:
+    f.write(draw_latex(tableObj))
