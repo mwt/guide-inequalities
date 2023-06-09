@@ -206,7 +206,7 @@ tableObj = tt.Texttable(0)
 # tableObj.set_cols_align(["c", "c", "c", "c", "c", "c"])
 # tableObj.set_cols_dtype(["t", "t", "t", "t", "t", "t"])
 #
-the_table = np.array(["Coca-", "Cola", "", "", "Energy", "Brands", "", ""])
+the_table = np.array(["Coca-Cola", "", "", "", "Energy Brands", "", "", ""])
 the_table = np.column_stack(
     (
         the_table,
