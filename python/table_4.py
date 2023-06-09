@@ -70,7 +70,9 @@ bootstrap_indices = np.random.randint(0, n, size=(sim["bootstrap_replications"],
 
 
 # Define the constraint function
-def restriction_function(theta: np.ndarray, sim_i: int):
+def restriction_function(
+    theta: np.ndarray, sim_i: int, account_uncertainty: bool = False
+):
     """Wrapper function for :func:`g_restriction` to be used with scipy.optimize"""
     if theta.shape == (1,):
         raise ValueError("theta must be a 1d array")
@@ -86,6 +88,7 @@ def restriction_function(theta: np.ndarray, sim_i: int):
         alpha=settings["alpha"],
         test0=settings["test_stat"][sim_i],
         cvalue=settings["cv"][sim_i],
+        account_uncertainty=account_uncertainty,
         bootstrap_indices=bootstrap_indices,
         dist_data=dgp["Dist"],
     )
@@ -96,6 +99,7 @@ for sim_i in range(4):
     # Obtain the time at the beginning of the simulation
     tic = time.perf_counter()
 
+    # Six dimensional theta confidence intervals
     for theta_index in range(6):
         # Define the nonlinear constraint
         nonlinear_constraint = {
@@ -138,6 +142,53 @@ for sim_i in range(4):
 
             results["CI_vec"][theta_index][sim_i, 0] = CI_lower.x[theta_index]
             results["CI_vec"][theta_index][sim_i, 1] = CI_upper.x[theta_index]
+
+    # Two dimensional theta confidence intervals accounting for uncertainty
+    for theta_index in range(2):
+        # Define the nonlinear constraint (this time accounting for uncertainty)
+        nonlinear_constraint = {
+            "type": "ineq",
+            "fun": restriction_function,
+            "args": (sim_i, True),  # True: account for uncertainty
+        }
+
+        # Call the optimization routine
+        CI_lower = minimize(
+            lambda x, i: np.sum(x[(i * 3) : ((i + 1) * 3)]) * x[6 + i],
+            x0=sim["x0"][sim_i],
+            args=(theta_index,),
+            method="SLSQP",
+            jac=lambda x, i: np.array(
+                [x[6 + i] if (i * 3) <= j < ((i + 1) * 3) else 0 for j in range(6)]
+                + [
+                    np.sum(x[(i * 3) : ((i + 1) * 3)]) if j == 6 + i else 0
+                    for j in range(6, 8)
+                ]
+            ),
+            bounds=[(sim["lb"][sim_i, t_i], sim["ub"][sim_i, t_i]) for t_i in range(8)],
+            constraints=nonlinear_constraint,
+            tol=1e-8,
+        )
+
+        CI_upper = minimize(
+            lambda x, i: -np.sum(x[(i * 3) : ((i + 1) * 3)]) * x[6 + i],
+            sim["x0"][sim_i],
+            args=(theta_index,),
+            method="SLSQP",
+            jac=lambda x, i: -np.array(
+                [x[6 + i] if (i * 3) <= j < ((i + 1) * 3) else 0 for j in range(6)]
+                + [
+                    np.sum(x[(i * 3) : ((i + 1) * 3)]) if j == 6 + i else 0
+                    for j in range(6, 8)
+                ]
+            ),
+            bounds=[(sim["lb"][sim_i, t_i], sim["ub"][sim_i, t_i]) for t_i in range(8)],
+            constraints=nonlinear_constraint,
+            tol=1e-8,
+        )
+
+        results["CI_vec"][theta_index + 6][sim_i, 0] = CI_lower.x[theta_index]
+        results["CI_vec"][theta_index + 6][sim_i, 1] = CI_upper.x[theta_index]
 
     # Stop the timer
     toc = time.perf_counter()

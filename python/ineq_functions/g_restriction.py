@@ -2,7 +2,7 @@ import numpy as np
 
 from .andrews_kwon import cvalue_SPUR1
 from .cvalue import cvalue_EB2S, cvalue_SN, cvalue_SN2S
-from .moment import m_function, m_hat
+from .moment import m_function, m_hat, find_dist
 
 
 def g_restriction(
@@ -16,7 +16,7 @@ def g_restriction(
     alpha: float,
     test0: str = "CCK",
     cvalue: str = "SN",
-    moment_type: int = 0,
+    account_uncertainty: bool = False,
     bootstrap_replications: int | None = None,
     rng_seed: int | None = None,
     bootstrap_indices: np.ndarray | None = None,
@@ -49,10 +49,9 @@ def g_restriction(
         Test statistic to use.
     cvalue : {'SPUR1', 'SN', 'SN2S', 'EB2S'}
         Critical value to use.
-    moment_type : {0, 1, 2}, default=0
-        Whether to use (0) the standard moments, (1) the moments under
-        Assumption 3.2, or (3) the moments under Assumption 3.2 which account
-        for additional randomness (as in Equations 49 and 50).
+    account_uncertainty : bool, default False
+        Whether to account for additional uncertainty (as in Equations 49 and
+        50). If True, the last two elements of theta are assumed to be mu.
     bootstrap_replications : int, optional
         Number of bootstrap replications. Required if bootstrap_indices
         is not specified.
@@ -92,9 +91,22 @@ def g_restriction(
     if test0 == "RC-CCK" and hat_r_inf is None:
         raise ValueError("hat_r_inf must be provided for RC-CCK")
 
+    if account_uncertainty:
+        # assume that the last two elements of theta are mu
+        theta, mu = np.split(theta, [-2])
+
     X_data = m_function(
         W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0, dist_data
     )
+
+    if account_uncertainty:
+        # additional moments to account for randomness of the objective
+        # function defined in eq (49) and (50)
+        coke_max_dist, ener_max_dist = find_dist(dist_data, J0_vec)
+        dist_u1 = coke_max_dist - mu[0]
+        dist_u2 = ener_max_dist - mu[1]
+        X_data = np.column_stack((X_data, dist_u1, -dist_u1, dist_u2, -dist_u2))
+
     n = X_data.shape[0]
 
     # see Section 4.2.2 in Chernozhukov et al. (2019)

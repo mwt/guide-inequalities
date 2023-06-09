@@ -241,9 +241,9 @@ def MomentFunct_L(
         )
 
     # Run equation (26) for each product
-    return (
-        (A_subset - theta_vector) * (1 - D_mat) - Vbar * D_mat
-    ) * Z_mat[:, np.newaxis]
+    return ((A_subset - theta_vector) * (1 - D_mat) - Vbar * D_mat) * Z_mat[
+        :, np.newaxis
+    ]
 
 
 def MomentFunct_U(
@@ -304,6 +304,30 @@ def MomentFunct_U(
         )
 
     # Run equation (27) for each product
-    return (
-        (A_subset + theta_vector) * D_mat - Vbar * (1 - D_mat)
-    ) * Z_mat[:, np.newaxis]
+    return ((A_subset + theta_vector) * D_mat - Vbar * (1 - D_mat)) * Z_mat[
+        :, np.newaxis
+    ]
+
+
+def find_dist(dist_data: np.ndarray, J0_vec: np.ndarray) -> np.ndarray:
+    """Find maximum distance from each firm's factory to the market.
+
+    Parameters
+    ----------
+    dist_data : array_like
+        n x J0 matrix of distance between products in a market.
+    J0_vec : array_like
+        J0 x 2 array of products of coca-cola and energy-product.
+
+    Returns
+    -------
+    coke_max_dist : array_like
+        n dimensional vector of maximum distance from coca-cola factory to
+        each market.
+    ener_max_dist : array_like
+        n dimensional vector of maximum distance from energy-product factory
+        to each market.
+    """
+    coke_dist = dist_data[:, J0_vec[J0_vec[:, 1] == 1, 0].astype(int) - 1]
+    ener_dist = dist_data[:, J0_vec[J0_vec[:, 1] == 2, 0].astype(int) - 1]
+    return coke_dist.max(axis=1), ener_dist.max(axis=1)
