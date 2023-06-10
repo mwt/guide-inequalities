@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 import texttable as tt
 from latextable import draw_latex
-from scipy.optimize import NonlinearConstraint, minimize
+from scipy.optimize import minimize
 
 import ineq_functions as ineq
 
@@ -28,11 +28,11 @@ dgp["W"] = dgp["D"][:, 1:]
 n = dgp["A"].shape[0]
 
 settings = {
-    "Vbar": [500, 500, 1000, 1000],
+    "v_bar": [500, 500, 1000, 1000],
     "test_stat": ["CCK", "CCK", "CCK", "CCK"],
     "cv": ["SN", "SN", "SN", "SN"],
     "alpha": 0.05,
-    "IV": None,
+    "iv": None,
 }
 
 sim = {
@@ -60,7 +60,7 @@ sim = {
 sim["x0"] = np.zeros((4, 8))
 
 results = {
-    "CI_vec": [np.full((4, 2), np.nan) for i in range(8)],
+    "ci_vec": [np.full((4, 2), np.nan) for i in range(8)],
     "comp_time": np.empty(4),
 }
 
@@ -79,11 +79,11 @@ def restriction_function(
     # Return the difference between the critical value and test stat
     return -ineq.g_restriction_diff(
         theta=theta,
-        W_data=dgp["W"],
-        A_matrix=dgp["A"],
-        J0_vec=dgp["J0"],
-        Vbar=settings["Vbar"][sim_i],
-        IV_matrix=settings["IV"],
+        w_data=dgp["W"],
+        a_matrix=dgp["A"],
+        j0_vec=dgp["J0"],
+        v_bar=settings["v_bar"][sim_i],
+        iv_matrix=settings["iv"],
         grid0="all",
         alpha=settings["alpha"],
         test0=settings["test_stat"][sim_i],
@@ -110,11 +110,11 @@ for sim_i in range(4):
 
         if sim["lb"][sim_i, theta_index] == sim["ub"][sim_i, theta_index]:
             # If the bounds are equal, then theta is fixed
-            results["CI_vec"][theta_index][sim_i, 0] = sim["lb"][sim_i, theta_index]
-            results["CI_vec"][theta_index][sim_i, 1] = sim["ub"][sim_i, theta_index]
+            results["ci_vec"][theta_index][sim_i, 0] = sim["lb"][sim_i, theta_index]
+            results["ci_vec"][theta_index][sim_i, 1] = sim["ub"][sim_i, theta_index]
         else:
             # Call the optimization routine
-            CI_lower = minimize(
+            ci_lower = minimize(
                 lambda x, i: x[i],
                 x0=sim["x0"][sim_i, 0:6],
                 args=(theta_index,),
@@ -127,7 +127,7 @@ for sim_i in range(4):
                 tol=1e-8,
             )
 
-            CI_upper = minimize(
+            ci_upper = minimize(
                 lambda x, i: -x[i],
                 sim["x0"][sim_i, 0:6],
                 args=(theta_index,),
@@ -140,8 +140,8 @@ for sim_i in range(4):
                 tol=1e-8,
             )
 
-            results["CI_vec"][theta_index][sim_i, 0] = CI_lower.x[theta_index]
-            results["CI_vec"][theta_index][sim_i, 1] = CI_upper.x[theta_index]
+            results["ci_vec"][theta_index][sim_i, 0] = ci_lower.x[theta_index]
+            results["ci_vec"][theta_index][sim_i, 1] = ci_upper.x[theta_index]
 
     # Two dimensional theta confidence intervals accounting for uncertainty
     for theta_index in range(2):
@@ -153,15 +153,15 @@ for sim_i in range(4):
         }
 
         # Call the optimization routine
-        CI_lower = minimize(
-            lambda x, i: np.sum(x[(i * 3) : ((i + 1) * 3)]) * x[6 + i],
+        ci_lower = minimize(
+            lambda x, i: (x[(i * 3) : ((i + 1) * 3)]).sum() * x[6 + i],
             x0=sim["x0"][sim_i],
             args=(theta_index,),
             method="SLSQP",
             jac=lambda x, i: np.array(
                 [x[6 + i] if (i * 3) <= j < ((i + 1) * 3) else 0 for j in range(6)]
                 + [
-                    np.sum(x[(i * 3) : ((i + 1) * 3)]) if j == 6 + i else 0
+                    (x[(i * 3) : ((i + 1) * 3)]).sum() if j == 6 + i else 0
                     for j in range(6, 8)
                 ]
             ),
@@ -170,15 +170,15 @@ for sim_i in range(4):
             tol=1e-8,
         )
 
-        CI_upper = minimize(
-            lambda x, i: -np.sum(x[(i * 3) : ((i + 1) * 3)]) * x[6 + i],
+        ci_upper = minimize(
+            lambda x, i: -(x[(i * 3) : ((i + 1) * 3)]).sum() * x[6 + i],
             sim["x0"][sim_i],
             args=(theta_index,),
             method="SLSQP",
             jac=lambda x, i: -np.array(
                 [x[6 + i] if (i * 3) <= j < ((i + 1) * 3) else 0 for j in range(6)]
                 + [
-                    np.sum(x[(i * 3) : ((i + 1) * 3)]) if j == 6 + i else 0
+                    (x[(i * 3) : ((i + 1) * 3)]).sum() if j == 6 + i else 0
                     for j in range(6, 8)
                 ]
             ),
@@ -187,8 +187,8 @@ for sim_i in range(4):
             tol=1e-8,
         )
 
-        results["CI_vec"][theta_index + 6][sim_i, 0] = CI_lower.x[theta_index]
-        results["CI_vec"][theta_index + 6][sim_i, 1] = CI_upper.x[theta_index]
+        results["ci_vec"][theta_index + 6][sim_i, 0] = ci_lower.x[theta_index]
+        results["ci_vec"][theta_index + 6][sim_i, 1] = ci_upper.x[theta_index]
 
     # Stop the timer
     toc = time.perf_counter()
@@ -221,7 +221,7 @@ the_table = np.column_stack(
 )
 
 sub_table = []
-for ci_theta in results["CI_vec"]:
+for ci_theta in results["ci_vec"]:
     sub_table += [
         [
             "[" + "{:.1f}".format(x[0]) + ", " + "{:.1f}".format(x[1]) + "]"

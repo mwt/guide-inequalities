@@ -2,11 +2,11 @@ import numpy as np
 from scipy.special import ndtri
 
 
-def base_SN(n: int, k: int, alpha: float) -> float:
+def base_sn(n: int, k: int, alpha: float) -> float:
     """Base function for the SN test statistic defined in eq (40) of
     Section 5 in Canay, Illanes, and Velez (2023). This function is called
     by the other cvalue functions. It is not exported. Function
-    :func:`ineq_functions.cvalue.cvalue_SN` is a convenience wrapper that sets
+    :func:`ineq_functions.cvalue.cvalue_sn` is a convenience wrapper that sets
     n and k based on the dimensions of the input matrix.
 
     Parameters
@@ -31,15 +31,15 @@ def base_SN(n: int, k: int, alpha: float) -> float:
     return z_quantile / np.sqrt(1 - z_quantile**2 / n)
 
 
-def cvalue_SN(X_data: np.ndarray, alpha: float) -> float:
+def cvalue_sn(x_data: np.ndarray, alpha: float) -> float:
     """Calculate the c-value for the SN test statistic defined in eq (40) of
     Section 5 in Canay, Illanes, and Velez (2023). This is a convenience
-    wrapper for :func:`ineq_functions.cvalue.base_SN` that sets n and k based
+    wrapper for :func:`ineq_functions.cvalue.base_sn` that sets n and k based
     on the dimensions of the input matrix.
 
     Parameters
     ----------
-    X_data : array_like
+    x_data : array_like
         Matrix of the moment functions with n rows (output of
         :func:`ineq_functions.m_function`).
     alpha : float
@@ -50,20 +50,20 @@ def cvalue_SN(X_data: np.ndarray, alpha: float) -> float:
     float
         The c-value for the SN test statistic.
     """
-    n = X_data.shape[0]  # sample size
-    k = X_data.shape[1]  # number of moments
+    n = x_data.shape[0]  # sample size
+    k = x_data.shape[1]  # number of moments
 
     # Compute the c-value as in eq (40)
-    return base_SN(n, k, alpha)
+    return base_sn(n, k, alpha)
 
 
-def cvalue_SN2S(X_data: np.ndarray, alpha: float, beta: float | None = None) -> float:
+def cvalue_sn2s(x_data: np.ndarray, alpha: float, beta: float | None = None) -> float:
     """Calculate the c-value for the SN2S test statistic defined in eq (41) of
     Section 5 in Canay, Illanes, and Velez (2023).
 
     Parameters
     ----------
-    X_data : array_like
+    x_data : array_like
         Matrix of the moment functions with n rows (output of
         :func:`ineq_functions.m_function`).
     alpha : float
@@ -76,37 +76,37 @@ def cvalue_SN2S(X_data: np.ndarray, alpha: float, beta: float | None = None) -> 
     float
         The c-value for the SN2S test statistic.
     """
-    n = X_data.shape[0]  # sample size
+    n = x_data.shape[0]  # sample size
 
     if beta is None:
         beta = alpha / 50
 
-    # Step 1: define set J_SN as almost binding
-    ## Run the first stage from cvalue_SN
-    cvalue0 = cvalue_SN(X_data, beta)
+    # Step 1: define set J_sn as almost binding
+    ## Run the first stage from cvalue_sn
+    cvalue0 = cvalue_sn(x_data, beta)
 
-    ## Compute the mean of each column of X_data
-    mu_hat = np.mean(X_data, axis=0)
-    ## Compute the standard deviation of each column of X_data
-    sigma_hat = np.std(X_data, axis=0)
+    ## Compute the mean of each column of x_data
+    mu_hat = x_data.mean(axis=0)
+    ## Compute the standard deviation of each column of x_data
+    sigma_hat = x_data.std(axis=0)
 
     ## Studentized statistic for each moment inequality
     test_stat0 = np.sqrt(n) * mu_hat / sigma_hat
 
     ## Number of moment inequalities that are almost binding as in eq (39)
-    k_hat = np.sum(test_stat0 > (-2 * cvalue0))
+    k_hat = (test_stat0 > (-2 * cvalue0)).sum()
 
     # Step 2: calculate critical value using a subset of moment inequalities
     if k_hat > 0:
-        cvalue1 = base_SN(n, k_hat, alpha - 2 * beta)  # as in eq (41)
+        cvalue1 = base_sn(n, k_hat, alpha - 2 * beta)  # as in eq (41)
     else:
         cvalue1 = 0
 
     return cvalue1
 
 
-def cvalue_EB2S(
-    X_data: np.ndarray,
+def cvalue_eb2s(
+    x_data: np.ndarray,
     alpha: float,
     beta: float | None = None,
     bootstrap_replications: int | None = None,
@@ -118,7 +118,7 @@ def cvalue_EB2S(
 
     Parameters
     ----------
-    X_data : array_like
+    x_data : array_like
         Matrix of the moment functions with n rows (output of
         :func:`ineq_functions.m_function`).
     alpha : float
@@ -142,7 +142,7 @@ def cvalue_EB2S(
     float
         The c-value for the EB2S test statistic.
     """
-    n = X_data.shape[0]  # sample size
+    n = x_data.shape[0]  # sample size
 
     if beta is None:
         beta = alpha / 50
@@ -162,26 +162,26 @@ def cvalue_EB2S(
                 0, n, size=(bootstrap_replications, n)
             )
 
-    ## Compute the mean of each column of X_data
-    mu_hat = np.mean(X_data, axis=0)
-    ## Compute the standard deviation of each column of X_data
-    sigma_hat = np.std(X_data, axis=0)
+    ## Compute the mean of each column of x_data
+    mu_hat = x_data.mean(axis=0)
+    ## Compute the standard deviation of each column of x_data
+    sigma_hat = x_data.std(axis=0)
 
-    X_samples = X_data[bootstrap_indices, :]
+    x_samples = x_data[bootstrap_indices, :]
 
     ## Follow the steps in eq (45)
-    WEB_matrix = (
+    web_matrix = (
         np.sqrt(n)
         * (1 / n)
-        * np.sum(X_samples - mu_hat[np.newaxis, np.newaxis, :], axis=1)
+        * (x_samples - mu_hat[np.newaxis, np.newaxis, :]).sum(axis=1)
         / sigma_hat[np.newaxis, :]
     )
 
     ## Take maximum of each sample
-    WEB_vector = np.max(WEB_matrix, axis=1)
+    web_vector = web_matrix.max(axis=1)
 
     ## Obtain quantile of bootstrap samples
-    cvalue0 = np.quantile(WEB_vector, 1 - beta)
+    cvalue0 = np.quantile(web_vector, 1 - beta)
 
     ## Studentized statistic for each moment inequality
     test_stat0 = np.sqrt(n) * mu_hat / sigma_hat
@@ -190,11 +190,11 @@ def cvalue_EB2S(
 
     ## Selection of moment inequalities that are almost binding as in eq (46)
     if np.any(test_stat0 > (-2 * cvalue0)):
-        WEB_matrix2 = WEB_matrix[:, test_stat0 > (-2 * cvalue0)]
-        WEB_vector2 = np.max(WEB_matrix2, axis=1)
+        web_matrix2 = web_matrix[:, test_stat0 > (-2 * cvalue0)]
+        web_vector2 = web_matrix2.max(axis=1)
         # We use the midpoint interpolation method for consistency with MATLAB
         cvalue1 = np.quantile(
-            WEB_vector2, 1 - alpha + 2 * beta, interpolation="midpoint"
+            web_vector2, 1 - alpha + 2 * beta, interpolation="midpoint"
         )
     else:
         cvalue1 = 0

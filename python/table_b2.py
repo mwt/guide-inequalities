@@ -27,11 +27,11 @@ dgp["W"] = dgp["D"][:, 1:]
 n = dgp["A"].shape[0]
 
 settings = {
-    "Vbar": [500, 500, 1000, 1000],
+    "v_bar": [500, 500, 1000, 1000],
     "test_stat": ["CCK", "CCK", "CCK", "CCK"],
     "cv": ["SN2S", "EB2S", "SN2S", "EB2S"],
     "alpha": 0.05,
-    "IV": None,
+    "iv": None,
 }
 
 sim = {
@@ -45,7 +45,7 @@ sim["grid_size"] = sim["grid_theta"].shape[0]  # number of theta values: 19881
 sim["dim_theta"] = sim["grid_theta"].shape[1]  # dimension of theta: 2
 
 results = {
-    "CI_vec": (np.empty((4, 2)), np.empty((4, 2))),
+    "ci_vec": (np.empty((4, 2)), np.empty((4, 2))),
     "Tn_vec": (np.empty((sim["grid_size"], 4)), np.empty((sim["grid_size"], 4))),
     "comp_time": np.empty(4),
 }
@@ -63,11 +63,11 @@ for sim_i in range(4):
         Parallel(n_jobs=sim["num_robots"])(
             delayed(ineq.g_restriction)(
                 theta=theta,
-                W_data=dgp["W"],
-                A_matrix=dgp["A"],
-                J0_vec=dgp["J0"],
-                Vbar=settings["Vbar"][sim_i],
-                IV_matrix=settings["IV"],
+                w_data=dgp["W"],
+                a_matrix=dgp["A"],
+                j0_vec=dgp["J0"],
+                v_bar=settings["v_bar"][sim_i],
+                iv_matrix=settings["iv"],
                 grid0="all",
                 alpha=settings["alpha"],
                 test0=settings["test_stat"][sim_i],
@@ -80,26 +80,26 @@ for sim_i in range(4):
 
     # Because g_function returns a list, and Parallel returns it's runs in
     # a list, test_vec and cv_vec are the columns of the output matrix!
-    Test_vec = output[:, 0]
+    test_vec = output[:, 0]
     cv_vec = output[:, 1]
 
     # Theta values for which the null is not rejected
-    CS_vec = sim["grid_theta"][Test_vec <= cv_vec, :]
+    cs_vec = sim["grid_theta"][test_vec <= cv_vec, :]
 
     for theta_index in range(sim["dim_theta"]):
         # Create results objects
-        results["Tn_vec"][theta_index][:, sim_i] = Test_vec
+        results["Tn_vec"][theta_index][:, sim_i] = test_vec
 
-        if CS_vec.shape[0] == 0:
+        if cs_vec.shape[0] == 0:
             # it may be the CI is empty
-            results["CI_vec"][theta_index][sim_i,] = [
+            results["ci_vec"][theta_index][sim_i,] = [
                 np.NaN,
-                sim["grid_theta"][theta_index][np.argmin(Test_vec)],
+                sim["grid_theta"][theta_index][test_vec.argmin()],
             ]
         else:
-            results["CI_vec"][theta_index][sim_i,] = [
-                CS_vec[:, theta_index].min(),
-                CS_vec[:, theta_index].max(),
+            results["ci_vec"][theta_index][sim_i,] = [
+                cs_vec[:, theta_index].min(),
+                cs_vec[:, theta_index].max(),
             ]
 
     # Stop the timer
@@ -118,9 +118,9 @@ tableObj = tt.Texttable(0)
 tableObj.set_cols_align(["l", "l", "c", "c", "c"])
 tableObj.set_cols_dtype(["i", "t", "t", "t", "f"])
 
-the_table = np.array(settings["Vbar"])
+the_table = np.array(settings["v_bar"])
 the_table = np.column_stack((the_table, settings["cv"]))
-for ci_theta in results["CI_vec"]:
+for ci_theta in results["ci_vec"]:
     the_table = np.column_stack(
         (
             the_table,

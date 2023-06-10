@@ -4,12 +4,12 @@ from .moment import m_function, m_hat
 
 
 def rhat(
-    W_data: np.ndarray,
-    A_matrix: np.ndarray,
+    w_data: np.ndarray,
+    a_matrix: np.ndarray,
     theta: np.ndarray,
-    J0_vec: np.ndarray,
-    Vbar: float,
-    IV_matrix: np.ndarray | None = None,
+    j0_vec: np.ndarray,
+    v_bar: float,
+    iv_matrix: np.ndarray | None = None,
     grid0: int | str = "all",
     adjust: np.ndarray = np.array([0]),
 ) -> float:
@@ -17,17 +17,17 @@ def rhat(
 
     Parameters
     ----------
-    W_data : array_like
-        n x J0 matrix of product portfolio.
-    A_matrix : array_like
-        n x (J0 + 1) matrix of estimated revenue differential.
+    w_data : array_like
+        n x j0 matrix of product portfolio.
+    a_matrix : array_like
+        n x (j0 + 1) matrix of estimated revenue differential.
     theta : array_like
         d_theta x 1 parameter of interest.
-    J0_vec : array_like
-        J0 x 2 matrix of ownership by two firms.
-    Vbar : float
+    j0_vec : array_like
+        j0 x 2 matrix of ownership by two firms.
+    v_bar : float
         Tuning parameter as in Assumption 4.2
-    IV_matrix : array_like, optional
+    iv_matrix : array_like, optional
         n x d_IV matrix of instruments or None if no instruments are used.
     grid0 : {1, 2, 'all'}, default='all'
         Grid direction to use for the estimation of the model.
@@ -40,20 +40,20 @@ def rhat(
         Value of rhat for a given parameter theta.
     """
     # note we use -m_function
-    X_data = -1 * m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0)
-    m_hat0 = m_hat(X_data)
-    return np.max(-1 * (m_hat0 + adjust).clip(max=0))
+    x_data = -1 * m_function(w_data, a_matrix, theta, j0_vec, v_bar, iv_matrix, grid0)
+    m_hat0 = m_hat(x_data)
+    return -1 * (m_hat0 + adjust).clip(max=0).min()
 
 
 def compute_an_vec(
     aux1_var: np.ndarray,
     hat_r_inf: float,
-    W_data: np.ndarray,
-    A_matrix: np.ndarray,
+    w_data: np.ndarray,
+    a_matrix: np.ndarray,
     theta_grid: np.ndarray,
-    J0_vec: np.ndarray,
-    Vbar: float,
-    IV_matrix,
+    j0_vec: np.ndarray,
+    v_bar: float,
+    iv_matrix,
     grid0: int,
     bootstrap_replications: int | None = None,
     rng_seed: int | None = None,
@@ -67,18 +67,18 @@ def compute_an_vec(
         Vector of auxiliary variables with dimension n.
     hat_r_inf : float
         Value of rhat at the parameter of interest.
-    W_data : array_like
-        n x J0 matrix of product portfolio.
-    A_matrix : array_like
-        n x (J0 + 1) matrix of estimated revenue differential.
+    w_data : array_like
+        n x j0 matrix of product portfolio.
+    a_matrix : array_like
+        n x (j0 + 1) matrix of estimated revenue differential.
     theta_grid : array_like
         Grid of parameter values to search. The value will be set at the index
         of theta corresponding to `grid0`. Other dimensions will be set to 0.
-    J0_vec : array_like
-        J0 x 2 matrix of ownership by two firms.
-    Vbar : float
+    j0_vec : array_like
+        j0 x 2 matrix of ownership by two firms.
+    v_bar : float
         Tuning parameter as in Assumption 4.2
-    IV_matrix : array_like, optional
+    iv_matrix : array_like, optional
         n x d_IV matrix of instruments or None if no instruments are used.
     grid0 : {1, 2}
         Grid direction to use for the estimation of the model.
@@ -96,7 +96,7 @@ def compute_an_vec(
     array_like
         Vector of An star values with dimension bootstrap_replications.
     """
-    n = A_matrix.shape[0]
+    n = a_matrix.shape[0]
     tau_n = np.sqrt(np.log(n))
     kappa_n = np.sqrt(np.log(n))
 
@@ -120,14 +120,14 @@ def compute_an_vec(
         the_theta = np.zeros(2)
         the_theta[grid0 - 1] = t
 
-        X_data = -1 * m_function(
-            W_data, A_matrix, the_theta, J0_vec, Vbar, IV_matrix, grid0
+        x_data = -1 * m_function(
+            w_data, a_matrix, the_theta, j0_vec, v_bar, iv_matrix, grid0
         )
-        b0_vec = std_b_vec(X_data, bootstrap_replications, rng_seed, bootstrap_indices)
+        b0_vec = std_b_vec(x_data, bootstrap_replications, rng_seed, bootstrap_indices)
         std_b2 = b0_vec[1, :]
         std_b3 = b0_vec[2, :]
         an_mat[:, i] = an_star(
-            X_data,
+            x_data,
             std_b2,
             std_b3,
             kappa_n,
@@ -137,11 +137,11 @@ def compute_an_vec(
             bootstrap_indices,
         )
 
-    return np.min(an_mat, axis=1)
+    return an_mat.min(axis=1)
 
 
 def an_star(
-    X_data: np.ndarray,
+    x_data: np.ndarray,
     std_b2: np.ndarray,
     std_b3: np.ndarray,
     kappa_n: float,
@@ -155,7 +155,7 @@ def an_star(
 
     Parameters
     ----------
-    X_data : array_like
+    x_data : array_like
         Matrix of the moment functions with n rows (output of
         :func:`ineq_functions.m_function`).
     std_b2 : array_like
@@ -175,7 +175,7 @@ def an_star(
     array_like
         Vector of An star values with dimension bootstrap_replications.
     """
-    n = X_data.shape[0]
+    n = x_data.shape[0]
 
     # Obtain random numbers for the bootstrap
     if bootstrap_indices is None:
@@ -191,9 +191,9 @@ def an_star(
             )
 
     # Step 1: Obtain hat_j_r(theta) as in (4.24) in Andrews and Kwon (2023)
-    m_hat0 = m_hat(X_data)
+    m_hat0 = m_hat(x_data)
     r_hat_vec = -1 * (m_hat0).clip(max=0)
-    r_hat0 = np.max(r_hat_vec)
+    r_hat0 = r_hat_vec.max()
 
     # Obtain set of indicies for which this inequality holds
     hat_j_r = (r_hat_vec >= r_hat0 - std_b3 * kappa_n / np.sqrt(n)).nonzero()[0]
@@ -206,7 +206,7 @@ def an_star(
     phi_n[xi_a > 1] = np.inf
 
     # Use the bootstrap
-    vstar = np.sqrt(n) * (m_hat(X_data[bootstrap_indices, :], axis=1) - m_hat0)
+    vstar = np.sqrt(n) * (m_hat(x_data[bootstrap_indices, :], axis=1) - m_hat0)
 
     # Obtain plus-minus variable based on sign of vstar (negative if vstar >= 0)
     pm = 1 - 2 * (vstar >= 0)
@@ -220,13 +220,13 @@ def an_star(
     for i, j in enumerate(hat_j_r):
         hat_bnew = hat_b.copy()
         hat_bnew[j] = phi_n[j]
-        aux_vec2[:, i] = np.max(hat_bnew + hat_hi_star, axis=1)
+        aux_vec2[:, i] = (hat_bnew + hat_hi_star).max(axis=1)
 
-    return np.min(aux_vec2, axis=1)
+    return aux_vec2.min(axis=1)
 
 
-def cvalue_SPUR1(
-    X_data: np.ndarray,
+def cvalue_spur1(
+    x_data: np.ndarray,
     alpha: float,
     an_vec: np.ndarray,
     bootstrap_replications: int | None = None,
@@ -238,7 +238,7 @@ def cvalue_SPUR1(
 
     Parameters
     ----------
-    X_data : array_like
+    x_data : array_like
         Matrix of the moment functions with n rows (output of
         :func:`ineq_functions.m_function`).
     alpha : float
@@ -262,18 +262,18 @@ def cvalue_SPUR1(
     float
         The c-value for the SPUR1 test statistic.
     """
-    n = X_data.shape[0]  # sample size
+    n = x_data.shape[0]  # sample size
     kappa_n = np.sqrt(np.log(n))  # tuning parameter
 
     # Step 1: Computation of Bootstrap statistic
 
-    std_b0 = std_b_vec(X_data, bootstrap_replications, rng_seed, bootstrap_indices)
+    std_b0 = std_b_vec(x_data, bootstrap_replications, rng_seed, bootstrap_indices)
     std_b1 = std_b0[0, :]
     tn_vec = tn_star(
-        X_data, std_b1, kappa_n, bootstrap_replications, rng_seed, bootstrap_indices
+        x_data, std_b1, kappa_n, bootstrap_replications, rng_seed, bootstrap_indices
     )
 
-    sn_star_vec = np.max(-1 * (tn_vec + an_vec[:, np.newaxis]).clip(max=0), axis=1)
+    sn_star_vec = -1 * (tn_vec + an_vec[:, np.newaxis]).clip(max=0).min(axis=1)
 
     # Step 2: Computation of critical value
     # We use the midpoint interpolation method for consistency with MATLAB
@@ -283,7 +283,7 @@ def cvalue_SPUR1(
 
 
 def std_b_vec(
-    X_data: np.ndarray,
+    x_data: np.ndarray,
     bootstrap_replications: int | None = None,
     rng_seed: int | None = None,
     bootstrap_indices: np.ndarray | None = None,
@@ -293,7 +293,7 @@ def std_b_vec(
 
     Parameters
     ----------
-    X_data : array_like
+    x_data : array_like
         Matrix of the moment functions with n rows (output of
         :func:`ineq_functions.m_function`).
     bootstrap_replications : int, optional
@@ -314,7 +314,7 @@ def std_b_vec(
         Array of shape (3, k) with the scaling factors.
     """
     iota = 1e-6  # small number as in eq (4.16) and Section 4.7.1
-    n = X_data.shape[0]  # sample size
+    n = x_data.shape[0]  # sample size
 
     # Obtain random numbers for the bootstrap
     if bootstrap_indices is None:
@@ -330,11 +330,11 @@ def std_b_vec(
             )
 
     # Axis 0 is the bootstrap replications. So we specify axis=1
-    mhat_star_vec = m_hat(X_data[bootstrap_indices, :], axis=1)
+    mhat_star_vec = m_hat(x_data[bootstrap_indices, :], axis=1)
 
     # Get repeated terms
     mhat_star_clip = mhat_star_vec.clip(max=0)
-    mn_star_vec = np.min(mhat_star_clip, axis=1)
+    mn_star_vec = mhat_star_clip.min(axis=1)
 
     # Compute the scaling factors to be clipped below at iota
     vec_1 = np.sqrt(n) * (mhat_star_vec - mn_star_vec[:, np.newaxis])
@@ -343,9 +343,9 @@ def std_b_vec(
 
     std_b = np.vstack(
         (
-            np.std(vec_1, axis=0).clip(min=iota),
-            np.std(vec_2, axis=0).clip(min=iota),
-            np.std(vec_3, axis=0).clip(min=iota),
+            vec_1.std(axis=0).clip(min=iota),
+            vec_2.std(axis=0).clip(min=iota),
+            vec_3.std(axis=0).clip(min=iota),
         )
     )
 
@@ -353,7 +353,7 @@ def std_b_vec(
 
 
 def tn_star(
-    X_data: np.ndarray,
+    x_data: np.ndarray,
     std_b1: np.ndarray,
     kappa_n: float,
     bootstrap_replications: int | None = None,
@@ -364,7 +364,7 @@ def tn_star(
 
     Parameters
     ----------
-    X_data : array_like
+    x_data : array_like
         Matrix of the moment functions with n rows (output of
         :func:`ineq_functions.m_function`).
     std_b1 : array_like
@@ -388,7 +388,7 @@ def tn_star(
     array_like
         Array of shape (bootstrap_replications, k) with the tn* statistics.
     """
-    n = X_data.shape[0]  # sample size
+    n = x_data.shape[0]  # sample size
 
     # Obtain random numbers for the bootstrap
     if bootstrap_indices is None:
@@ -403,9 +403,9 @@ def tn_star(
                 0, n, size=(bootstrap_replications, n)
             )
 
-    m_hat0 = m_hat(X_data)
+    m_hat0 = m_hat(x_data)
     r_hat_vec = -1 * m_hat0.clip(max=0)
-    r_hat = np.max(r_hat_vec)
+    r_hat = r_hat_vec.max()
 
     xi_n = (np.sqrt(n) * (m_hat0 + r_hat)) / (std_b1 * kappa_n)
     phi_n = np.zeros_like(xi_n)
@@ -413,7 +413,7 @@ def tn_star(
 
     # Combining (4.17) and (4.18) from Andrews and Kwon (2023)
     tn_star_vec = (
-        np.sqrt(n) * (m_hat(X_data[bootstrap_indices, :], axis=1) - m_hat0) + phi_n
+        np.sqrt(n) * (m_hat(x_data[bootstrap_indices, :], axis=1) - m_hat0) + phi_n
     )
 
     return tn_star_vec
