@@ -90,6 +90,14 @@ if [ ! -f ./python/_results/tables-tex/table_4.tex ]; then
         cd -
     } || echo "Maybe there is a problem with the python venv? Try deleting it and running this script again."
 fi
+if [ ! -f ./python/_results/tables-tex/table_b2.tex ]; then
+    cd 'python' && {
+        source .venv/bin/activate
+        python3 "table_b2.py"
+        deactivate
+        cd -
+    } || echo "Maybe there is a problem with the python venv? Try deleting it and running this script again."
+fi
 
 # Insert the new tables
 cat <<EOF >>README.md
@@ -143,5 +151,9 @@ $(pandoc -f latex -t gfm ./python/_results/tables-tex/table_3.tex)
 #### Table 4
 
 $(pandoc -f latex -t gfm ./python/_results/tables-tex/table_4.tex)
+
+#### Table 5
+
+$(pandoc -f latex -t gfm ./python/_results/tables-tex/table_b2.tex)
 
 EOF
