@@ -61,9 +61,6 @@ for sim_i in range(4):
     # Obtain the time at the beginning of the simulation
     tic = time.perf_counter()
     for theta_index in range(2):
-        Test_vec = np.empty(sim["grid_size"])
-        cv_vec = np.empty(sim["grid_size"])
-
         # Step 1: find test stat. Tn(theta) and c.value(theta) using G_restriction
         def theta0(theta, theta_index):
             the_theta = np.zeros(2)
@@ -107,9 +104,7 @@ for sim_i in range(4):
                 sim["grid_theta"][theta_index][np.argmin(Test_vec)],
             ]
         else:
-            results["CI_vec"][theta_index][
-                sim_i,
-            ] = [np.min(CS_vec), np.max(CS_vec)]
+            results["CI_vec"][theta_index][sim_i,] = [np.min(CS_vec), np.max(CS_vec)]
 
     # Stop the timer
     toc = time.perf_counter()

@@ -72,9 +72,6 @@ for sim_i in range(4):
     # Obtain the time at the beginning of the simulation
     tic = time.perf_counter()
     for theta_index in range(2):
-        Test_vec = np.empty(sim["grid_size"])
-        cv_vec = np.empty(sim["grid_size"])
-
         # Step 1: find hat_r_inf and An_vec
         if settings["test_stat"][sim_i] == "RC-CCK" or settings["cv"][sim_i] == "SPUR1":
             # Step 1.1: find hat_r_inf
