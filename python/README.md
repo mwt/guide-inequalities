@@ -16,10 +16,10 @@ The table files are:
 
 The tables use functions from the library `ineq_functions` which contains the following submodules:
 
-- `g_restriction.py`: The primary interface function for the library. It is used in every table. It determines the appropriate functions to call from the other submodules.
-- `moment.py`: Functions which are used to calculate the moments. Every table uses some of these functions.
-- `cvalue.py`: Functions which are used to calculate the critical values for the tests (except for SPUR1 which is in `andrews_kwon.py`). Every table uses some of these functions.
-- `andrews_kwon.py`: Functions which are used only in Table 3.
+- [`g_restriction.py`](#submodule-g_restriction): The primary interface function for the library. It is used in every table. It determines the appropriate functions to call from the other submodules.
+- [`moment.py`](#submodule-moment): Functions which are used to calculate the moments. Every table uses some of these functions.
+- [`cvalue.py`](#submodule-cvalue): Functions which are used to calculate the critical values for the tests (except for SPUR1 which is in `andrews_kwon.py`). Every table uses some of these functions.
+- [`andrews_kwon.py`](#submodule-andrews_kwon): Functions which are used only in Table 3.
 
 ### Submodule `g_restriction`
 
