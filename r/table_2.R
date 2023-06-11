@@ -16,7 +16,7 @@ require(xtable)
 # Quick hack to load functions (temporary)
 invisible(lapply(
   list.files(
-    path = "1_functions",
+    path = file.path("ineq_functions","R"),
     full.names = T,
     pattern = "\\.R$"
   ),
@@ -33,12 +33,12 @@ dgp <- sapply(datasets, function(dataset) {
     show_col_types = F
   )))
 }, simplify = F)
-dgp$W_data <- dgp$D[, -1]
+dgp$W <- dgp$D[, -1]
 
 # Settings (cell arrays are used to loop over each of the four different specifications)
 settings <- list(
-  # Vbar is defined in Assumption 4.2 and appears in eq. (26)-(27).
-  Vbar = c(500, 500, 1000, 1000),
+  # v_bar is defined in Assumption 4.2 and appears in eq. (26)-(27).
+  v_bar = c(500, 500, 1000, 1000),
   # CCK as in eq. (38).
   test_stat = rep("CCK", 4),
   # Critical values as in eq. (41) and (47).
@@ -46,7 +46,7 @@ settings <- list(
   # significance level
   alpha = 0.05,
   # no IVs
-  IV = dgp$IV
+  iv = dgp$IV
 )
 
 # Technical settings (lists are used to loop over the two parameters: theta1 and theta2)
@@ -70,8 +70,8 @@ sim <- list(
 )
 
 results <- list(
-  CI_vec = list(matrix(NA, 4, 2), matrix(NA, 4, 2)),
-  Tn_vec = lapply(sim$grid_theta, function(grid) {
+  ci_vector = list(matrix(NA, 4, 2), matrix(NA, 4, 2)),
+  tn_vector = lapply(sim$grid_theta, function(grid) {
     matrix(NA, nrow = length(grid), ncol = 4)
   }),
   comp_time = rep(NA, 4)
@@ -92,63 +92,63 @@ doParallel::registerDoParallel(cl)
 #             i) compute test statistic and critical value
 #            ii) conlist() confidence interevals
 
-for (sim0 in 1:4) {
-  tictoc::tic(paste("Simulation", sim0))
+for (sim_i in 1:4) {
+  tictoc::tic(paste("Simulation", sim_i))
 
   for (theta_index in 1:2) {
     # Temporary in-loop variables (for each theta)
     gridsize <- length(sim$grid_theta[[theta_index]])
 
-    # Step 1: find test stat. Tn(theta) and c.value(theta) using G_restriction
-    test_H0 <- foreach::foreach(
+    # Step 1: find test stat. Tn(theta) and c.value(theta) using g_restriction
+    output <- foreach::foreach(
       theta_i = sim$grid_theta[[theta_index]],
       .combine = "rbind"
     ) %dopar% {
       theta <- numeric(2)
       theta[theta_index] <- theta_i
 
-      # test_H0: [T_n, c_value]
-      G_restriction(
-        W_data = dgp$W_data,
-        A_matrix = dgp$A,
+      # output: [T_n, c_value]
+      g_restriction(
         theta = theta,
-        J0_vec = dgp$J0,
-        Vbar = settings$Vbar[sim0],
-        IV_matrix = settings$IV,
-        grid0 = theta_index,
-        test0 = settings$test_stat[sim0],
-        cvalue = settings$cv[sim0],
+        w_data = dgp$W,
+        a_matrix = dgp$A,
+        j0_vector = dgp$J0,
+        v_bar = settings$v_bar[sim_i],
         alpha = settings$alpha,
+        grid0 = theta_index,
+        test0 = settings$test_stat[sim_i],
+        cvalue = settings$cv[sim_i],
+        iv_matrix = settings$iv,
         bootstrap_indices = bootstrap_indices,
       )
     }
 
-    Test_vec <- test_H0[, 1]
-    cv_vec <- test_H0[, 2]
+    test_vec <- output[, 1]
+    cv_vec <- output[, 2]
 
-    results$Tn_vec[[theta_index]][, sim0] <- Test_vec
+    results$tn_vector[[theta_index]][, sim_i] <- test_vec
 
     # Step 2: find confidence intervals using Tn(theta) and c[['value']](theta)
 
     # Theta values for which the null is not rejected
-    CS_vec <- sim$grid_theta[[theta_index]][Test_vec <= cv_vec]
+    cs_vec <- sim$grid_theta[[theta_index]][test_vec <= cv_vec]
 
 
-    if (length(CS_vec) == 0) {
+    if (length(cs_vec) == 0) {
       # it may be the CI is empty
       # in this case, we report [nan, argmin test statistic]
-      results$CI_vec[[theta_index]][sim0, ] <- c(
+      results$ci_vector[[theta_index]][sim_i, ] <- c(
         NaN,
-        sim$grid_theta[[theta_index]][which.min(Test_vec)]
+        sim$grid_theta[[theta_index]][which.min(test_vec)]
       )
     } else {
-      results$CI_vec[[theta_index]][sim0, ] <- c(min(CS_vec), max(CS_vec))
+      results$ci_vector[[theta_index]][sim_i, ] <- c(min(cs_vec), max(cs_vec))
     }
   }
 
   # Stop the timer
   temp_timer <- tictoc::toc()
-  results$comp_time[sim0] <- temp_timer$toc - temp_timer$tic
+  results$comp_time[sim_i] <- temp_timer$toc - temp_timer$tic
 }
 
 # Stop parallel computing
@@ -167,17 +167,17 @@ if (!dir.exists(table_dir)) {
 }
 
 # Format CI as [lb, ub]
-formated_CI <- sapply(results$CI_vec, function(CI_mat) {
-  apply(CI_mat, 1, function(CI_row) {
-    paste0("[", CI_row[1], ", ", CI_row[2], "]")
+formatted_ci <- sapply(results$ci_vector, function(ci_theta) {
+  apply(ci_theta, 1, function(x) {
+    paste0("[", sprintf("%.1f", x[1]), ", ", sprintf("%.1f", x[2]), "]")
   })
 })
 
 # Make table as matrix
 the_table <- cbind(
-  settings$Vbar,
+  settings$v_bar,
   settings$cv,
-  formated_CI,
+  formatted_ci,
   sprintf("%.2f", results$comp_time)
 )
 

@@ -7,7 +7,7 @@ def rhat(
     w_data: np.ndarray,
     a_matrix: np.ndarray,
     theta: np.ndarray,
-    j0_vec: np.ndarray,
+    j0_vector: np.ndarray,
     v_bar: float,
     iv_matrix: np.ndarray | None = None,
     grid0: int | str = "all",
@@ -20,10 +20,10 @@ def rhat(
     w_data : array_like
         n x j0 matrix of product portfolio.
     a_matrix : array_like
-        n x (j0 + 1) matrix of estimated revenue differential.
+        n x (j0 + 1) matrix of estimated revenue differentials.
     theta : array_like
         d_theta x 1 parameter of interest.
-    j0_vec : array_like
+    j0_vector : array_like
         j0 x 2 matrix of ownership by two firms.
     v_bar : float
         Tuning parameter as in Assumption 4.2
@@ -40,7 +40,9 @@ def rhat(
         Value of rhat for a given parameter theta.
     """
     # note we use -m_function
-    x_data = -1 * m_function(w_data, a_matrix, theta, j0_vec, v_bar, iv_matrix, grid0)
+    x_data = -1 * m_function(
+        theta, w_data, a_matrix, j0_vector, v_bar, grid0, iv_matrix
+    )
     m_hat0 = m_hat(x_data)
     return -1 * (m_hat0 + adjust).clip(max=0).min()
 
@@ -51,7 +53,7 @@ def compute_an_vec(
     w_data: np.ndarray,
     a_matrix: np.ndarray,
     theta_grid: np.ndarray,
-    j0_vec: np.ndarray,
+    j0_vector: np.ndarray,
     v_bar: float,
     iv_matrix,
     grid0: int,
@@ -70,11 +72,11 @@ def compute_an_vec(
     w_data : array_like
         n x j0 matrix of product portfolio.
     a_matrix : array_like
-        n x (j0 + 1) matrix of estimated revenue differential.
+        n x (j0 + 1) matrix of estimated revenue differentials.
     theta_grid : array_like
         Grid of parameter values to search. The value will be set at the index
         of theta corresponding to `grid0`. Other dimensions will be set to 0.
-    j0_vec : array_like
+    j0_vector : array_like
         j0 x 2 matrix of ownership by two firms.
     v_bar : float
         Tuning parameter as in Assumption 4.2
@@ -121,7 +123,7 @@ def compute_an_vec(
         the_theta[grid0 - 1] = t
 
         x_data = -1 * m_function(
-            w_data, a_matrix, the_theta, j0_vec, v_bar, iv_matrix, grid0
+            the_theta, w_data, a_matrix, j0_vector, v_bar, grid0, iv_matrix
         )
         b0_vec = std_b_vec(x_data, bootstrap_replications, rng_seed, bootstrap_indices)
         std_b2 = b0_vec[1, :]
@@ -156,7 +158,7 @@ def an_star(
     Parameters
     ----------
     x_data : array_like
-        Matrix of the moment functions with n rows (output of
+        n x k matrix of the moment functions with n rows (output of
         :func:`ineq_functions.m_function`).
     std_b2 : array_like
         Vector of scaling factors as in eq. (4.21) of Andrews and Kwon (2023).
@@ -239,7 +241,7 @@ def cvalue_spur1(
     Parameters
     ----------
     x_data : array_like
-        Matrix of the moment functions with n rows (output of
+        n x k matrix of the moment functions with n rows (output of
         :func:`ineq_functions.m_function`).
     alpha : float
         Significance level for the first stage test.
@@ -294,7 +296,7 @@ def std_b_vec(
     Parameters
     ----------
     x_data : array_like
-        Matrix of the moment functions with n rows (output of
+        n x k matrix of the moment functions with n rows (output of
         :func:`ineq_functions.m_function`).
     bootstrap_replications : int, optional
         Number of bootstrap replications. Required if bootstrap_indices
@@ -365,7 +367,7 @@ def tn_star(
     Parameters
     ----------
     x_data : array_like
-        Matrix of the moment functions with n rows (output of
+        n x k matrix of the moment functions with n rows (output of
         :func:`ineq_functions.m_function`).
     std_b1 : array_like
         Array of shape (1, k, 1) with the first scaling factor.

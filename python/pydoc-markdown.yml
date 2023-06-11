@@ -7,10 +7,11 @@ loaders:
       - ineq_functions.andrews_kwon
 processors:
   - type: filter
-  - type: smart
 renderer:
   type: markdown
-  insert_header_anchors: false
+  render_toc: true
+  render_toc_title: "Library Modules"
+  insert_header_anchors: true
   code_headers: true
   render_module_header_template: "### Submodule `{relative_module_name}`\n\n"
   docstrings_as_blockquote: true

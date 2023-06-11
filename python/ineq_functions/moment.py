@@ -7,7 +7,7 @@ def m_hat(x_data: np.ndarray, axis: int = 0) -> np.ndarray:
     Parameters
     ----------
     x_data : array_like
-        Matrix of the moment functions with n rows (output of
+        n x k matrix of the moment functions with n rows (output of
         :func:`ineq_functions.m_function`).
     axis : int, default=0
         Axis along which the mean and standard deviation are computed.
@@ -36,13 +36,13 @@ def m_hat(x_data: np.ndarray, axis: int = 0) -> np.ndarray:
 
 
 def m_function(
+    theta: np.ndarray,
     w_data: np.ndarray,
     a_matrix: np.ndarray,
-    theta: np.ndarray,
-    j0_vec: np.ndarray,
+    j0_vector: np.ndarray,
     v_bar: float,
-    iv_matrix: np.ndarray | None = None,
     grid0: int | str = "all",
+    iv_matrix: np.ndarray | None = None,
     dist_data: np.ndarray | None = None,
 ) -> np.ndarray:
     """Moment inequality function defined in eq (28)
@@ -54,20 +54,20 @@ def m_function(
 
     Parameters
     ----------
+    theta : array_like
+        d_theta x 1 parameter of interest.
     w_data : array_like
         n x j0 matrix of product portfolio.
     a_matrix : array_like
-        n x (j0 + 1) matrix of estimated revenue differential.
-    theta : array_like
-        d_theta x 1 parameter of interest.
-    j0_vec : array_like
+        n x (j0 + 1) matrix of estimated revenue differentials.
+    j0_vector : array_like
         j0 x 2 matrix of ownership by two firms.
     v_bar : float
         Tuning parameter as in Assumption 4.2
-    iv_matrix : array_like, optional
-        n x d_IV matrix of instruments or None if no instruments are used.
     grid0 : {1, 2, 'all'}, default='all'
         Grid direction to use for the estimation of the model.
+    iv_matrix : array_like, optional
+        n x d_IV matrix of instruments or None if no instruments are used.
     dist_data : array_like, optional
         n x (J + 1) matrix of distances between product factories and cities.
 
@@ -76,9 +76,9 @@ def m_function(
     array_like
         Matrix of the moment functions with n rows.
     """
-    # Get number of rows in a_matrix and j0_vec
+    # Get number of rows in a_matrix and j0_vector
     n = a_matrix.shape[0]
-    num_products = j0_vec.shape[0]
+    num_products = j0_vector.shape[0]
 
     # Check size of w_data
     if w_data.shape[0] != n:
@@ -89,7 +89,7 @@ def m_function(
 
     # Take sum of columns of w_data
     aux1 = w_data.sum(axis=0)
-    aux1 = aux1[j0_vec[:, 0].astype(int) - 1]
+    aux1 = aux1[j0_vector[:, 0].astype(int) - 1]
 
     # Condition on grid0
     match grid0:
@@ -97,8 +97,8 @@ def m_function(
             ml_indx = (aux1 < n).nonzero()[0]
             mu_indx = (aux1 > 0).nonzero()[0]
         case 1 | 2:
-            ml_indx = ((aux1 < n) & (j0_vec[:, 1] == grid0)).nonzero()[0]
-            mu_indx = ((aux1 > 0) & (j0_vec[:, 1] == grid0)).nonzero()[0]
+            ml_indx = ((aux1 < n) & (j0_vector[:, 1] == grid0)).nonzero()[0]
+            mu_indx = ((aux1 > 0) & (j0_vector[:, 1] == grid0)).nonzero()[0]
         case _:
             raise ValueError("grid0 must be either all, 1, or 2")
 
@@ -106,13 +106,13 @@ def m_function(
     a_subset = a_matrix[:, 1 : (num_products + 1)]
     # Subset vector of product portfolio of coca-cola and
     # energy-products in market i
-    d_matrix = w_data[:, j0_vec[:, 0].astype(int) - 1]
+    d_matrix = w_data[:, j0_vector[:, 0].astype(int) - 1]
 
     if dist_data is None:
         dist_subset = None
     else:
         # Note that we skip the first column of dist_data, so there is no `-1`
-        dist_subset = dist_data[:, j0_vec[:, 0].astype(int)]
+        dist_subset = dist_data[:, j0_vector[:, 0].astype(int)]
 
     ## step 2: compute all the moment functions
 
@@ -122,10 +122,10 @@ def m_function(
 
         # Compute lower and upper bounds
         ml_vec = m_fun_lower(
-            a_subset, d_matrix, z_matrix, j0_vec, theta, v_bar, dist_subset
+            theta, d_matrix, a_subset, j0_vector, v_bar, z_matrix, dist_subset
         )
         mu_vec = m_fun_upper(
-            a_subset, d_matrix, z_matrix, j0_vec, theta, v_bar, dist_subset
+            theta, d_matrix, a_subset, j0_vector, v_bar, z_matrix, dist_subset
         )
 
         # Create new row of x_data
@@ -133,41 +133,41 @@ def m_function(
 
     else:
         # Create dummy IV "matrix"
-        z0_mat = np.array([1])
+        z0_matrix = np.array([1])
         # employment rate
-        z3_mat = (iv_matrix[:, 1] > np.median(iv_matrix[:, 1])).astype(int)
+        z3_matrix = (iv_matrix[:, 1] > np.median(iv_matrix[:, 1])).astype(int)
         # average income in market
-        z5_mat = (iv_matrix[:, 2] > np.median(iv_matrix[:, 2])).astype(int)
+        z5_matrix = (iv_matrix[:, 2] > np.median(iv_matrix[:, 2])).astype(int)
         # median income in market
-        z7_mat = (iv_matrix[:, 3] > np.median(iv_matrix[:, 3])).astype(int)
+        z7_matrix = (iv_matrix[:, 3] > np.median(iv_matrix[:, 3])).astype(int)
 
         # Compute lower and upper bounds
         ml_vec0 = m_fun_lower(
-            a_subset, d_matrix, z0_mat, j0_vec, theta, v_bar, dist_subset
+            theta, d_matrix, a_subset, j0_vector, v_bar, z0_matrix, dist_subset
         )
         mu_vec0 = m_fun_upper(
-            a_subset, d_matrix, z0_mat, j0_vec, theta, v_bar, dist_subset
+            theta, d_matrix, a_subset, j0_vector, v_bar, z0_matrix, dist_subset
         )
 
         ml_vec3 = m_fun_lower(
-            a_subset, d_matrix, z3_mat, j0_vec, theta, v_bar, dist_subset
+            theta, d_matrix, a_subset, j0_vector, v_bar, z3_matrix, dist_subset
         )
         mu_vec3 = m_fun_upper(
-            a_subset, d_matrix, z3_mat, j0_vec, theta, v_bar, dist_subset
+            theta, d_matrix, a_subset, j0_vector, v_bar, z3_matrix, dist_subset
         )
 
         ml_vec5 = m_fun_lower(
-            a_subset, d_matrix, z5_mat, j0_vec, theta, v_bar, dist_subset
+            theta, d_matrix, a_subset, j0_vector, v_bar, z5_matrix, dist_subset
         )
         mu_vec5 = m_fun_upper(
-            a_subset, d_matrix, z5_mat, j0_vec, theta, v_bar, dist_subset
+            theta, d_matrix, a_subset, j0_vector, v_bar, z5_matrix, dist_subset
         )
 
         ml_vec7 = m_fun_lower(
-            a_subset, d_matrix, z7_mat, j0_vec, theta, v_bar, dist_subset
+            theta, d_matrix, a_subset, j0_vector, v_bar, z7_matrix, dist_subset
         )
         mu_vec7 = m_fun_upper(
-            a_subset, d_matrix, z7_mat, j0_vec, theta, v_bar, dist_subset
+            theta, d_matrix, a_subset, j0_vector, v_bar, z7_matrix, dist_subset
         )
 
         # Create new row of x_data
@@ -188,30 +188,30 @@ def m_function(
 
 
 def m_fun_lower(
-    a_subset: np.ndarray,
-    d_matrix: np.ndarray,
-    z_matrix: np.ndarray,
-    j0_vec: np.ndarray,
     theta: np.ndarray,
+    d_matrix: np.ndarray,
+    a_subset: np.ndarray,
+    j0_vector: np.ndarray,
     v_bar: float,
+    z_matrix: np.ndarray,
     dist_subset: np.ndarray | None = None,
 ) -> np.ndarray:
     """Moment inequality function defined in eq (26)
 
     Parameters
     ----------
-    a_subset : array_like
-        n X j0 matrix of estimated revenue differential in a market.
-    d_matrix : array_like
-        n X j0 matrix of product portfolio in a market.
-    z_matrix : array_like
-        n X j0 matrix of instruments in a market.
-    j0_vec : array_like
-        j0 x 2 array of products of coca-cola and energy-product.
     theta : array_like
         d_theta x 1 parameter of interest.
+    d_matrix : array_like
+        n X j0 matrix of product portfolio in a market.
+    a_subset : array_like
+        n X j0 matrix of estimated revenue differential in a market.
+    j0_vector : array_like
+        j0 x 2 array of products of coca-cola and energy-product.
     v_bar : float
         Tuning parameter as in Assumption 4.2.
+    z_matrix : array_like
+        n X j0 matrix of instruments in a market.
     dist_subset : array_like, optional
         n x j0 matrix of distance between products in a market, by default None.
 
@@ -221,10 +221,10 @@ def m_fun_lower(
         1 x j0 vector of the moment function.
     """
     # Get number of firms
-    num_firms = np.unique(j0_vec[:, 1]).shape[0]
+    num_firms = np.unique(j0_vector[:, 1]).shape[0]
 
     # Get indices that match theta values to the firm of each product
-    j1i = j0_vec[:, 1].astype(int) - 1
+    j1i = j0_vector[:, 1].astype(int) - 1
 
     if dist_subset is None:
         # Create vector of theta values matched to the firm of each product
@@ -251,30 +251,30 @@ def m_fun_lower(
 
 
 def m_fun_upper(
-    a_subset: np.ndarray,
-    d_matrix: np.ndarray,
-    z_matrix: np.ndarray,
-    j0_vec: np.ndarray,
     theta: np.ndarray,
+    d_matrix: np.ndarray,
+    a_subset: np.ndarray,
+    j0_vector: np.ndarray,
     v_bar: float,
+    z_matrix: np.ndarray,
     dist_subset: np.ndarray | None = None,
 ) -> np.ndarray:
     """Moment inequality function defined in eq (27)
 
     Parameters
     ----------
-    a_subset : array_like
-        n X j0 matrix of estimated revenue differential in a market.
-    d_matrix : array_like
-        n X j0 matrix of product portfolio in a market.
-    z_matrix : array_like
-        n X j0 matrix of instruments in a market.
-    j0_vec : array_like
-        j0 x 2 array of products of coca-cola and energy-product.
     theta : array_like
         d_theta x 1 parameter of interest.
+    d_matrix : array_like
+        n X j0 matrix of product portfolio in a market.
+    a_subset : array_like
+        n X j0 matrix of estimated revenue differential in a market.
+    j0_vector : array_like
+        j0 x 2 array of products of coca-cola and energy-product.
     v_bar : float
         Tuning parameter as in Assumption 4.2.
+    z_matrix : array_like
+        n X j0 matrix of instruments in a market.
     dist_subset : array_like, optional
         n x j0 matrix of distance between products in a market, by default None.
 
@@ -296,21 +296,21 @@ def m_fun_upper(
         a_subset=a_subset,
         d_matrix=1 - d_matrix,
         z_matrix=z_matrix,
-        j0_vec=j0_vec,
+        j0_vector=j0_vector,
         theta=-theta,
         v_bar=v_bar,
         dist_subset=dist_subset,
     )
 
 
-def find_dist(dist_data: np.ndarray, j0_vec: np.ndarray) -> np.ndarray:
+def find_dist(dist_data: np.ndarray, j0_vector: np.ndarray) -> np.ndarray:
     """Find maximum distance from each firm's factory to the market.
 
     Parameters
     ----------
     dist_data : array_like
         n x j0 matrix of distance between products in a market.
-    j0_vec : array_like
+    j0_vector : array_like
         j0 x 2 array of products of coca-cola and energy-product.
 
     Returns
@@ -326,6 +326,6 @@ def find_dist(dist_data: np.ndarray, j0_vec: np.ndarray) -> np.ndarray:
     -----
     This function is used only in Table 4.
     """
-    coke_dist = dist_data[:, j0_vec[j0_vec[:, 1] == 1, 0].astype(int) - 1]
-    ener_dist = dist_data[:, j0_vec[j0_vec[:, 1] == 2, 0].astype(int) - 1]
+    coke_dist = dist_data[:, j0_vector[j0_vector[:, 1] == 1, 0].astype(int) - 1]
+    ener_dist = dist_data[:, j0_vector[j0_vector[:, 1] == 2, 0].astype(int) - 1]
     return coke_dist.max(axis=1), ener_dist.max(axis=1)

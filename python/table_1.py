@@ -47,8 +47,8 @@ sim["grid_theta"] = (
 )
 
 results = {
-    "ci_vec": (np.empty((4, 2)), np.empty((4, 2))),
-    "Tn_vec": (np.empty((sim["grid_size"], 4)), np.empty((sim["grid_size"], 4))),
+    "ci_vector": (np.empty((4, 2)), np.empty((4, 2))),
+    "tn_vector": (np.empty((sim["grid_size"], 4)), np.empty((sim["grid_size"], 4))),
     "comp_time": np.empty(4),
 }
 
@@ -73,11 +73,11 @@ for sim_i in range(4):
                     theta=theta0(theta, theta_index),
                     w_data=dgp["W"],
                     a_matrix=dgp["A"],
-                    j0_vec=dgp["J0"],
+                    j0_vector=dgp["J0"],
                     v_bar=settings["v_bar"][sim_i],
-                    iv_matrix=settings["iv"],
-                    grid0=theta_index + 1,
                     alpha=settings["alpha"],
+                    grid0=theta_index + 1,
+                    iv_matrix=settings["iv"],
                     test0=settings["test_stat"][sim_i],
                     cvalue=settings["cv"][sim_i],
                     bootstrap_indices=bootstrap_indices,
@@ -95,16 +95,16 @@ for sim_i in range(4):
         cs_vec = sim["grid_theta"][theta_index][test_vec <= cv_vec]
 
         # Create results objects
-        results["Tn_vec"][theta_index][:, sim_i] = test_vec
+        results["tn_vector"][theta_index][:, sim_i] = test_vec
 
         if len(cs_vec) == 0:
             # it may be the CI is empty
-            results["ci_vec"][theta_index][sim_i,] = [
+            results["ci_vector"][theta_index][sim_i,] = [
                 np.NaN,
                 sim["grid_theta"][theta_index][test_vec.argmin()],
             ]
         else:
-            results["ci_vec"][theta_index][sim_i,] = [cs_vec.min(), cs_vec.max()]
+            results["ci_vector"][theta_index][sim_i,] = [cs_vec.min(), cs_vec.max()]
 
     # Stop the timer
     toc = time.perf_counter()
@@ -124,7 +124,7 @@ tableObj.set_cols_dtype(["i", "t", "t", "t", "f"])
 
 the_table = np.array(settings["v_bar"])
 the_table = np.column_stack((the_table, settings["cv"]))
-for ci_theta in results["ci_vec"]:
+for ci_theta in results["ci_vector"]:
     the_table = np.column_stack(
         (
             the_table,

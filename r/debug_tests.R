@@ -4,7 +4,7 @@ require(readr)
 # Quick hack to load functions (temporary)
 invisible(lapply(
   list.files(
-    path = "1_functions",
+    path = file.path("ineq_functions","R"),
     full.names = T,
     pattern = "\\.R$"
   ),
@@ -20,23 +20,65 @@ load_data <- function(dataset) {
 }
 
 # Variables
-A_matrix <- load_data('A')
-D_matrix <- load_data('D')
-IV_matrix <- load_data('IV')
-J0_vec <- load_data('J0')
-W_data <- D_matrix[,-1]
-Vbar = 500
-theta = c(7, 12)
-alpha = 0.05
-rng_seed = 20220826
-num_boots = 1000
+a_matrix <- load_data("A")
+d_matrix <- load_data("D")
+iv_matrix <- load_data("IV")
+j0_vector <- load_data("J0")
+w_data <- d_matrix[, -1]
+v_bar <- 500
+theta <- c(7, 12)
+alpha <- 0.05
+rng_seed <- 20220826
+bootstrap_replications <- 1000
 
 print("No IV, CCK, SN")
-print(G_restriction(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, 1, 'CCK', 'SN', alpha, num_boots, rng_seed))
+print(
+  g_restriction(
+    theta,
+    w_data,
+    a_matrix,
+    j0_vector,
+    v_bar,
+    alpha,
+    "all",
+    iv_matrix,
+    "CCK",
+    "SN",
+    bootstrap_replications = bootstrap_replications,
+    rng_seed = rng_seed
+  )
+)
 print("No IV, CCK, SN2S")
-print(G_restriction(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, 1, 'CCK', 'SN2S', alpha, num_boots, rng_seed))
+print(
+  g_restriction(
+    theta,
+    w_data,
+    a_matrix,
+    j0_vector,
+    v_bar,
+    alpha,
+    "all",
+    iv_matrix,
+    "CCK",
+    "SN2S",
+    bootstrap_replications = bootstrap_replications,
+    rng_seed = rng_seed
+  )
+)
 print("No IV, CCK, EB2S")
-print(G_restriction(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, 1, 'CCK', 'EB2S', alpha, num_boots, rng_seed))
-
-print("M hat")
-print(m_hat(m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, grid0 = 'all')))
+print(
+  g_restriction(
+    theta,
+    w_data,
+    a_matrix,
+    j0_vector,
+    v_bar,
+    alpha,
+    "all",
+    iv_matrix,
+    "CCK",
+    "EB2S",
+    bootstrap_replications = bootstrap_replications,
+    rng_seed = rng_seed
+  )
+)

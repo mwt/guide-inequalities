@@ -64,7 +64,7 @@ def cvalue_sn2s(x_data: np.ndarray, alpha: float, beta: float | None = None) -> 
     Parameters
     ----------
     x_data : array_like
-        Matrix of the moment functions with n rows (output of
+        n x k matrix of the moment functions with n rows (output of
         :func:`ineq_functions.m_function`).
     alpha : float
         Significance level for the first stage test.
@@ -119,7 +119,7 @@ def cvalue_eb2s(
     Parameters
     ----------
     x_data : array_like
-        Matrix of the moment functions with n rows (output of
+        n x k matrix of the moment functions with n rows (output of
         :func:`ineq_functions.m_function`).
     alpha : float
         Significance level for the first stage test.

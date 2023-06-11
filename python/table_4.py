@@ -60,7 +60,7 @@ sim = {
 sim["x0"] = np.zeros((4, 8))
 
 results = {
-    "ci_vec": [np.full((4, 2), np.nan) for i in range(8)],
+    "ci_vector": [np.full((4, 2), np.nan) for i in range(8)],
     "comp_time": np.empty(4),
 }
 
@@ -81,11 +81,11 @@ def restriction_function(
         theta=theta,
         w_data=dgp["W"],
         a_matrix=dgp["A"],
-        j0_vec=dgp["J0"],
+        j0_vector=dgp["J0"],
         v_bar=settings["v_bar"][sim_i],
-        iv_matrix=settings["iv"],
-        grid0="all",
         alpha=settings["alpha"],
+        grid0="all",
+        iv_matrix=settings["iv"],
         test0=settings["test_stat"][sim_i],
         cvalue=settings["cv"][sim_i],
         account_uncertainty=account_uncertainty,
@@ -110,8 +110,8 @@ for sim_i in range(4):
 
         if sim["lb"][sim_i, theta_index] == sim["ub"][sim_i, theta_index]:
             # If the bounds are equal, then theta is fixed
-            results["ci_vec"][theta_index][sim_i, 0] = sim["lb"][sim_i, theta_index]
-            results["ci_vec"][theta_index][sim_i, 1] = sim["ub"][sim_i, theta_index]
+            results["ci_vector"][theta_index][sim_i, 0] = sim["lb"][sim_i, theta_index]
+            results["ci_vector"][theta_index][sim_i, 1] = sim["ub"][sim_i, theta_index]
         else:
             # Call the optimization routine
             ci_lower = minimize(
@@ -140,8 +140,8 @@ for sim_i in range(4):
                 tol=1e-8,
             )
 
-            results["ci_vec"][theta_index][sim_i, 0] = ci_lower.x[theta_index]
-            results["ci_vec"][theta_index][sim_i, 1] = ci_upper.x[theta_index]
+            results["ci_vector"][theta_index][sim_i, 0] = ci_lower.x[theta_index]
+            results["ci_vector"][theta_index][sim_i, 1] = ci_upper.x[theta_index]
 
     # Two dimensional theta confidence intervals accounting for uncertainty
     for theta_index in range(2):
@@ -187,8 +187,8 @@ for sim_i in range(4):
             tol=1e-8,
         )
 
-        results["ci_vec"][theta_index + 6][sim_i, 0] = ci_lower.x[theta_index]
-        results["ci_vec"][theta_index + 6][sim_i, 1] = ci_upper.x[theta_index]
+        results["ci_vector"][theta_index + 6][sim_i, 0] = ci_lower.x[theta_index]
+        results["ci_vector"][theta_index + 6][sim_i, 1] = ci_upper.x[theta_index]
 
     # Stop the timer
     toc = time.perf_counter()
@@ -221,7 +221,7 @@ the_table = np.column_stack(
 )
 
 sub_table = []
-for ci_theta in results["ci_vec"]:
+for ci_theta in results["ci_vector"]:
     sub_table += [
         [
             "[" + "{:.1f}".format(x[0]) + ", " + "{:.1f}".format(x[1]) + "]"

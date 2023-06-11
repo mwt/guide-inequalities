@@ -9,11 +9,11 @@ def g_restriction(
     theta: np.ndarray,
     w_data: np.ndarray,
     a_matrix: np.ndarray,
-    j0_vec: np.ndarray,
+    j0_vector: np.ndarray,
     v_bar: float,
-    iv_matrix,
-    grid0: np.ndarray,
     alpha: float,
+    grid0: int | str = "all",
+    iv_matrix: np.ndarray | None = None,
     test0: str = "CCK",
     cvalue: str = "SN",
     account_uncertainty: bool = False,
@@ -29,22 +29,22 @@ def g_restriction(
 
     Parameters
     ----------
+    theta : array_like
+        d_theta x 1 parameter of interest.
     w_data : array_like
         n x j0 matrix of product portfolio.
     a_matrix : array_like
-        n x (j0 + 1) matrix of estimated revenue differential.
-    theta : array_like
-        d_theta x 1 parameter of interest.
-    j0_vec : array_like
+        n x (j0 + 1) matrix of estimated revenue differentials.
+    j0_vector : array_like
         j0 x 2 matrix of ownership by two firms.
     v_bar : float
-        Tuning parameter as in Assumption 4.2
-    iv_matrix : array_like or None
-        n x d_IV matrix of instruments or None if no instruments are used.
-    grid0 : {1, 2, 'all'}
-        Grid direction to use for the estimation of the model.
+        Tuning parameter as in Assumption 4.2.
     alpha : float
         Significance level.
+    grid0 : {1, 2, 'all'}
+        Grid direction to use for the estimation of the model.
+    iv_matrix : array_like or None
+        n x d_IV matrix of instruments or None if no instruments are used.
     test0 : {'CCK', 'RC-CCK'}
         Test statistic to use.
     cvalue : {'SPUR1', 'SN', 'SN2S', 'EB2S'}
@@ -96,13 +96,13 @@ def g_restriction(
         theta, mu = np.split(theta, [-2])
 
     x_data = m_function(
-        w_data, a_matrix, theta, j0_vec, v_bar, iv_matrix, grid0, dist_data
+        theta, w_data, a_matrix, j0_vector, v_bar, grid0, iv_matrix, dist_data
     )
 
     if account_uncertainty:
         # additional moments to account for randomness of the objective
         # function defined in eq (49) and (50)
-        coke_max_dist, ener_max_dist = find_dist(dist_data, j0_vec)
+        coke_max_dist, ener_max_dist = find_dist(dist_data, j0_vector)
         dist_u1 = coke_max_dist - mu[0]
         dist_u2 = ener_max_dist - mu[1]
         x_data = np.column_stack((x_data, dist_u1, -dist_u1, dist_u2, -dist_u2))

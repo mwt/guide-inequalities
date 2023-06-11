@@ -15,7 +15,7 @@ A_matrix = load_data("A")
 D_matrix = load_data("D")
 Dist_matrix = load_data("Dist") / 1000
 IV_matrix = load_data("IV")
-J0_vec = load_data("J0")
+j0_vector = load_data("J0")
 W_data = D_matrix[:, 1:]
 Vbar = 0
 theta = np.array([7, 12])
@@ -31,7 +31,7 @@ print(
         theta,
         W_data,
         A_matrix,
-        J0_vec,
+        j0_vector,
         Vbar,
         None,
         1,
@@ -47,7 +47,7 @@ print(
         theta,
         W_data,
         A_matrix,
-        J0_vec,
+        j0_vector,
         Vbar,
         None,
         1,
@@ -63,7 +63,7 @@ print(
         theta,
         W_data,
         A_matrix,
-        J0_vec,
+        j0_vector,
         Vbar,
         None,
         1,
@@ -79,7 +79,7 @@ print(
         theta,
         W_data,
         A_matrix,
-        J0_vec,
+        j0_vector,
         Vbar,
         None,
         1,
@@ -98,7 +98,7 @@ print(
         theta6,
         W_data,
         A_matrix,
-        J0_vec,
+        j0_vector,
         Vbar,
         None,
         "all",
@@ -111,7 +111,7 @@ print(
 )
 
 # grid_theta = np.linspace(-40, 100, 1401)
-# X_data = ineq.m_function(W_data, A_matrix, theta, J0_vec, Vbar, None, 1)
+# X_data = ineq.m_function(W_data, A_matrix, theta, j0_vector, Vbar, None, 1)
 # n = X_data.shape[0]  # sample size
 # kappa_n = np.sqrt(np.log(n))  # tuning parameter
 
@@ -123,7 +123,7 @@ print(
 # rhat_vec = np.array(
 #     Parallel(n_jobs=-1)(
 #         delayed(ineq.rhat)(
-#             W_data, A_matrix, np.array([theta, 0]), J0_vec, Vbar, None, 1
+#             W_data, A_matrix, np.array([theta, 0]), j0_vector, Vbar, None, 1
 #         )
 #         for theta in grid_theta
 #     )
@@ -143,4 +143,4 @@ print(
 # print(tn_vec[0, :])
 
 # print("M hat")
-# print(ineq.m_hat(ineq.m_function(W_data, A_matrix, theta, J0_vec, Vbar, None, "all")))
+# print(ineq.m_hat(ineq.m_function(W_data, A_matrix, theta, j0_vector, Vbar, None, "all")))
