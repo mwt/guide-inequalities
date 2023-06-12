@@ -178,19 +178,21 @@ m_fun_lower <- function(theta, d_matrix, a_subset, j0_vector, v_bar, z_matrix = 
     }
     # Create vector of theta values matched to the firm of each product
     theta_vector <- theta[j0_vector[, 2]]
+    a_theta_diff <- t(t(a_subset) - theta_vector)
   } else {
     # Reshape theta to be num_firms x 3
-    theta <- matrix(theta, num_firms, 3)
+    theta <- matrix(theta, num_firms, 3, byrow = TRUE)
     # Create g_theta vector as in Section 8.2.3
-    theta_vector <- (
-      theta[j0_vector[, 2], 0] +
-        theta[j0_vector[, 2], 1] * dist_subset +
-        theta[j0_vector[, 2], 2] * (dist_subset^2)
+    theta_vector <- t(
+      theta[j0_vector[, 2], 1] +
+        theta[j0_vector[, 2], 2] * t(dist_subset) +
+        theta[j0_vector[, 2], 3] * t(dist_subset^2)
     )
+    a_theta_diff <- a_subset - theta_vector
   }
 
   # Run equation (26) for each product
-  (t(t(a_subset) - theta_vector) * (1 - d_matrix) - v_bar * d_matrix) * z_matrix
+  (a_theta_diff * (1 - d_matrix) - v_bar * d_matrix) * z_matrix
 }
 
 #' Upper Moment Inequality Function
@@ -219,5 +221,22 @@ m_fun_upper <- function(theta, d_matrix, a_subset, j0_vector, v_bar, z_matrix = 
     theta = -theta,
     v_bar = v_bar,
     dist_subset = dist_subset
+  )
+}
+
+#' Find Max Distance
+#'
+#' @param dist_data an n x (J + 1) matrix of distances from the product
+#'   factories to the cities.
+#' @param j0_vector a J0 x 2 matrix of ownership by the two firms.
+#'
+#' @return a n x 2 matrix of the maximum distance for each firm to each market.
+#' @export
+find_dist <- function(dist_data, j0_vector) {
+  coke_dist <- dist_data[, j0_vector[j0_vector[, 2] == 1, 1]]
+  ener_dist <- dist_data[, j0_vector[j0_vector[, 2] == 2, 1]]
+  cbind(
+    Rfast::rowMaxs(coke_dist, value = TRUE),
+    Rfast::rowMaxs(ener_dist, value = TRUE)
   )
 }

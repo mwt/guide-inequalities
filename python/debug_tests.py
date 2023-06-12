@@ -11,107 +11,109 @@ def load_data(name):
     return np.loadtxt(file_path, delimiter=",")
 
 
-A_matrix = load_data("A")
-D_matrix = load_data("D")
-Dist_matrix = load_data("Dist") / 1000
-IV_matrix = load_data("IV")
+a_matrix = load_data("A")
+d_matrix = load_data("D")
+dist_data = load_data("Dist") / 1000
+iv_matrix = load_data("IV")
 j0_vector = load_data("J0")
-W_data = D_matrix[:, 1:]
-Vbar = 0
+w_data = d_matrix[:, 1:]
+v_bar = 0
 theta = np.array([7, 12])
 theta6 = np.array([1, 2, 3, 4, 5, 6])
+theta8 = np.array([1, 2, 3, 4, 5, 6, 7, 8])
 alpha = 0.05
 bootstrap_indices = load_data("random").astype(int)
 bootstrap_indices = bootstrap_indices.T - 1
 num_boots = bootstrap_indices.shape[0]
 
-print("No IV, CCK, SN")
-print(
-    ineq.g_restriction(
-        theta,
-        W_data,
-        A_matrix,
-        j0_vector,
-        Vbar,
-        None,
-        1,
-        alpha,
-        "CCK",
-        "SN",
-        bootstrap_indices=bootstrap_indices,
-    )
-)
-print("No IV, CCK, SN2S")
-print(
-    ineq.g_restriction(
-        theta,
-        W_data,
-        A_matrix,
-        j0_vector,
-        Vbar,
-        None,
-        1,
-        alpha,
-        "CCK",
-        "SN2S",
-        bootstrap_indices=bootstrap_indices,
-    )
-)
-print("No IV, CCK, EB2S")
-print(
-    ineq.g_restriction(
-        theta,
-        W_data,
-        A_matrix,
-        j0_vector,
-        Vbar,
-        None,
-        1,
-        alpha,
-        "CCK",
-        "EB2S",
-        bootstrap_indices=bootstrap_indices,
-    )
-)
-print("No IV, RC-CCK, SPUR1")
-print(
-    ineq.g_restriction(
-        theta,
-        W_data,
-        A_matrix,
-        j0_vector,
-        Vbar,
-        None,
-        1,
-        alpha,
-        "RC-CCK",
-        "SPUR1",
-        bootstrap_indices=bootstrap_indices,
-        An_vec=np.zeros(num_boots),
-        hat_r_inf=0,
-    )
-)
+# print("No IV, CCK, SN")
+# print(
+#    ineq.g_restriction(
+#        theta,
+#        w_data,
+#        a_matrix,
+#        j0_vector,
+#        v_bar,
+#        alpha,
+#        1,
+#        None,
+#        "CCK",
+#        "SN",
+#        bootstrap_indices=bootstrap_indices,
+#    )
+# )
+# print("No IV, CCK, SN2S")
+# print(
+#    ineq.g_restriction(
+#        theta,
+#        w_data,
+#        a_matrix,
+#        j0_vector,
+#        v_bar,
+#        alpha,
+#        1,
+#        None,
+#        "CCK",
+#        "SN2S",
+#        bootstrap_indices=bootstrap_indices,
+#    )
+# )
+# print("No IV, CCK, EB2S")
+# print(
+#    ineq.g_restriction(
+#        theta,
+#        w_data,
+#        a_matrix,
+#        j0_vector,
+#        v_bar,
+#        alpha,
+#        1,
+#        None,
+#        "CCK",
+#        "EB2S",
+#        bootstrap_indices=bootstrap_indices,
+#    )
+# )
+# print("No IV, RC-CCK, SPUR1")
+# print(
+#    ineq.g_restriction(
+#        theta,
+#        w_data,
+#        a_matrix,
+#        j0_vector,
+#        v_bar,
+#        alpha,
+#        1,
+#        None,
+#        "RC-CCK",
+#        "SPUR1",
+#        bootstrap_indices=bootstrap_indices,
+#        an_vec=np.zeros(num_boots),
+#        hat_r_inf=0,
+#    )
+# )
 
-print("G restriction fmin")
+print("G restriction dist")
 print(
-    ineq.g_restriction_diff(
-        theta6,
-        W_data,
-        A_matrix,
+    ineq.g_restriction(
+        theta8,
+        w_data,
+        a_matrix,
         j0_vector,
-        Vbar,
-        None,
-        "all",
+        v_bar,
         alpha,
+        1,
+        None,
         "CCK",
         "SN",
+        account_uncertainty = True,
         bootstrap_indices=bootstrap_indices,
-        dist_data=Dist_matrix,
+        dist_data=dist_data,
     )
 )
 
 # grid_theta = np.linspace(-40, 100, 1401)
-# X_data = ineq.m_function(W_data, A_matrix, theta, j0_vector, Vbar, None, 1)
+# X_data = ineq.m_function(w_data, a_matrix, theta, j0_vector, v_bar, None, 1)
 # n = X_data.shape[0]  # sample size
 # kappa_n = np.sqrt(np.log(n))  # tuning parameter
 
@@ -123,7 +125,7 @@ print(
 # rhat_vec = np.array(
 #     Parallel(n_jobs=-1)(
 #         delayed(ineq.rhat)(
-#             W_data, A_matrix, np.array([theta, 0]), j0_vector, Vbar, None, 1
+#             w_data, a_matrix, np.array([theta, 0]), j0_vector, v_bar, None, 1
 #         )
 #         for theta in grid_theta
 #     )
@@ -143,4 +145,4 @@ print(
 # print(tn_vec[0, :])
 
 # print("M hat")
-# print(ineq.m_hat(ineq.m_function(W_data, A_matrix, theta, j0_vector, Vbar, None, "all")))
+# print(ineq.m_hat(ineq.m_function(w_data, a_matrix, theta, j0_vector, v_bar, None, "all")))

@@ -233,9 +233,9 @@ def m_fun_lower(
         theta = theta.reshape(num_firms, 3)
         # Create g_theta vector as in Section 8.2.3
         theta_vector = (
-            theta[j1i, 0]
-            + theta[j1i, 1] * dist_subset
-            + theta[j1i, 2] * (dist_subset**2)
+            theta[np.newaxis, j1i, 0]
+            + theta[np.newaxis, j1i, 1] * dist_subset
+            + theta[np.newaxis, j1i, 2] * (dist_subset**2)
         )
 
     if num_firms != theta.shape[0]:

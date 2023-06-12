@@ -52,8 +52,8 @@ g_restriction <- function(theta, w_data, a_matrix, j0_vector, v_bar, alpha, grid
 
   if (account_uncertainty) {
     max_dists <- find_dist(dist_data, j0_vector)
-    dist_u1 <- max_dists[1, ] - mu[1]
-    dist_u2 <- max_dists[2, ] - mu[2]
+    dist_u1 <- max_dists[, 1] - mu[1]
+    dist_u2 <- max_dists[, 2] - mu[2]
     x_data <- cbind(x_data, dist_u1, -dist_u1, dist_u2, -dist_u2)
   }
 
