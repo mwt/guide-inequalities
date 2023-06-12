@@ -36,9 +36,6 @@ settings = {
 }
 
 sim = {
-    "grid_size": 1401,
-    "rng_seed": 20220826,
-    "bootstrap_replications": 1000,
     "sim_name": "table_4",
     "lb": np.array(
         [
@@ -64,11 +61,6 @@ results = {
     "comp_time": np.empty(4),
 }
 
-# Generate bootstrap indices
-bootstrap_indices = ineq.helpers.get_bootstrap_indices(
-    n, sim["bootstrap_replications"], sim["rng_seed"]
-)
-
 
 # Define the constraint function
 def restriction_function(
@@ -90,7 +82,6 @@ def restriction_function(
         test0=settings["test_stat"][sim_i],
         cvalue=settings["cv"][sim_i],
         account_uncertainty=account_uncertainty,
-        bootstrap_indices=bootstrap_indices,
         dist_data=dgp["Dist"],
     )
 
