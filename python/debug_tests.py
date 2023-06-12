@@ -17,7 +17,7 @@ dist_data = load_data("Dist") / 1000
 iv_matrix = load_data("IV")
 j0_vector = load_data("J0")
 w_data = d_matrix[:, 1:]
-v_bar = 0
+v_bar = 500
 theta = np.array([7, 12])
 theta6 = np.array([1, 2, 3, 4, 5, 6])
 theta8 = np.array([1, 2, 3, 4, 5, 6, 7, 8])
@@ -96,7 +96,7 @@ num_boots = bootstrap_indices.shape[0]
 print("G restriction dist")
 print(
     ineq.g_restriction(
-        theta8,
+        theta6,
         w_data,
         a_matrix,
         j0_vector,
@@ -106,7 +106,7 @@ print(
         None,
         "CCK",
         "SN",
-        account_uncertainty = True,
+        account_uncertainty = False,
         bootstrap_indices=bootstrap_indices,
         dist_data=dist_data,
     )

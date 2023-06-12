@@ -58,7 +58,13 @@ sim <- list(
     c(100, 50, 0, 100, 50, 0, 3, 2),
     c(100, 50, 10, 100, 50, 10, 3, 2)
   ),
-  x0 = matrix(0, nrow = 4, ncol = 8)
+  x0 = matrix(0, nrow = 4, ncol = 8),
+  opt = list(
+    algorithm = "NLOPT_LD_SLSQP",
+    maxeval = 1e5,
+    xtol_rel = 5e-4,
+    ftol_rel = 1e-8
+  )
 )
 
 results <- list(
@@ -90,7 +96,7 @@ restriction_jac <- function(theta, sim_i, theta_index, account_uncertainty) {
   nloptr::nl.grad(
     x0 = theta,
     fn = restriction_function,
-    heps = 1e-12,
+    heps = 1e-8,
     sim_i = sim_i,
     theta_index = theta_index,
     account_uncertainty = account_uncertainty
@@ -123,7 +129,7 @@ for (sim_i in 1:4) {
         ub = sim$ub[sim_i, 1:6],
         eval_g_ineq = restriction_function,
         eval_jac_g_ineq = restriction_jac,
-        opts = list(algorithm = "NLOPT_LD_SLSQP", maxeval = 100000, xtol_rel = 1e-8),
+        opts = sim$opt,
         sim_i = sim_i,
         theta_index = theta_index,
         account_uncertainty = FALSE
@@ -143,7 +149,7 @@ for (sim_i in 1:4) {
         ub = sim$ub[sim_i, 1:6],
         eval_g_ineq = restriction_function,
         eval_jac_g_ineq = restriction_jac,
-        opts = list(algorithm = "NLOPT_LD_SLSQP", maxeval = 100000, xtol_rel = 1e-8),
+        opts = sim$opt,
         sim_i = sim_i,
         theta_index = theta_index,
         account_uncertainty = FALSE

@@ -25,7 +25,7 @@ d_matrix <- load_data("D")
 j0_vector <- load_data("J0")
 dist_data <- load_data("Dist") / 1000
 w_data <- d_matrix[, -1]
-v_bar <- 0
+v_bar <- 500
 theta <- c(7, 12)
 theta6 <- 1:6
 theta8 <- 1:8
@@ -87,7 +87,7 @@ bootstrap_replications <- 1000
 print("G restriction dist")
 print(
   g_restriction(
-    theta8,
+    theta6,
     w_data,
     a_matrix,
     j0_vector,
@@ -97,7 +97,7 @@ print(
     NULL,
     "CCK",
     "SN",
-    account_uncertainty = TRUE,
+    account_uncertainty = FALSE,
     bootstrap_replications = bootstrap_replications,
     rng_seed = rng_seed,
     dist_data = dist_data
