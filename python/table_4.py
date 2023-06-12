@@ -53,8 +53,8 @@ sim = {
             [100, 50, 10, 100, 50, 10, 3, 2],
         ]
     ),
+    "x0": np.zeros((4, 8)),
 }
-sim["x0"] = np.zeros((4, 8))
 
 results = {
     "ci_vector": [np.full((4, 2), np.nan) for i in range(8)],
@@ -67,8 +67,6 @@ def restriction_function(
     theta: np.ndarray, sim_i: int, account_uncertainty: bool = False
 ):
     """Wrapper function for :func:`g_restriction` to be used with scipy.optimize"""
-    if theta.shape == (1,):
-        raise ValueError("theta must be a 1d array")
     # Return the difference between the critical value and test stat
     return -ineq.g_restriction_diff(
         theta=theta,
