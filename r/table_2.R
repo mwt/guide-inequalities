@@ -7,7 +7,6 @@ if (!dir.exists("_results")) {
 # Import packages and functions
 require(readr)
 require(tictoc)
-require(foreach)
 require(Rfast)
 require(Rfast2)
 require(foreach)
@@ -16,7 +15,7 @@ require(xtable)
 # Quick hack to load functions (temporary)
 invisible(lapply(
   list.files(
-    path = file.path("ineq_functions","R"),
+    path = file.path("ineq_functions", "R"),
     full.names = T,
     pattern = "\\.R$"
   ),

@@ -7,7 +7,6 @@ if (!dir.exists("_results")) {
 # Import packages and functions
 require(readr)
 require(tictoc)
-require(foreach)
 require(Rfast)
 require(Rfast2)
 require(foreach)
