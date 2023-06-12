@@ -65,8 +65,9 @@ results = {
 }
 
 # Generate bootstrap indices
-np.random.seed(sim["rng_seed"])
-bootstrap_indices = np.random.randint(0, n, size=(sim["bootstrap_replications"], n))
+bootstrap_indices = ineq.helpers.get_bootstrap_indices(
+    n, sim["bootstrap_replications"], sim["rng_seed"]
+)
 
 
 # Define the constraint function

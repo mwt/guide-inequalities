@@ -1,5 +1,6 @@
 import numpy as np
 
+from .helpers import get_bootstrap_indices
 from .moment import m_function, m_hat
 
 
@@ -180,17 +181,9 @@ def an_star(
     n = x_data.shape[0]
 
     # Obtain random numbers for the bootstrap
-    if bootstrap_indices is None:
-        if bootstrap_replications is None:
-            raise ValueError(
-                "bootstrap_replications must be specified if bootstrap_indices is not."
-            )
-        else:
-            if rng_seed is not None:
-                np.random.seed(rng_seed)
-            bootstrap_indices = np.random.randint(
-                0, n, size=(bootstrap_replications, n)
-            )
+    bootstrap_indices = get_bootstrap_indices(
+        n, bootstrap_replications, rng_seed, bootstrap_indices
+    )
 
     # Step 1: Obtain hat_j_r(theta) as in (4.24) in Andrews and Kwon (2023)
     m_hat0 = m_hat(x_data)
@@ -319,17 +312,9 @@ def std_b_vec(
     n = x_data.shape[0]  # sample size
 
     # Obtain random numbers for the bootstrap
-    if bootstrap_indices is None:
-        if bootstrap_replications is None:
-            raise ValueError(
-                "bootstrap_replications must be specified if bootstrap_indices is not."
-            )
-        else:
-            if rng_seed is not None:
-                np.random.seed(rng_seed)
-            bootstrap_indices = np.random.randint(
-                0, n, size=(bootstrap_replications, n)
-            )
+    bootstrap_indices = get_bootstrap_indices(
+        n, bootstrap_replications, rng_seed, bootstrap_indices
+    )
 
     # Axis 0 is the bootstrap replications. So we specify axis=1
     mhat_star_vec = m_hat(x_data[bootstrap_indices, :], axis=1)
@@ -393,17 +378,9 @@ def tn_star(
     n = x_data.shape[0]  # sample size
 
     # Obtain random numbers for the bootstrap
-    if bootstrap_indices is None:
-        if bootstrap_replications is None:
-            raise ValueError(
-                "bootstrap_replications must be specified if bootstrap_indices is not."
-            )
-        else:
-            if rng_seed is not None:
-                np.random.seed(rng_seed)
-            bootstrap_indices = np.random.randint(
-                0, n, size=(bootstrap_replications, n)
-            )
+    bootstrap_indices = get_bootstrap_indices(
+        n, bootstrap_replications, rng_seed, bootstrap_indices
+    )
 
     m_hat0 = m_hat(x_data)
     r_hat_vec = -1 * m_hat0.clip(max=0)

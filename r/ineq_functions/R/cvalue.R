@@ -1,3 +1,19 @@
+#' Stage 1 Critical Value Backend
+#'
+#' @param n the sample size.
+#' @param k the number of moments.
+#' @param alpha the confidence level required.
+#'
+#' @return a float for the critical value.
+base_sn <- function(n, k, alpha) {
+  # Obtain the quantile of the standard normal distribution corresponding to
+  # the significance level
+  z_quantile <- qnorm(1 - alpha / k)
+
+  # Compute the c-value as in eq (40)
+  z_quantile / sqrt(1 - z_quantile^2 / n)
+}
+
 #' Stage 1 Critical Value
 #'
 #' @param x_data an n x k matrix of evaluated moment functions.
@@ -10,43 +26,29 @@ cvalue_sn <- function(x_data, alpha) {
   n <- nrow(x_data) # sample size
   k <- ncol(x_data) # number of moments
 
-  ## Step 2: calculations
-  qq <- qnorm(1 - alpha / k)
-  # as in eq (40)
-  c_sn <- qq / sqrt(1 - qq^2 / n)
-
-  c_value <- c_sn
-  return(c_value)
+  # Compute the c-value as in eq (40)
+  base_sn(n, k, alpha)
 }
 
 #' Stage 2 Critical Value
 #'
 #' @param x_data an n x k matrix of evaluated moment functions.
 #' @param alpha the confidence level required for the first stage test.
-#' @param beta the confidence level required for the second stage test.
+#' @param beta optional confidence level required for the second stage test.
 #'
 #' @return a float for the critical value.
 #' @export
-cvalue_sn2s <- function(x_data, alpha, beta) {
+cvalue_sn2s <- function(x_data, alpha, beta = alpha / 50) {
   ## Step 0: parameter setting
   n <- nrow(x_data) # sample size
+  k <- ncol(x_data) # number of moments
 
-  if (beta < alpha / 2) {
-    #     cat('Two step SN-method is running');
-  } else {
-    stop(sprintf(
-      "beta is not lower than alpha/2: fix it! alpha: %s, beta %s",
-      alpha,
-      beta
-    ))
-  }
-
-  # Step 1: define set J_SN as almost binding
+  # Step 1: define set J_sn as almost binding
   ## Run the first stage from cvalue_sn
-  cvalue0 <- cvalue_sn(x_data, beta) # as in eq (40)
+  cvalue0 <- base_sn(n, k, beta)
 
   ## Compute the sample mean of each column of x_data
-  mu_hat <- Rfast::colmeans(x_data)
+  mu_hat <- Rfast::colsums(x_data) / n
 
   ## Compute the standard deviation of each column of x_data
   ## normalize by n instead of n-1 as in matlab code
@@ -58,24 +60,19 @@ cvalue_sn2s <- function(x_data, alpha, beta) {
   ## Number of moment inequalities that are almost binding as in eq (39)
   k_hat <- sum(test_stat0 > (-2 * cvalue0))
 
-  ## Step 2: calculate critical value using a subset of moment inequalities
-
+  # Step 2: calculate critical value using a subset of moment inequalities
   if (k_hat > 0) {
-    qq1 <- qnorm(1 - (alpha - 2 * beta) / k_hat)
-    # as in eq (41)
-    cvalue1 <- qq1 / sqrt(1 - qq1^2 / n)
+    base_sn(n, k_hat, alpha - 2 * beta) # as in eq (41)
   } else {
-    cvalue1 <- 0
+    0
   }
-
-  return(cvalue1)
 }
 
 #' Bootstrap Critical Value
 #'
 #' @param x_data an n x k matrix of evaluated moment functions.
 #' @param alpha the confidence level required for the first stage test.
-#' @param beta the confidence level required for the second stage test.
+#' @param beta optional confidence level required for the second stage test.
 #' @param bootstrap_replications the number of bootstrap replications.
 #'   Required if bootstrap_indices is not specified.
 #' @param rng_seed the seed for replication purposes. If not specified, the
@@ -86,46 +83,23 @@ cvalue_sn2s <- function(x_data, alpha, beta) {
 #'
 #' @return a float for the critical value.
 #' @export
-cvalue_eb2s <- function(x_data, alpha, beta, bootstrap_replications = NULL, rng_seed = NULL, bootstrap_indices = NULL) {
-  # sample size
-  n <- nrow(x_data)
-  # number of moments
-  k <- ncol(x_data)
+cvalue_eb2s <- function(x_data, alpha, beta = alpha / 50, bootstrap_replications = NULL, rng_seed = NULL, bootstrap_indices = NULL) {
+  ## Step 0: parameter setting
+  n <- nrow(x_data) # sample size
+  k <- ncol(x_data) # number of moments
 
-  if (beta >= alpha / 2) {
-    stop(sprintf(
-      "beta is not lower than alpha/2: fix it! alpha: %s, beta %s",
-      alpha,
-      beta
-    ))
-  }
+  ## Step 1: Algorithm of the Empirical Bootstrap as in Section 5.2
 
-  # Step 1: Algorithm of the Empirical Bootstrap as in Section 5.2
+  # Obtain random numbers for the bootstrap
+  bootstrap_indices <- get_bootstrap_indices(
+    n, bootstrap_replications, rng_seed, bootstrap_indices
+  )
 
   ## Compute the mean of each column of x_data
   mu_hat <- Rfast::colsums(x_data) / n
   ## Compute the standard deviation of each column of x_data
   ## (normalize by n instead of n-1 as in MATLAB code)
   sigma_hat <- Rfast::colVars(x_data, std = T) * sqrt((n - 1) / n)
-
-  # to replicate results
-  if (is.null(bootstrap_indices)) {
-    if (is.null(bootstrap_replications)) {
-      stop(
-        "bootstrap_replications must be specified if bootstrap_indices is not."
-      )
-    } else {
-      if (!is.null(rng_seed)) {
-        set.seed(rng_seed, kind = "Mersenne-Twister")
-      }
-      # Generate indices if not specified
-      bootstrap_indices <- sample.int(
-        n,
-        n * bootstrap_replications,
-        replace = T
-      )
-    }
-  }
 
   # Indexing trick, the inner matrix has structure:
   # [ Col1 from BB1, Col2 from BB1, ... Col1 from BB2, Col2 from BB2, ... ]
@@ -135,15 +109,15 @@ cvalue_eb2s <- function(x_data, alpha, beta, bootstrap_replications = NULL, rng_
   )
   # Follow the steps in eq (45)
   # (double transpose is because R broadcasts column vectors)
-  WEB_matrix <- t(
+  web_matrix <- t(
     (sqrt(n) * (t(x_means) - mu_hat)) / sigma_hat
   )
 
   ## Take maximum of each sample
-  WEB_vector <- Rfast::rowMaxs(WEB_matrix, value = T)
+  web_vector <- Rfast::rowMaxs(web_matrix, value = T)
 
   ## Obtain quantile of bootstrap samples
-  cvalue0 <- Rfast2::Quantile(WEB_vector, 1 - beta)
+  cvalue0 <- Rfast2::Quantile(web_vector, 1 - beta)
 
   ## Studentized statistic for each moment inequality
   test_stat0 <- sqrt(n) * mu_hat / sigma_hat
@@ -153,12 +127,10 @@ cvalue_eb2s <- function(x_data, alpha, beta, bootstrap_replications = NULL, rng_
   ## Selection of moment inequalities that are almost binding as in eq (46)
   almost_binding <- (test_stat0 > (-2 * cvalue0))
   if (any(almost_binding)) {
-    WEB_matrix2 <- WEB_matrix[, almost_binding]
-    WEB_vector2 <- Rfast::rowMaxs(WEB_matrix2, value = T)
-    cvalue1 <- Rfast2::Quantile(WEB_vector2, 1 - alpha + 2 * beta)
+    web_matrix2 <- web_matrix[, almost_binding]
+    web_vector2 <- Rfast::rowMaxs(web_matrix2, value = T)
+    Rfast2::Quantile(web_vector2, 1 - alpha + 2 * beta)
   } else {
-    cvalue1 <- 0
+    0
   }
-
-  return(cvalue1)
 }

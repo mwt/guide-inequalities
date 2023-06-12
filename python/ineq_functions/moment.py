@@ -115,7 +115,6 @@ def m_function(
         dist_subset = dist_data[:, j0_vector[:, 0].astype(int)]
 
     ## step 2: compute all the moment functions
-
     if iv_matrix is None:
         # Create dummy IV "matrix"
         z_matrix = np.array([1])
@@ -128,7 +127,7 @@ def m_function(
             theta, d_matrix, a_subset, j0_vector, v_bar, z_matrix, dist_subset
         )
 
-        # Create new row of x_data
+        # Create x_data
         x_data = np.hstack((ml_vec[:, ml_indx], mu_vec[:, mu_indx]))
 
     else:
@@ -170,7 +169,7 @@ def m_function(
             theta, d_matrix, a_subset, j0_vector, v_bar, z7_matrix, dist_subset
         )
 
-        # Create new row of x_data
+        # Create x_data
         x_data = np.hstack(
             (
                 ml_vec0[:, ml_indx],

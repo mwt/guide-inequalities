@@ -117,11 +117,9 @@ def g_restriction(
     ## 2. RC-CCK
     match test0:
         case "CCK":
-            m_hat0 = m_hat(x_data)
-            test_stat = np.sqrt(n) * m_hat0.max()
+            test_stat = np.sqrt(n) * m_hat(x_data).max()
         case "RC-CCK":
-            m_hat0 = m_hat(-x_data)
-            test_stat = -1 * np.sqrt(n) * (m_hat0 + hat_r_inf).clip(max=0).min()
+            test_stat = -np.sqrt(n) * (m_hat(-x_data) + hat_r_inf).clip(max=0).min()
         case _:
             raise ValueError("test0 must be either CCK or RC-CCK")
 

@@ -54,8 +54,9 @@ results = {
 }
 
 # Generate bootstrap indices
-np.random.seed(sim["rng_seed"])
-bootstrap_indices = np.random.randint(0, n, size=(sim["bootstrap_replications"], n))
+bootstrap_indices = ineq.helpers.get_bootstrap_indices(
+    n, sim["bootstrap_replications"], sim["rng_seed"]
+)
 
 
 # Define the theta0 function
@@ -77,7 +78,7 @@ for sim_i in range(4):
             # Step 1.1: find hat_r_inf
             rhat_vec = np.array(
                 Parallel(n_jobs=sim["num_robots"])(
-                    delayed(ineq.rhat)(
+                    delayed(ineq.andrews_kwon.rhat)(
                         w_data=dgp["W"],
                         a_matrix=dgp["A"],
                         theta=theta0(theta, theta_index),
@@ -98,7 +99,7 @@ for sim_i in range(4):
             # Step 1.2: find an_vec
             aux1_var = np.array(
                 Parallel(n_jobs=sim["num_robots"])(
-                    delayed(ineq.rhat)(
+                    delayed(ineq.andrews_kwon.rhat)(
                         w_data=dgp["W"],
                         a_matrix=dgp["A"],
                         theta=theta0(theta, theta_index),
@@ -111,7 +112,7 @@ for sim_i in range(4):
                     for theta in sim["grid_theta"][theta_index]
                 )
             )
-            an_vec = ineq.compute_an_vec(
+            an_vec = ineq.andrews_kwon.compute_an_vec(
                 aux1_var,
                 hat_r_inf,
                 w_data=dgp["W"],

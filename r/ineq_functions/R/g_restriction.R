@@ -34,10 +34,29 @@ g_restriction <- function(theta, w_data, a_matrix, j0_vector, v_bar, alpha, grid
     stop("hat_r_inf must be provided for RC-CCK")
   }
 
+  if (account_uncertainty) {
+    # assume that the last two elements of theta are mu
+    d_theta <- length(theta) - 2
+    # raise error if theta does not have at least three elements
+    if (d_theta < 1) {
+      stop("when account_uncertainty = TRUE, the last two elements of theta must be mu")
+    }
+
+    mu <- theta[-(1:d_theta)]
+    theta <- theta[1:d_theta]
+  }
+
   x_data <- m_function(
-    theta, w_data, a_matrix, j0_vector, v_bar, grid0, iv_matrix
+    theta, w_data, a_matrix, j0_vector, v_bar, grid0, iv_matrix, dist_data
   )
-  m_hat0 <- m_hat(x_data)
+
+  if (account_uncertainty) {
+    max_dists <- find_dist(dist_data, j0_vector)
+    dist_u1 <- max_dists[1, ] - mu[1]
+    dist_u2 <- max_dists[2, ] - mu[2]
+    x_data <- cbind(x_data, dist_u1, -dist_u1, dist_u2, -dist_u2)
+  }
+
   n <- nrow(x_data)
 
   # see Section 4.2.2 in Chernozhukov et al. (2019)
@@ -48,8 +67,8 @@ g_restriction <- function(theta, w_data, a_matrix, j0_vector, v_bar, alpha, grid
   ## 2. RC-CCK
   test_stat <-
     switch(test0,
-      CCK = max(sqrt(n) * m_hat0),
-      `RC-CCK` = max(-min(sqrt(n) * (m_hat0 + hat_r_inf), 0)),
+      CCK = sqrt(n) * max(m_hat(x_data)),
+      `RC-CCK` = -sqrt(n) * min(pmin(m_hat(-x_data) + hat_r_inf, 0)),
       stop(sprintf("test0 must be one of CCK, RC-CCK. You entered %s.", cvalue))
     )
 
@@ -61,16 +80,21 @@ g_restriction <- function(theta, w_data, a_matrix, j0_vector, v_bar, alpha, grid
   ## 4. EB2S as in eq (48)
   critical_value <-
     switch(cvalue,
-      SPUR1 = cvalue_spur1(-x_data, bootstrap_replications, alpha, an_vec, rng_seed),
       SN = cvalue_sn(x_data, alpha),
       SN2S = cvalue_sn2s(x_data, alpha, beta),
-      EB2S = cvalue_eb2s(x_data, alpha, beta, bootstrap_replications, rng_seed, bootstrap_indices),
-      stop(
-        sprintf(
-          "cvalue must be one of SPUR1, SN, SN2S, EB2S. You entered %s.",
-          cvalue
-        )
-      )
+      EB2S = cvalue_eb2s(
+        x_data, alpha, beta, bootstrap_replications, rng_seed, bootstrap_indices
+      ),
+      SPUR1 = cvalue_spur1(
+        -x_data,
+        bootstrap_replications,
+        alpha,
+        an_vec,
+        rng_seed,
+        bootstrap_indices
+      ),
+      stop("cvalue must be either SPUR1, SN, SN2S, or EB2S")
     )
-  return(c(test_stat, critical_value))
+
+  c(test_stat, critical_value)
 }

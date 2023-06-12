@@ -2,8 +2,8 @@
 ## Library Modules
 
 * [ineq\_functions.g\_restriction](#ineq_functions.g_restriction)
-  * [g\_restriction](#ineq_functions.g_restriction.g_restriction)
-  * [g\_restriction\_diff](#ineq_functions.g_restriction.g_restriction_diff)
+  * [g\_restriction](#ineq_functions.g_restriction)
+  * [g\_restriction\_diff](#ineq_functions.g_restriction_diff)
 * [ineq\_functions.moment](#ineq_functions.moment)
   * [m\_hat](#ineq_functions.moment.m_hat)
   * [m\_function](#ineq_functions.moment.m_function)
@@ -25,7 +25,7 @@
 
 ### Submodule `g_restriction`
 
-<a id="ineq_functions.g_restriction.g_restriction"></a>
+<a id="ineq_functions.g_restriction"></a>
 
 #### `g_restriction`
 
@@ -111,7 +111,7 @@ def g_restriction(theta: np.ndarray,
 >   - This function also includes the re-centered test statistic as in
 >     Section 8.2.2 and critical value SPUR1 as in Appendix Section C.
 
-<a id="ineq_functions.g_restriction.g_restriction_diff"></a>
+<a id="ineq_functions.g_restriction_diff"></a>
 
 #### `g_restriction_diff`
 

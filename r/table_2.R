@@ -80,8 +80,9 @@ results <- list(
 # Generate bootstrap indices
 # number of markets
 n <- nrow(dgp$A)
-set.seed(sim$rng_seed, kind = "Mersenne-Twister")
-bootstrap_indices <- sample.int(n, n * sim$bootstrap_replications, replace = T)
+bootstrap_indices <- get_bootstrap_indices(
+  n, sim$bootstrap_replications, sim$rng_seed
+)
 
 # Parallel computing
 cl <- parallel::makePSOCKcluster(sim$num_robots)

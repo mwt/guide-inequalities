@@ -1,6 +1,8 @@
 import numpy as np
 from scipy.special import ndtri
 
+from .helpers import get_bootstrap_indices
+
 
 def base_sn(n: int, k: int, alpha: float) -> float:
     """Base function for the SN test statistic defined in eq (40) of
@@ -77,13 +79,14 @@ def cvalue_sn2s(x_data: np.ndarray, alpha: float, beta: float | None = None) -> 
         The c-value for the SN2S test statistic.
     """
     n = x_data.shape[0]  # sample size
+    k = x_data.shape[1]  # number of moments
 
     if beta is None:
         beta = alpha / 50
 
     # Step 1: define set J_sn as almost binding
     ## Run the first stage from cvalue_sn
-    cvalue0 = cvalue_sn(x_data, beta)
+    cvalue0 = base_sn(n, k, beta)
 
     ## Compute the mean of each column of x_data
     mu_hat = x_data.mean(axis=0)
@@ -98,11 +101,9 @@ def cvalue_sn2s(x_data: np.ndarray, alpha: float, beta: float | None = None) -> 
 
     # Step 2: calculate critical value using a subset of moment inequalities
     if k_hat > 0:
-        cvalue1 = base_sn(n, k_hat, alpha - 2 * beta)  # as in eq (41)
+        return base_sn(n, k_hat, alpha - 2 * beta)  # as in eq (41)
     else:
-        cvalue1 = 0
-
-    return cvalue1
+        return 0
 
 
 def cvalue_eb2s(
@@ -150,17 +151,9 @@ def cvalue_eb2s(
     ## Step 1: Algorithm of the Empirical Bootstrap as in Section 5.2
 
     # Obtain random numbers for the bootstrap
-    if bootstrap_indices is None:
-        if bootstrap_replications is None:
-            raise ValueError(
-                "bootstrap_replications must be specified if bootstrap_indices is not."
-            )
-        else:
-            if rng_seed is not None:
-                np.random.seed(rng_seed)
-            bootstrap_indices = np.random.randint(
-                0, n, size=(bootstrap_replications, n)
-            )
+    bootstrap_indices = get_bootstrap_indices(
+        n, bootstrap_replications, rng_seed, bootstrap_indices
+    )
 
     ## Compute the mean of each column of x_data
     mu_hat = x_data.mean(axis=0)
@@ -189,14 +182,11 @@ def cvalue_eb2s(
     # Step 2: Critical value
 
     ## Selection of moment inequalities that are almost binding as in eq (46)
-    if np.any(test_stat0 > (-2 * cvalue0)):
-        web_matrix2 = web_matrix[:, test_stat0 > (-2 * cvalue0)]
+    almost_binding = test_stat0 > (-2 * cvalue0)
+    if np.any(almost_binding):
+        web_matrix2 = web_matrix[:, almost_binding]
         web_vector2 = web_matrix2.max(axis=1)
         # We use the midpoint interpolation method for consistency with MATLAB
-        cvalue1 = np.quantile(
-            web_vector2, 1 - alpha + 2 * beta, interpolation="midpoint"
-        )
+        return np.quantile(web_vector2, 1 - alpha + 2 * beta, interpolation="midpoint")
     else:
-        cvalue1 = 0
-
-    return cvalue1
+        return 0

@@ -53,8 +53,9 @@ results = {
 }
 
 # Generate bootstrap indices
-np.random.seed(sim["rng_seed"])
-bootstrap_indices = np.random.randint(0, n, size=(sim["bootstrap_replications"], n))
+bootstrap_indices = ineq.helpers.get_bootstrap_indices(
+    n, sim["bootstrap_replications"], sim["rng_seed"]
+)
 
 for sim_i in range(4):
     print("Simulation:", sim_i + 1)
