@@ -6,11 +6,11 @@ This folder contains MATLAB to replicate the results in the paper "A User's Guid
 
 The table files are:
 
-- `table_1.m`: Replicates Table 1 in Section 8.1.
+- `table_1a.m`: Replicates Table 1, Panel A in Section 8.1.
+- `table_1b.m`: Replicates Table 1, Panel B in Section 8.1.
 - `table_2.m`: Replicates Table 2 in Section 8.2.1.
 - `table_3.m`: Replicates Table 3 in Section 8.2.2.
 - `table_4.m`: Replicates Table 4 in Section 8.2.3.
-- `table_b2.m`: Replicates Table B2 in Section B.4.
 
 ## Functions
 

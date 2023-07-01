@@ -35,16 +35,14 @@ settings = {
 }
 
 sim = {
-    "grid_size": 1401,
     "rng_seed": 20220826,
     "bootstrap_replications": 1000,
     "num_robots": 4,
-    "sim_name": "table_1",
+    "sim_name": "table_1a",
 }
-sim["grid_theta"] = (
-    np.linspace(-40, 100, sim["grid_size"]),
-    np.linspace(-40, 100, sim["grid_size"]),
-)
+sim["grid_theta"] = np.swapaxes(np.mgrid[-40:101, -40:101], 0, 2).reshape(-1, 2)
+sim["grid_size"] = sim["grid_theta"].shape[0]  # number of theta values: 19881
+sim["dim_theta"] = sim["grid_theta"].shape[1]  # dimension of theta: 2
 
 results = {
     "ci_vector": (np.empty((4, 2)), np.empty((4, 2))),
@@ -61,51 +59,49 @@ for sim_i in range(4):
     print("Simulation:", sim_i + 1)
     # Obtain the time at the beginning of the simulation
     tic = time.perf_counter()
-    for theta_index in range(2):
-        # Step 1: find test stat. Tn(theta) and c.value(theta) using G_restriction
-        def theta0(theta, theta_index):
-            the_theta = np.zeros(2)
-            the_theta[theta_index] = theta
-            return the_theta
 
-        output = np.array(
-            Parallel(n_jobs=sim["num_robots"])(
-                delayed(ineq.g_restriction)(
-                    theta=theta0(theta, theta_index),
-                    w_data=dgp["W"],
-                    a_matrix=dgp["A"],
-                    j0_vector=dgp["J0"],
-                    v_bar=settings["v_bar"][sim_i],
-                    alpha=settings["alpha"],
-                    grid0=theta_index + 1,
-                    iv_matrix=settings["iv"],
-                    test0=settings["test_stat"][sim_i],
-                    cvalue=settings["cv"][sim_i],
-                    bootstrap_indices=bootstrap_indices,
-                )
-                for theta in sim["grid_theta"][theta_index]
+    output = np.array(
+        Parallel(n_jobs=sim["num_robots"])(
+            delayed(ineq.g_restriction)(
+                theta=theta,
+                w_data=dgp["W"],
+                a_matrix=dgp["A"],
+                j0_vector=dgp["J0"],
+                v_bar=settings["v_bar"][sim_i],
+                alpha=settings["alpha"],
+                grid0="all",
+                iv_matrix=settings["iv"],
+                test0=settings["test_stat"][sim_i],
+                cvalue=settings["cv"][sim_i],
+                bootstrap_indices=bootstrap_indices,
             )
+            for theta in sim["grid_theta"]
         )
+    )
 
-        # Because g_function returns a list, and Parallel returns it's runs in
-        # a list, test_vec and cv_vec are the columns of the output matrix!
-        test_vec = output[:, 0]
-        cv_vec = output[:, 1]
+    # Because g_function returns a list, and Parallel returns it's runs in
+    # a list, test_vec and cv_vec are the columns of the output matrix!
+    test_vec = output[:, 0]
+    cv_vec = output[:, 1]
 
-        # Theta values for which the null is not rejected
-        cs_vec = sim["grid_theta"][theta_index][test_vec <= cv_vec]
+    # Theta values for which the null is not rejected
+    cs_vec = sim["grid_theta"][test_vec <= cv_vec, :]
 
+    for theta_index in range(sim["dim_theta"]):
         # Create results objects
         results["tn_vector"][theta_index][:, sim_i] = test_vec
 
-        if len(cs_vec) == 0:
+        if cs_vec.shape[0] == 0:
             # it may be the CI is empty
             results["ci_vector"][theta_index][sim_i,] = [
                 np.NaN,
                 sim["grid_theta"][theta_index][test_vec.argmin()],
             ]
         else:
-            results["ci_vector"][theta_index][sim_i,] = [cs_vec.min(), cs_vec.max()]
+            results["ci_vector"][theta_index][sim_i,] = [
+                cs_vec[:, theta_index].min(),
+                cs_vec[:, theta_index].max(),
+            ]
 
     # Stop the timer
     toc = time.perf_counter()

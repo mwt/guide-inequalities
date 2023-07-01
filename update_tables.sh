@@ -14,8 +14,11 @@ sed -i '/^## Tables/q' README.md
 
 # Run the matlab scripts if tables don't exist
 ## Matlab
-if [ ! -f ./matlab/_results/tables-tex/table_1.tex ]; then
-    matlab -batch "run('matlab/table_1.m')"
+if [ ! -f ./matlab/_results/tables-tex/table_1a.tex ]; then
+    matlab -batch "run('matlab/table_1a.m')"
+fi
+if [ ! -f ./matlab/_results/tables-tex/table_1b.tex ]; then
+    matlab -batch "run('matlab/table_1b.m')"
 fi
 if [ ! -f ./matlab/_results/tables-tex/table_2.tex ]; then
     matlab -batch "run('matlab/table_2.m')"
@@ -26,14 +29,11 @@ fi
 if [ ! -f ./matlab/_results/tables-tex/table_4.tex ]; then
     matlab -batch "run('matlab/table_4.m')"
 fi
-if [ ! -f ./matlab/_results/tables-tex/table_b2.tex ]; then
-    matlab -batch "run('matlab/table_b2.m')"
-fi
 
 ## R
-if [ ! -f ./r/_results/tables-tex/table_1.tex ]; then
+if [ ! -f ./r/_results/tables-tex/table_1b.tex ]; then
     cd 'r' && {
-        Rscript --vanilla "table_1.R"
+        Rscript --vanilla "table_1b.R"
         cd -
     }
 fi
@@ -58,10 +58,18 @@ if [ ! -d ./python/.venv ]; then
 fi
 
 # Run the python scripts if tables don't exist
-if [ ! -f ./python/_results/tables-tex/table_1.tex ]; then
+if [ ! -f ./python/_results/tables-tex/table_1a.tex ]; then
     cd 'python' && {
         source .venv/bin/activate
-        python3 "table_1.py"
+        python3 "table_1a.py"
+        deactivate
+        cd -
+    } || echo "Maybe there is a problem with the python venv? Try deleting it and running this script again."
+fi
+if [ ! -f ./python/_results/tables-tex/table_1b.tex ]; then
+    cd 'python' && {
+        source .venv/bin/activate
+        python3 "table_1b.py"
         deactivate
         cd -
     } || echo "Maybe there is a problem with the python venv? Try deleting it and running this script again."
@@ -90,14 +98,6 @@ if [ ! -f ./python/_results/tables-tex/table_4.tex ]; then
         cd -
     } || echo "Maybe there is a problem with the python venv? Try deleting it and running this script again."
 fi
-if [ ! -f ./python/_results/tables-tex/table_b2.tex ]; then
-    cd 'python' && {
-        source .venv/bin/activate
-        python3 "table_b2.py"
-        deactivate
-        cd -
-    } || echo "Maybe there is a problem with the python venv? Try deleting it and running this script again."
-fi
 
 # Insert the new tables
 cat <<EOF >>README.md
@@ -106,7 +106,13 @@ cat <<EOF >>README.md
 
 #### Table 1
 
-$(pandoc -f latex -t gfm ./matlab/_results/tables-tex/table_1.tex)
+##### Panel A
+
+$(pandoc -f latex -t gfm ./matlab/_results/tables-tex/table_1a.tex)
+
+##### Panel B
+
+$(pandoc -f latex -t gfm ./matlab/_results/tables-tex/table_1b.tex)
 
 #### Table 2
 
@@ -120,15 +126,13 @@ $(pandoc -f latex -t gfm ./matlab/_results/tables-tex/table_3.tex)
 
 $(pandoc -f latex -t gfm ./matlab/_results/tables-tex/table_4.tex)
 
-#### Table B2
-
-$(pandoc -f latex -t gfm ./matlab/_results/tables-tex/table_b2.tex)
-
 ### R tables
 
 #### Table 1
 
-$(pandoc -f latex -t gfm ./r/_results/tables-tex/table_1.tex)
+##### Panel B
+
+$(pandoc -f latex -t gfm ./r/_results/tables-tex/table_1b.tex)
 
 #### Table 2
 
@@ -138,7 +142,13 @@ $(pandoc -f latex -t gfm ./r/_results/tables-tex/table_2.tex)
 
 #### Table 1
 
-$(pandoc -f latex -t gfm ./python/_results/tables-tex/table_1.tex)
+##### Panel A
+
+$(pandoc -f latex -t gfm ./python/_results/tables-tex/table_1a.tex)
+
+##### Panel B
+
+$(pandoc -f latex -t gfm ./python/_results/tables-tex/table_1b.tex)
 
 #### Table 2
 
@@ -151,9 +161,5 @@ $(pandoc -f latex -t gfm ./python/_results/tables-tex/table_3.tex)
 #### Table 4
 
 $(pandoc -f latex -t gfm ./python/_results/tables-tex/table_4.tex)
-
-#### Table 5
-
-$(pandoc -f latex -t gfm ./python/_results/tables-tex/table_b2.tex)
 
 EOF

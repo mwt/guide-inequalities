@@ -65,7 +65,7 @@ sim <- list(
   rng_seed = 20220826,
   bootstrap_replications = 1000,
   num_robots = 4,
-  sim_name = "table_1"
+  sim_name = "table_1b"
 )
 
 results <- list(

@@ -13,7 +13,7 @@ The code is organized into four folders:
 * `python` contains the code for the Python implementation of the algorithms. The file [`python/README.md`](python/README.md) contains a description of the Python code.
 * `r` contains the code for the R implementation of the algorithms. The file [`r/README.md`](r/README.md) contains a description of the R code.
 
-In each of the three code implementations, there is one script for each table in the paper. This script produces the output for the table. The scripts are named `table_1.m` (or `.py` or `.R`), `table_2.m`, etc. The scripts are self-contained and can be run independently of each other.
+In each of the three code implementations, there is one script for each table in the paper. This script produces the output for the table. The scripts are named `table_1a.m` (or `.py` or `.R`), `table_1b.m`, etc. The scripts are self-contained and can be run independently of each other.
 
 ## Outputs
 
@@ -25,10 +25,21 @@ Each implementation produces outputs in a folder named `_results`. The results f
 
 #### Table 1
 
+##### Panel A
+
 |                  | Crit. Value | \(\theta_1\): Coca-Cola | \(\theta_2\): Energy Brands | Comp. Time |
 | :--------------: | :---------: | :---------------------: | :-------------------------: | :--------: |
-| \(\Bar{V}\)=500  |  self-norm  |    \[-14.3 , 22.6\]     |      \[-40.0 , 35.9\]       |    5.5     |
-|                  |  bootstrap  |    \[-13.1 , 22.1\]     |      \[-40.0 , 34.8\]       |    14.0    |
+| \(\Bar{V}\)=500  |  self-norm  |    \[-16.0 , 23.4\]     |      \[-40.0 , 39.3\]       |    45.8    |
+|                  |  bootstrap  |    \[-13.9 , 22.4\]     |      \[-40.0 , 38.5\]       |   180.1    |
+| \(\Bar{V}\)=1000 |  self-norm  |    \[-40.0 , 29.1\]     |      \[-40.0 , 63.1\]       |    53.8    |
+|                  |  bootstrap  |    \[-40.0 , 26.8\]     |      \[-40.0 , 60.2\]       |   217.7    |
+
+##### Panel B
+
+|                  | Crit. Value | \(\theta_1\): Coca-Cola | \(\theta_2\): Energy Brands | Comp. Time |
+| :--------------: | :---------: | :---------------------: | :-------------------------: | :--------: |
+| \(\Bar{V}\)=500  |  self-norm  |    \[-14.3 , 22.6\]     |      \[-40.0 , 35.9\]       |    5.4     |
+|                  |  bootstrap  |    \[-13.1 , 22.1\]     |      \[-40.0 , 34.8\]       |    13.1    |
 | \(\Bar{V}\)=1000 |  self-norm  |    \[-40.0 , 28.3\]     |      \[-40.0 , 57.4\]       |    4.4     |
 |                  |  bootstrap  |    \[-40.0 , 26.6\]     |      \[-40.0 , 54.7\]       |    13.0    |
 
@@ -65,25 +76,18 @@ Each implementation produces outputs in a folder named `_results`. The results f
 |            | \(\theta_2(\mu)\) | \[ -75.1 , 99.0\]  | \[ -105.8 , 119.9\] | \[ -75.1 , 126.0\]  | \[ -105.8 , 142.7\] |
 | Comp. time |                   |        12.0        |        12.9         |         9.4         |         9.4         |
 
-#### Table B2
-
-|                  | Crit. Value | \(\theta_1\): Coca-Cola | \(\theta_2\): Energy Brands | Comp. Time |
-| :--------------: | :---------: | :---------------------: | :-------------------------: | :--------: |
-| \(\Bar{V}\)=500  |  self-norm  |    \[-16.0 , 23.4\]     |      \[-40.0 , 39.3\]       |    46.1    |
-|                  |  bootstrap  |    \[-13.9 , 22.4\]     |      \[-40.0 , 38.5\]       |   183.1    |
-| \(\Bar{V}\)=1000 |  self-norm  |    \[-40.0 , 29.1\]     |      \[-40.0 , 63.1\]       |    55.8    |
-|                  |  bootstrap  |    \[-40.0 , 26.8\]     |      \[-40.0 , 60.2\]       |   219.1    |
-
 ### R tables
 
 #### Table 1
 
+##### Panel B
+
 | \(\Bar{V}\) | Crit. Value | \(\theta_1\): Coca-Cola | \(\theta_2\): Energy Brands | Comp. Time |
 | :---------- | :---------- | :---------------------- | :-------------------------- | :--------- |
-| 500         | SN2S        | \[-14.3, 22.6\]         | \[-40.0, 35.9\]             | 1.82       |
-| 500         | EB2S        | \[-11.9, 21.7\]         | \[-40.0, 34.6\]             | 39.32      |
-| 1000        | SN2S        | \[-40.0, 28.3\]         | \[-40.0, 57.4\]             | 1.52       |
-| 1000        | EB2S        | \[-40.0, 26.8\]         | \[-40.0, 54.1\]             | 39.51      |
+| 500         | SN2S        | \[-14.3, 22.6\]         | \[-40.0, 35.9\]             | 1.85       |
+| 500         | EB2S        | \[-11.9, 21.7\]         | \[-40.0, 34.6\]             | 41.19      |
+| 1000        | SN2S        | \[-40.0, 28.3\]         | \[-40.0, 57.4\]             | 1.57       |
+| 1000        | EB2S        | \[-40.0, 26.8\]         | \[-40.0, 54.1\]             | 40.68      |
 
 #### Table 2
 
@@ -98,12 +102,23 @@ Each implementation produces outputs in a folder named `_results`. The results f
 
 #### Table 1
 
+##### Panel A
+
 | \(\Bar{V}\) | Crit. Value | \(\theta_1\): Coca-Cola | \(\theta_2\): Energy Brands | Comp. Time |
 | :---------- | :---------- | :---------------------: | :-------------------------: | :--------: |
-| 500         | SN2S        |     \[-14.3, 22.6\]     |       \[-40.0, 35.9\]       |   0.874    |
-| 500         | EB2S        |     \[-13.7, 22.3\]     |       \[-40.0, 34.5\]       |   30.396   |
-| 1000        | SN2S        |     \[-40.0, 28.3\]     |       \[-40.0, 57.4\]       |   0.795    |
-| 1000        | EB2S        |     \[-40.0, 27.4\]     |       \[-40.0, 54.1\]       |   29.916   |
+| 500         | SN2S        |     \[-16.0, 23.0\]     |       \[-40.0, 39.0\]       |   2.323    |
+| 500         | EB2S        |     \[-15.0, 22.0\]     |       \[-40.0, 39.0\]       |  423.825   |
+| 1000        | SN2S        |     \[-40.0, 29.0\]     |       \[-40.0, 63.0\]       |   2.043    |
+| 1000        | EB2S        |     \[-40.0, 27.0\]     |       \[-40.0, 61.0\]       |  422.603   |
+
+##### Panel B
+
+| \(\Bar{V}\) | Crit. Value | \(\theta_1\): Coca-Cola | \(\theta_2\): Energy Brands | Comp. Time |
+| :---------- | :---------- | :---------------------: | :-------------------------: | :--------: |
+| 500         | SN2S        |     \[-14.3, 22.6\]     |       \[-40.0, 35.9\]       |   1.059    |
+| 500         | EB2S        |     \[-13.7, 22.3\]     |       \[-40.0, 34.5\]       |   30.488   |
+| 1000        | SN2S        |     \[-40.0, 28.3\]     |       \[-40.0, 57.4\]       |   0.879    |
+| 1000        | EB2S        |     \[-40.0, 27.4\]     |       \[-40.0, 54.1\]       |   30.345   |
 
 #### Table 2
 
@@ -135,14 +150,5 @@ Each implementation produces outputs in a folder named `_results`. The results f
 |               | \(\theta_{2,2}\) | \[-20.0, 50.0\]  | \[-20.0, 50.0\] | \[-20.0, 50.0\] | \[-20.0, 50.0\] |
 |               | \(\theta_{2,3}\) | \[0.0, 0.0\]     | \[-10.0, 10.0\] | \[0.0, 0.0\]    | \[-10.0, 10.0\] |
 |               | \(\theta_{2}\)   | \[0.0, 0.0\]     | \[0.0, 0.0\]    | \[0.0, 0.0\]    | \[0.0, 0.0\]    |
-| Comp. Time    |                  | 0.549            | 0.874           | 0.742           | 0.776           |
-
-#### Table 5
-
-| \(\Bar{V}\) | Crit. Value | \(\theta_1\): Coca-Cola | \(\theta_2\): Energy Brands | Comp. Time |
-| :---------- | :---------- | :---------------------: | :-------------------------: | :--------: |
-| 500         | SN2S        |     \[-16.0, 23.0\]     |       \[-40.0, 39.0\]       |   2.352    |
-| 500         | EB2S        |     \[-15.0, 22.0\]     |       \[-40.0, 39.0\]       |  418.729   |
-| 1000        | SN2S        |     \[-40.0, 29.0\]     |       \[-40.0, 63.0\]       |   2.219    |
-| 1000        | EB2S        |     \[-40.0, 27.0\]     |       \[-40.0, 61.0\]       |  417.951   |
+| Comp. Time    |                  | 0.550            | 0.873           | 0.743           | 0.774           |
 
