@@ -31,6 +31,12 @@ if [ ! -f ./matlab/_results/tables-tex/table_4.tex ]; then
 fi
 
 ## R
+if [ ! -f ./r/_results/tables-tex/table_1a.tex ]; then
+    cd 'r' && {
+        Rscript --vanilla "table_1a.R"
+        cd -
+    }
+fi
 if [ ! -f ./r/_results/tables-tex/table_1b.tex ]; then
     cd 'r' && {
         Rscript --vanilla "table_1b.R"
@@ -129,6 +135,10 @@ $(pandoc -f latex -t gfm ./matlab/_results/tables-tex/table_4.tex)
 ### R tables
 
 #### Table 1
+
+##### Panel A
+
+$(pandoc -f latex -t gfm ./r/_results/tables-tex/table_1a.tex)
 
 ##### Panel B
 

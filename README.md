@@ -80,6 +80,15 @@ Each implementation produces outputs in a folder named `_results`. The results f
 
 #### Table 1
 
+##### Panel A
+
+| \(\Bar{V}\) | Crit. Value | \(\theta_1\): Coca-Cola | \(\theta_2\): Energy Brands | Comp. Time |
+| :---------- | :---------- | :---------------------- | :-------------------------- | :--------- |
+| 500         | SN2S        | \[-16.0, 23.0\]         | \[-40.0, 39.0\]             | 14.09      |
+| 500         | EB2S        | \[-12.0, 22.0\]         | \[-40.0, 38.0\]             | 586.78     |
+| 1000        | SN2S        | \[-40.0, 29.0\]         | \[-40.0, 63.0\]             | 13.92      |
+| 1000        | EB2S        | \[-40.0, 26.0\]         | \[-40.0, 60.0\]             | 586.00     |
+
 ##### Panel B
 
 | \(\Bar{V}\) | Crit. Value | \(\theta_1\): Coca-Cola | \(\theta_2\): Energy Brands | Comp. Time |
