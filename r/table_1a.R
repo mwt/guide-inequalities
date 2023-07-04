@@ -97,7 +97,7 @@ for (sim_i in 1:4) {
     i = 1:sim$grid_size,
     .combine = "rbind"
   ) %dopar% {
-    theta <- sim$grid_theta[i, ]
+    theta <- as.numeric(sim$grid_theta[i, ])
 
     # output: [T_n, c_value]
     g_restriction(
@@ -107,7 +107,7 @@ for (sim_i in 1:4) {
       j0_vector = dgp$J0,
       v_bar = settings$v_bar[sim_i],
       alpha = settings$alpha,
-      grid0 = theta_index,
+      grid0 = "all",
       test0 = settings$test_stat[sim_i],
       cvalue = settings$cv[sim_i],
       iv_matrix = settings$iv,
