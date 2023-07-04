@@ -95,7 +95,7 @@ for sim_i in range(4):
             # it may be the CI is empty
             results["ci_vector"][theta_index][sim_i,] = [
                 np.NaN,
-                sim["grid_theta"][theta_index][test_vec.argmin()],
+                sim["grid_theta"][test_vec.argmin(), theta_index],
             ]
         else:
             results["ci_vector"][theta_index][sim_i,] = [

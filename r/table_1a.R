@@ -1,4 +1,4 @@
-# Table 2 in Section 8.2.1 in Canay, Illanes and Velez (2023)
+# Table 1 in Section 8.1 in Canay, Illanes and Velez (2023)
 
 if (!dir.exists("_results")) {
   dir.create("_results")
@@ -23,7 +23,7 @@ invisible(lapply(
 ))
 
 # Import data
-datasets <- c("A", "D", "IV", "J0")
+datasets <- c("A", "D", "J0")
 data_path <- file.path("..", "data")
 dgp <- sapply(datasets, function(dataset) {
   unname(as.matrix(readr::read_csv(
@@ -47,28 +47,24 @@ settings <- list(
   # significance level
   alpha = 0.05,
   # no IVs
-  iv = dgp$IV
+  iv = NULL
 )
 
 # Technical settings (lists are used to loop over the two parameters: theta1 and theta2)
 sim <- list(
-  grid_theta = list(
-    seq(
-      from = -40,
-      to = 100,
-      length.out = 1401
-    ),
-    seq(
-      from = -40,
-      to = 100,
-      length.out = 1401
-    )
+  grid_theta = expand.grid(
+    seq.int(-40, 100),
+    seq.int(-40, 100)
   ),
   rng_seed = 20220826,
   bootstrap_replications = 1000,
   num_robots = 4,
-  sim_name = "table_2"
+  sim_name = "table_1a"
 )
+# number of theta values: 19881
+sim$grid_size <- nrow(sim$grid_theta)
+# dimension of theta: 2
+sim$dim_theta <- ncol(sim$grid_theta)
 
 results <- list(
   ci_vector = list(matrix(NA, 4, 2), matrix(NA, 4, 2)),
@@ -79,6 +75,7 @@ results <- list(
 )
 
 # Generate bootstrap indices
+# number of markets
 bootstrap_indices <- get_bootstrap_indices(
   n, sim$bootstrap_replications, sim$rng_seed
 )
@@ -95,54 +92,52 @@ doParallel::registerDoParallel(cl)
 for (sim_i in 1:4) {
   tictoc::tic(paste("Simulation", sim_i))
 
-  for (theta_index in 1:2) {
-    # Temporary in-loop variables (for each theta)
-    gridsize <- length(sim$grid_theta[[theta_index]])
+  # Step 1: find test stat. Tn(theta) and c.value(theta) using g_restriction
+  output <- foreach::foreach(
+    i = 1:sim$grid_size,
+    .combine = "rbind"
+  ) %dopar% {
+    theta <- sim$grid_theta[i, ]
 
-    # Step 1: find test stat. Tn(theta) and c.value(theta) using g_restriction
-    output <- foreach::foreach(
-      theta_i = sim$grid_theta[[theta_index]],
-      .combine = "rbind"
-    ) %dopar% {
-      theta <- numeric(2)
-      theta[theta_index] <- theta_i
+    # output: [T_n, c_value]
+    g_restriction(
+      theta = theta,
+      w_data = dgp$W,
+      a_matrix = dgp$A,
+      j0_vector = dgp$J0,
+      v_bar = settings$v_bar[sim_i],
+      alpha = settings$alpha,
+      grid0 = theta_index,
+      test0 = settings$test_stat[sim_i],
+      cvalue = settings$cv[sim_i],
+      iv_matrix = settings$iv,
+      bootstrap_indices = bootstrap_indices,
+    )
+  }
 
-      # output: [T_n, c_value]
-      g_restriction(
-        theta = theta,
-        w_data = dgp$W,
-        a_matrix = dgp$A,
-        j0_vector = dgp$J0,
-        v_bar = settings$v_bar[sim_i],
-        alpha = settings$alpha,
-        grid0 = theta_index,
-        test0 = settings$test_stat[sim_i],
-        cvalue = settings$cv[sim_i],
-        iv_matrix = settings$iv,
-        bootstrap_indices = bootstrap_indices,
-      )
-    }
+  test_vec <- output[, 1]
+  cv_vec <- output[, 2]
 
-    test_vec <- output[, 1]
-    cv_vec <- output[, 2]
+  # Theta values for which the null is not rejected
+  cs_vec <- sim$grid_theta[test_vec <= cv_vec, ]
 
+
+  for (theta_index in 1:sim$dim_theta) {
+    # Create results objects
     results$tn_vector[[theta_index]][, sim_i] <- test_vec
 
-    # Step 2: find confidence intervals using Tn(theta) and c[['value']](theta)
-
-    # Theta values for which the null is not rejected
-    cs_vec <- sim$grid_theta[[theta_index]][test_vec <= cv_vec]
-
-
-    if (length(cs_vec) == 0) {
+    if (nrow(cs_vec) == 0) {
       # it may be the CI is empty
       # in this case, we report [nan, argmin test statistic]
       results$ci_vector[[theta_index]][sim_i, ] <- c(
         NaN,
-        sim$grid_theta[[theta_index]][which.min(test_vec)]
+        sim$grid_theta[which.min(test_vec), theta_index]
       )
     } else {
-      results$ci_vector[[theta_index]][sim_i, ] <- c(min(cs_vec), max(cs_vec))
+      results$ci_vector[[theta_index]][sim_i, ] <- c(
+        min(cs_vec[, theta_index]),
+        max(cs_vec[, theta_index])
+      )
     }
   }
 

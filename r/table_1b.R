@@ -33,6 +33,8 @@ dgp <- sapply(datasets, function(dataset) {
   )))
 }, simplify = F)
 dgp$W <- dgp$D[, -1]
+# number of markets
+n <- nrow(dgp$A)
 
 # Settings (cell arrays are used to loop over each of the four different specifications)
 settings <- list(
@@ -77,8 +79,6 @@ results <- list(
 )
 
 # Generate bootstrap indices
-# number of markets
-n <- nrow(dgp$A)
 bootstrap_indices <- get_bootstrap_indices(
   n, sim$bootstrap_replications, sim$rng_seed
 )
