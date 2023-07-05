@@ -246,9 +246,11 @@ sub_table <- sapply(results$ci_vector, function(ci_theta) {
 sorted_sub_table <- t(sub_table)[c(1:3,7,4:6,8),]
 the_table <- cbind(the_table, sorted_sub_table)
 the_table <- rbind(
-  c("", "Parameter", "Linear", "Quadratic", "Linear", "Quadratic"),
   the_table,
   c("Comp. Time", "", sprintf("%.2f", results$comp_time))
+)
+colnames(the_table) <- c(
+  " ", "Parameter", "Linear", "Quadratic", "Linear", "Quadratic"
 )
 
 # Save the table
