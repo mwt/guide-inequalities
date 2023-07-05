@@ -255,6 +255,6 @@ the_table <- rbind(
 print(
   xtable(the_table, digits = 4),
   include.rownames = FALSE,
-  sanitize.colnames.function = identity,
+  sanitize.text.function = identity,
   file = file.path(table_dir, paste0(sim$sim_name, ".tex"))
 )
