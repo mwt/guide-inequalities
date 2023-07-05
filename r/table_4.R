@@ -87,6 +87,7 @@ restriction_function <- function(theta, sim_i, theta_index, account_uncertainty)
     test0 = settings$test_stat[sim_i],
     cvalue = settings$cv[sim_i],
     iv_matrix = settings$iv,
+    account_uncertainty = account_uncertainty,
     dist_data = dgp$Dist,
   )
   restriction_terms[1] - restriction_terms[2]
@@ -96,7 +97,7 @@ restriction_jac <- function(theta, sim_i, theta_index, account_uncertainty) {
   nloptr::nl.grad(
     x0 = theta,
     fn = restriction_function,
-    heps = 1e-8,
+    heps = 1e-6,
     sim_i = sim_i,
     theta_index = theta_index,
     account_uncertainty = account_uncertainty
@@ -106,6 +107,7 @@ restriction_jac <- function(theta, sim_i, theta_index, account_uncertainty) {
 for (sim_i in 1:4) {
   tictoc::tic(paste("Simulation", sim_i))
 
+  # Six dimensional theta confidence intervals
   for (theta_index in 1:6) {
     if (sim$lb[sim_i, theta_index] == sim$ub[sim_i, theta_index]) {
       # If the bounds are equal, then theta is fixed
@@ -116,7 +118,7 @@ for (sim_i in 1:4) {
     } else {
       # Call the optimization routine
       ci_lower <- nloptr::nloptr(
-        x0 = sim$x0[sim_i, 1:6],
+        x0 = as.numeric(sim$x0[sim_i,1:6]),
         eval_f = function(theta, sim_i, theta_index, account_uncertainty) {
           theta[theta_index]
         },
@@ -136,7 +138,7 @@ for (sim_i in 1:4) {
       )
 
       ci_upper <- nloptr::nloptr(
-        x0 = sim$x0[sim_i, 1:6],
+        x0 = as.numeric(sim$x0[sim_i,1:6]),
         eval_f = function(theta, sim_i, theta_index, account_uncertainty) {
           -theta[theta_index]
         },
@@ -145,8 +147,8 @@ for (sim_i in 1:4) {
           grad_f[theta_index] <- -1
           grad_f
         },
-        lb = sim$lb[sim_i, 1:6],
-        ub = sim$ub[sim_i, 1:6],
+        lb = as.numeric(sim$lb[sim_i, 1:6]),
+        ub = as.numeric(sim$ub[sim_i, 1:6]),
         eval_g_ineq = restriction_function,
         eval_jac_g_ineq = restriction_jac,
         opts = sim$opt,
@@ -159,53 +161,100 @@ for (sim_i in 1:4) {
       results$ci_vector[[theta_index]][sim_i, 2] <- ci_upper$solution[theta_index]
     }
   }
+
+  # Two dimensional theta confidence intervals accounting for uncertainty
+  for (theta_index in 1:2) {
+    # Call the optimization routine
+    ci_lower <- nloptr::nloptr(
+      x0 = as.numeric(sim$x0[sim_i,]),
+      eval_f = function(theta, sim_i, theta_index, account_uncertainty) {
+        sum(theta[((theta_index - 1) * 3 + 1) : ((theta_index) * 3)]) * theta[6 + theta_index]
+      },
+      eval_grad_f = function(theta, sim_i, theta_index, account_uncertainty) {
+        c(
+          sapply(1:6, function(j) ifelse(((theta_index - 1) * 3 + 1) <= j & j < ((theta_index - 1) * 3 + 4), theta[6 + theta_index], 0)),
+          sapply(7:8, function(j) ifelse(j == (6 + theta_index), sum(theta[((theta_index - 1) * 3 + 1) : ((theta_index - 1) * 3 + 3)]), 0))
+        )
+      },
+      lb = as.numeric(sim$lb[sim_i,]),
+      ub = as.numeric(sim$ub[sim_i,]),
+      eval_g_ineq = restriction_function,
+      eval_jac_g_ineq = restriction_jac,
+      opts = sim$opt,
+      sim_i = sim_i,
+      theta_index = theta_index,
+      account_uncertainty = TRUE
+    )
+
+    ci_upper <- nloptr::nloptr(
+      x0 = as.numeric(sim$x0[sim_i,]),
+      eval_f = function(theta, sim_i, theta_index, account_uncertainty) {
+        -sum(theta[((theta_index - 1) * 3 + 1) : ((theta_index) * 3)]) * theta[6 + theta_index]
+      },
+      eval_grad_f = function(theta, sim_i, theta_index, account_uncertainty) {
+        -c(
+          sapply(1:6, function(j) ifelse(((theta_index - 1) * 3 + 1) <= j & j < ((theta_index - 1) * 3 + 4), theta[6 + theta_index], 0)),
+          sapply(7:8, function(j) ifelse(j == (6 + theta_index), sum(theta[((theta_index - 1) * 3 + 1) : ((theta_index - 1) * 3 + 3)]), 0))
+        )
+      },
+      lb = as.numeric(sim$lb[sim_i,]),
+      ub = as.numeric(sim$ub[sim_i,]),
+      eval_g_ineq = restriction_function,
+      eval_jac_g_ineq = restriction_jac,
+      opts = sim$opt,
+      sim_i = sim_i,
+      theta_index = theta_index,
+      account_uncertainty = TRUE
+    )
+
+    results$ci_vector[[theta_index + 6]][sim_i, 1] <- ci_lower$solution[theta_index]
+    results$ci_vector[[theta_index + 6]][sim_i, 2] <- ci_upper$solution[theta_index]
+
+  }
+
   # Stop the timer
   temp_timer <- tictoc::toc()
   results$comp_time[sim_i] <- temp_timer$toc - temp_timer$tic
 }
 
-print(results$ci_vector)
+# 3 Save results
+save(results, file = file.path("_results", paste0(sim$sim_name, ".Rdata")))
 
-## 3 Save results
-# save(results, file = file.path("_results", paste0(sim$sim_name, ".Rdata")))
-#
-#
-## save(fullfile('_results', strcat(sim[['sim_name']], '.mat')), 'dgp', 'settings', 'sim', 'results')
-##
 ### 4 Print table
-# table_dir <- file.path("_results", "tables-tex")
-# if (!dir.exists(table_dir)) {
-#  dir.create(table_dir)
-# }
-#
-## Format CI as [lb, ub]
-# formatted_ci <- sapply(results$ci_vector, function(ci_theta) {
-#  apply(ci_theta, 1, function(x) {
-#    paste0("[", sprintf("%.1f", x[1]), ", ", sprintf("%.1f", x[2]), "]")
-#  })
-# })
-#
-## Make table as matrix
-# the_table <- cbind(
-#  settings$v_bar,
-#  settings$cv,
-#  formatted_ci,
-#  sprintf("%.2f", results$comp_time)
-# )
-#
-## Add colnames
-# colnames(the_table) <- c(
-#  "$\\Bar{V}$",
-#  "Crit. Value",
-#  "$\\theta_1$: Coca-Cola",
-#  "$\\theta_2$: Energy Brands",
-#  "Comp. Time"
-# )
-#
-## Save the table
-# print(
-#  xtable(the_table, digits = 4),
-#  include.rownames = FALSE,
-#  sanitize.colnames.function = identity,
-#  file = file.path(table_dir, paste0(sim$sim_name, ".tex"))
-# )
+table_dir <- file.path("_results", "tables-tex")
+if (!dir.exists(table_dir)) {
+  dir.create(table_dir)
+}
+
+the_table <- c("Coca-Cola", "", "", "", "Energy Brands", "", "", "")
+the_table <- cbind(
+  the_table,
+  paste0(
+    rep(paste0("$\\theta_{", 1:2), each = 4),
+    ifelse(1:8 %% 4 == 0, "}$", paste0(",", rep(1:4, 2), "}$"))
+  )
+)
+
+# Format CI as [lb, ub]
+sub_table <- sapply(results$ci_vector, function(ci_theta) {
+ apply(ci_theta, 1, function(x) {
+   paste0("[", sprintf("%.1f", x[1]), ", ", sprintf("%.1f", x[2]), "]")
+ })
+})
+
+# the order has the theta_1(mu) and theta_2(mu) at the end
+sorted_sub_table <- t(sub_table)[c(1:3,7,4:6,8),]
+the_table <- cbind(the_table, sorted_sub_table)
+the_table <- rbind(
+  c("", "Parameter", "Linear", "Quadratic", "Linear", "Quadratic"),
+  the_table,
+  c("Comp. Time", "", sprintf("%.2f", results$comp_time))
+)
+
+# Save the table
+print(
+  xtable(the_table, digits = 4),
+  include.rownames = FALSE,
+  sanitize.colnames.function = identity,
+  file = file.path(table_dir, paste0(sim$sim_name, ".tex"))
+)
