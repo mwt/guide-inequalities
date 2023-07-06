@@ -88,7 +88,7 @@ restriction_function <- function(theta, sim_i, theta_index, account_uncertainty)
     cvalue = settings$cv[sim_i],
     iv_matrix = settings$iv,
     account_uncertainty = account_uncertainty,
-    dist_data = dgp$Dist,
+    dist_data = dgp$Dist/1000,
   )
   restriction_terms[1] - restriction_terms[2]
 }
