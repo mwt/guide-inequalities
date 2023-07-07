@@ -31,7 +31,7 @@ dgp <- sapply(datasets, function(dataset) {
     show_col_types = F
   )))
 }, simplify = F)
-dgp$W <- dgp$W / 1000
+dgp$Dist <- dgp$Dist / 1000
 dgp$W <- dgp$D[, -1]
 
 # Settings (cell arrays are used to loop over each of the four different specifications)
@@ -88,7 +88,7 @@ restriction_function <- function(theta, sim_i, theta_index, account_uncertainty)
     cvalue = settings$cv[sim_i],
     iv_matrix = settings$iv,
     account_uncertainty = account_uncertainty,
-    dist_data = dgp$Dist/1000,
+    dist_data = dgp$Dist,
   )
   restriction_terms[1] - restriction_terms[2]
 }
