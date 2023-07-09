@@ -1,4 +1,4 @@
-%% compute critical value defined in eq (40) of Section 5 in Canay, Illanes, and Velez (2023)
+%% compute critical value defined in eq (41) of Section 5 in Canay, Illanes, and Velez (2023)
 
 function c_value = cvalue_SN(X_data, alpha_input)
 
@@ -15,7 +15,7 @@ function c_value = cvalue_SN(X_data, alpha_input)
 
     %% Step 2: calculations
     qq = norminv(1 - alpha_input / k);
-    c_sn = qq / sqrt(1 - qq ^ 2 / n); % as in eq (40)
+    c_sn = qq / sqrt(1 - qq ^ 2 / n); % as in eq (41)
 
     c_value = c_sn;
 
