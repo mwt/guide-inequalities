@@ -9,10 +9,10 @@
 %  - J0.csv              J0 x 2          matrix of ownership by two firms
 
 % G_restriction.m                        find test statistic and c. value
-%  - m_function                          compute (26)-(27)
-%  - m_hat                               compute a version of (38)
-%  - cvalue_SN2S                         compute c. value as in (41)
-%  - cvalue_EB2S                         compute c. value as in (48)
+%  - m_function                          compute (27)-(28)
+%  - m_hat                               compute a version of (39)
+%  - cvalue_SN2S                         compute c. value as in (42)
+%  - cvalue_EB2S                         compute c. value as in (49)
 
 % output
 
@@ -41,9 +41,9 @@ dgp.W_data = dgp.D_matrix(:, 2:end);
 
 % Settings (cell arrays are used to loop over each of the four different specifications)
 settings = struct;
-settings.Vbar = {500, 500, 1000, 1000}; % Vbar is defined in Assumption 4.2 and appears in eq. (26)-(27).
-settings.test_stat = {'CCK', 'CCK', 'CCK', 'CCK'}; % CCK as in eq. (38).
-settings.cv = {'SN2S', 'EB2S', 'SN2S', 'EB2S'}; % Critical values as in eq. (41) and (47).
+settings.Vbar = {500, 500, 1000, 1000}; % Vbar is defined in Assumption 4.2 and appears in eq. (27)-(28).
+settings.test_stat = {'CCK', 'CCK', 'CCK', 'CCK'}; % CCK as in eq. (39).
+settings.cv = {'SN2S', 'EB2S', 'SN2S', 'EB2S'}; % Critical values as in eq. (42) and (48).
 settings.alpha = {0.05, 0.05, 0.05, 0.05}; % significance level
 settings.IV = {dgp.IV_matrix, dgp.IV_matrix, dgp.IV_matrix, dgp.IV_matrix}; % no IVs
 
