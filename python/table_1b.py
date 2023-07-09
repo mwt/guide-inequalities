@@ -1,4 +1,4 @@
-""" Table 1 in Section 8.1 in Canay, Illanes and Velez (2023)
+""" Table 1 (Panel B: Partitioning/Subvector) in Section 8.1 in Canay, Illanes and Velez (2023)
 """
 
 import time
