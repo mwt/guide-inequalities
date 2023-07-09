@@ -140,8 +140,8 @@ def g_restriction(theta: np.ndarray,
 > 
 > Notes
 > -----
->   - The test statistic is defined in eq (38)
->   - The possible critical values are defined in eq (40), (41), and (48)
+>   - The test statistic is defined in eq (39).
+>   - The possible critical values are defined in eq (41), (42), and (49).
 >   - This function also includes the re-centered test statistic as in
 >     Section 8.2.2 and critical value SPUR1 as in Appendix Section C.
 
@@ -205,9 +205,9 @@ def m_function(theta: np.ndarray,
                dist_data: np.ndarray | None = None) -> np.ndarray
 ```
 
-> Moment inequality function defined in eq (28)
+> Moment inequality function defined in eq (29)
 > 
-> There are four main steps:
+> There are three main steps:
 >  1. Select moments with non-zero variance using ml_indx & mu_indx.
 >  2. Compute all the moment functions.
 >  3. Select the computed moment functions using ml_indx & mu_indx.
@@ -258,7 +258,7 @@ def m_fun_lower(theta: np.ndarray,
                 dist_subset: np.ndarray | None = None) -> np.ndarray
 ```
 
-> Moment inequality function defined in eq (26)
+> Moment inequality function defined in eq (27)
 > 
 > Parameters
 > ----------
@@ -303,7 +303,7 @@ def m_fun_upper(theta: np.ndarray,
                 dist_subset: np.ndarray | None = None) -> np.ndarray
 ```
 
-> Moment inequality function defined in eq (27)
+> Moment inequality function defined in eq (28)
 > 
 > Parameters
 > ----------
@@ -384,7 +384,7 @@ def find_dist(dist_data: np.ndarray, j0_vector: np.ndarray) -> np.ndarray
 def base_sn(n: int, k: int, alpha: float) -> float
 ```
 
-> Base function for the SN test statistic defined in eq (40) of
+> Base function for the SN test statistic defined in eq (41) of
 > Section 5 in Canay, Illanes, and Velez (2023). This function is called
 > by the other cvalue functions. It is not exported. Function
 > :func:`ineq_functions.cvalue.cvalue_sn` is a convenience wrapper that sets
@@ -415,7 +415,7 @@ def base_sn(n: int, k: int, alpha: float) -> float
 def cvalue_sn(x_data: np.ndarray, alpha: float) -> float
 ```
 
-> Calculate the c-value for the SN test statistic defined in eq (40) of
+> Calculate the c-value for the SN test statistic defined in eq (41) of
 > Section 5 in Canay, Illanes, and Velez (2023). This is a convenience
 > wrapper for :func:`ineq_functions.cvalue.base_sn` that sets n and k based
 > on the dimensions of the input matrix.
@@ -445,7 +445,7 @@ def cvalue_sn2s(x_data: np.ndarray,
                 beta: float | None = None) -> float
 ```
 
-> Calculate the c-value for the SN2S test statistic defined in eq (41) of
+> Calculate the c-value for the SN2S test statistic defined in eq (42) of
 > Section 5 in Canay, Illanes, and Velez (2023).
 > 
 > Parameters
@@ -479,7 +479,7 @@ def cvalue_eb2s(x_data: np.ndarray,
                 bootstrap_indices: np.ndarray | None = None) -> float
 ```
 
-> Calculate the c-value for the EB2S test statistic defined in eq (48) of
+> Calculate the c-value for the EB2S test statistic defined in eq (49) of
 > Section 5 in Canay, Illanes, and Velez (2023).
 > 
 > Parameters
@@ -793,7 +793,7 @@ def tn_star(x_data: np.ndarray,
 >     Array of shape (1, k, 1) with the first scaling factor.
 >
 > kappa_n : float
->     Tuning parameter as in (4.23).
+>     Tuning parameter as in (4.23) in Andrews and Kwon (2023).
 >
 > bootstrap_replications : int, optional
 >     Number of bootstrap replications. Required if bootstrap_indices
