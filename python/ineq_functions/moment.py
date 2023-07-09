@@ -45,7 +45,7 @@ def m_function(
     iv_matrix: np.ndarray | None = None,
     dist_data: np.ndarray | None = None,
 ) -> np.ndarray:
-    """Moment inequality function defined in eq (28)
+    """Moment inequality function defined in eq (29)
 
     There are four main steps:
      1. Select moments with non-zero variance using ml_indx & mu_indx.
@@ -195,7 +195,7 @@ def m_fun_lower(
     z_matrix: np.ndarray,
     dist_subset: np.ndarray | None = None,
 ) -> np.ndarray:
-    """Moment inequality function defined in eq (26)
+    """Moment inequality function defined in eq (27)
 
     Parameters
     ----------
@@ -258,7 +258,7 @@ def m_fun_upper(
     z_matrix: np.ndarray,
     dist_subset: np.ndarray | None = None,
 ) -> np.ndarray:
-    """Moment inequality function defined in eq (27)
+    """Moment inequality function defined in eq (28)
 
     Parameters
     ----------
