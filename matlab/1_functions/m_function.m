@@ -1,6 +1,6 @@
-% Moment inequality function defined in eq (28)
+% Moment inequality function defined in eq (29)
 
-% there are four main steps
+% there are three main steps
 % step 1: select moments with non-zero variance using ml_indx & mu_indx
 % step 2: compute all the moment functions
 % step 3: select the cumputed moments using ml_indx & mu_indx defined in step 1
@@ -94,9 +94,10 @@ function salida = m_function(W_data, A_matrix, theta, J0_vec, Vbar, IV_matrix, g
 
             X_data(mm0, :) = [ml_vec(ml_indx) mu_vec(mu_indx)];
 
-        else
+        else 
+            % Create IV "matrix" as in Section 8.2.1
             Z_vec = ones(J0, 1);
-            Z3_vec = Z_vec * (IV_matrix(mm0, 2) > median(IV_matrix(:, 2))); % employment rate
+            Z3_vec = Z_vec *  IV_matrix(mm0, 2); % employment rate
             Z5_vec = Z_vec * (IV_matrix(mm0, 3) > median(IV_matrix(:, 3))); % average income in market
             Z7_vec = Z_vec * (IV_matrix(mm0, 4) > median(IV_matrix(:, 4))); % median income in market
 
