@@ -10,7 +10,7 @@ base_sn <- function(n, k, alpha) {
   # the significance level
   z_quantile <- qnorm(1 - alpha / k)
 
-  # Compute the c-value as in eq (40)
+  # Compute the c-value as in eq (41)
   z_quantile / sqrt(1 - z_quantile^2 / n)
 }
 
@@ -26,7 +26,7 @@ cvalue_sn <- function(x_data, alpha) {
   n <- nrow(x_data) # sample size
   k <- ncol(x_data) # number of moments
 
-  # Compute the c-value as in eq (40)
+  # Compute the c-value as in eq (41)
   base_sn(n, k, alpha)
 }
 
@@ -57,12 +57,12 @@ cvalue_sn2s <- function(x_data, alpha, beta = alpha / 50) {
   ## Studentized statistic for each moment inequality
   test_stat0 <- sqrt(n) * mu_hat / sigma_hat
 
-  ## Number of moment inequalities that are almost binding as in eq (39)
+  ## Number of moment inequalities that are almost binding as in eq (40)
   k_hat <- sum(test_stat0 > (-2 * cvalue0))
 
   # Step 2: calculate critical value using a subset of moment inequalities
   if (k_hat > 0) {
-    base_sn(n, k_hat, alpha - 2 * beta) # as in eq (41)
+    base_sn(n, k_hat, alpha - 2 * beta) # as in eq (42)
   } else {
     0
   }
@@ -107,7 +107,7 @@ cvalue_eb2s <- function(x_data, alpha, beta = alpha / 50, bootstrap_replications
     Rfast::colsums(matrix(x_data[bootstrap_indices, ], nrow = n)) / n,
     ncol = k
   )
-  # Follow the steps in eq (45)
+  # Follow the steps in eq (46)
   # (double transpose is because R broadcasts column vectors)
   web_matrix <- t(
     (sqrt(n) * (t(x_means) - mu_hat)) / sigma_hat
@@ -124,7 +124,7 @@ cvalue_eb2s <- function(x_data, alpha, beta = alpha / 50, bootstrap_replications
 
   # Step 2: Critical value
 
-  ## Selection of moment inequalities that are almost binding as in eq (46)
+  ## Selection of moment inequalities that are almost binding as in eq (47)
   almost_binding <- (test_stat0 > (-2 * cvalue0))
   if (any(almost_binding)) {
     web_matrix2 <- web_matrix[, almost_binding]
