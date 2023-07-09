@@ -1,4 +1,4 @@
-% This function find the restrictions in eq. (49) and (50)
+% This function find the restrictions in eq. (50) and (51)
 %
 % Comment:
 % - this restriciton is an input for the fmincon function
@@ -38,23 +38,23 @@ function [c, ceq] = G_restriction_fmin(W_data, Dist_data, A_matrix, theta0, J0_v
         n = size(X_data, 1);
 
         T_n = sqrt(n) * m_hat0;
-        T_n = max(T_n); % as in eq (38)
+        T_n = max(T_n); % as in eq (39)
 
         if strcmp(cvalue, 'SN')
-            c_value = cvalue_SN(X_data, alpha_input); % as in eq (40)
+            c_value = cvalue_SN(X_data, alpha_input); % as in eq (41)
         end
 
         if strcmp(cvalue, 'SN2S')
             beta_input = alpha_input / 50; % see Section 4.2.2 in Chernozhukov, Chetverikov, and Kato (2019)
-            c_value = cvalue_SN2S(X_data, alpha_input, beta_input); % as in eq (41)
+            c_value = cvalue_SN2S(X_data, alpha_input, beta_input); % as in eq (42)
         end
 
         if strcmp(cvalue, 'EB2S')
             beta_input = alpha_input / 50; % see Section 4.2.2 in Chernozhukov, Chetverikov, and Kato (2019)
-            c_value = cvalue_EB2S(X_data, num_boots, alpha_input, beta_input, rng_seed); % as in eq (48)
+            c_value = cvalue_EB2S(X_data, num_boots, alpha_input, beta_input, rng_seed); % as in eq (49)
         end
 
-        salida = T_n - c_value; % as the restrictions in (49) and (50)
+        salida = T_n - c_value; % as the restrictions in (50) and (51)
 
     end
 
