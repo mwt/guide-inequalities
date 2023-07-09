@@ -9,7 +9,6 @@ The table files are:
 - `table_1a.R`: Replicates Table 1, Panel A in Section 8.1.
 - `table_1b.R`: Replicates Table 1, Panel B in Section 8.1.
 - `table_2.R`: Replicates Table 2 in Section 8.2.1.
-- `table_3.R`: Replicates Table 3 in Section 8.2.2.
 - `table_4.R`: Replicates Table 4 in Section 8.2.3.
 
 ## Functions 
