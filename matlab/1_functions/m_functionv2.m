@@ -1,16 +1,15 @@
 % Moment inequality functions use an alternative specification for e_ij (see Assumption 3.2)
 
-% there are four main steps
+% there are three main steps
 % step 1: select moments with non-zero variance using ml_indx & mu_indx
-% step 2: load instruments in case we use them
-% step 3: compute all the moment functions
-% step 4: select the cumputed moments using ml_indx & mu_indx defined in step 1
+% step 2: compute all the moment functions
+% step 3: select the cumputed moments using ml_indx & mu_indx defined in step 1
 
 % comment:
 % - moment functions use a different specification for expected sunk cost:
 %                   e_ij = g(theta,O_i) + V_ij,
 %   see Assumption 3.2 where we used g(theta) = theta_s.
-% - all the inputs are included in 'Amatrix200701_fake.mat'.
+% - all the inputs are in the structure dgp.
 % - W_data = D_matrix(:,2:end);
 % - J1 is the number of moments w/ no zero variance, see section 8.1.
 % - n is the number of markets
@@ -102,8 +101,9 @@ function salida = m_functionv2(W_data, Dist_data, A_matrix, theta0, J0_vec, Vbar
             X_data(mm0, :) = [ml_vec(ml_indx) mu_vec(mu_indx)];
 
         else
+            % Create IV "matrix" as in Section 8.2.1
             Z_vec = ones(J0, 1);
-            Z3_vec = Z_vec * (IV_matrix(mm0, 2) > median(IV_matrix(:, 2))); % employment rate
+            Z3_vec = Z_vec *  IV_matrix(mm0, 2); % employment rate
             Z5_vec = Z_vec * (IV_matrix(mm0, 3) > median(IV_matrix(:, 3))); % average income in market
             Z7_vec = Z_vec * (IV_matrix(mm0, 4) > median(IV_matrix(:, 4))); % median income in market
 
