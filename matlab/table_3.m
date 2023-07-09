@@ -12,10 +12,10 @@
 %  - An_star                             computes the objective function that appears in inf problem defined in eq. (4.25) in Andrews and Kwon (2023)
 
 % G_restriction.m                        find test statistic and c. value
-%  - m_function                          compute (26)-(27)
-%  - m_hat                               compute a version of (38)
-%  - cvalue_SN2S                         compute c. value as in (41)
-%  - cvalue_EB2S                         compute c. value as in (48)
+%  - m_function                          compute (27)-(28)
+%  - m_hat                               compute a version of (39)
+%  - cvalue_SN2S                         compute c. value as in (42)
+%  - cvalue_EB2S                         compute c. value as in (49)
 %  - cvalue_SPUR1                        compute c. value as in Section C
 
 % output
@@ -45,8 +45,8 @@ dgp.W_data = dgp.D_matrix(:, 2:end);
 % Settings (cell arrays are used to loop over each of the four different specifications)
 settings = struct;
 settings.Vbar = {0, 0, 0, 0}; % Vbar is defined in Assumption 4.2 and appears in eq. (26)-(27).
-settings.test_stat = {'CCK', 'RC-CCK', 'RC-CCK', 'RC-CCK'}; % CCK as in eq. (38) and RC-CCK is its recentered version as in Section 8.2.2.
-settings.cv = {'SN2S', 'SN2S', 'EB2S', 'SPUR1'}; % Critical values as in eq. (41), (48), and Section C
+settings.test_stat = {'CCK', 'RC-CCK', 'RC-CCK', 'RC-CCK'}; % CCK as in eq. (39) and RC-CCK is its recentered version as in Section 8.2.2.
+settings.cv = {'SN2S', 'SN2S', 'EB2S', 'SPUR1'}; % Critical values as in eq. (42), (49), and Section C
 settings.alpha = {0.05, 0.05, 0.05, 0.05}; % significance level
 settings.IV = {[], [], [], []}; % no IVs
 
