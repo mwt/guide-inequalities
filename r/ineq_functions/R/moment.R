@@ -99,10 +99,10 @@ m_function <- function(theta, w_data, a_matrix, j0_vector, v_bar, grid0 = "all",
     # Create x_data
     x_data <- cbind(ml_vec[, ml_indx], mu_vec[, mu_indx])
   } else {
-    # Create dummy IV "matrix"
+    # Create IV "matrix" as in Section 8.2.1
     z0_matrix <- 1
     # employment rate
-    z3_matrix <- as.numeric(iv_matrix[, 2] > median(iv_matrix[, 2]))
+    z3_matrix <- iv_matrix[, 2]
     # average income in market
     z5_matrix <- as.numeric(iv_matrix[, 3] > median(iv_matrix[, 3]))
     # median income in market
