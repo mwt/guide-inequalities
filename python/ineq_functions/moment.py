@@ -131,10 +131,10 @@ def m_function(
         x_data = np.hstack((ml_vec[:, ml_indx], mu_vec[:, mu_indx]))
 
     else:
-        # Create dummy IV "matrix"
+        # Create IV "matrix" as in Section 8.2.1
         z0_matrix = np.array([1])
         # employment rate
-        z3_matrix = (iv_matrix[:, 1] > np.median(iv_matrix[:, 1])).astype(int)
+        z3_matrix = iv_matrix[:, 1]
         # average income in market
         z5_matrix = (iv_matrix[:, 2] > np.median(iv_matrix[:, 2])).astype(int)
         # median income in market
