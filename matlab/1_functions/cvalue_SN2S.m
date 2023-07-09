@@ -1,4 +1,4 @@
-%% compute critical value defined in eq (41) of section 5 in Canay, Illanes, and Velez (2023)
+%% compute critical value defined in eq (42) of section 5 in Canay, Illanes, and Velez (2023)
 
 function c_value = cvalue_SN2S(X_data, alpha_input, beta_input)
 
@@ -31,7 +31,7 @@ function c_value = cvalue_SN2S(X_data, alpha_input, beta_input)
 
     %% Step 1: define set J_SN as almost binding
 
-    c_sn0 = cvalue_SN(X_data, beta); % as in eq (40)
+    c_sn0 = cvalue_SN(X_data, beta); % as in eq (41)
     contar = 0; % number of moments inequalities that are almost binding
 
     for jj = 1:k
@@ -46,13 +46,13 @@ function c_value = cvalue_SN2S(X_data, alpha_input, beta_input)
 
     end
 
-    k_hat = contar; % as in eq (39)
+    k_hat = contar; % as in eq (40)
 
     %% Step 2: calculate critical value using a subset of moment inequalities
 
     if k_hat > 0
         qq1 = norminv(1 - (alpha - 2 * beta) / k_hat);
-        c_sn1 = qq1 / sqrt(1 - qq1 ^ 2 / n); % as in eq (41)
+        c_sn1 = qq1 / sqrt(1 - qq1 ^ 2 / n); % as in eq (42)
     else
         c_sn1 = 0;
     end
