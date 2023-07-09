@@ -1,4 +1,4 @@
-""" Table 2 in Section 8.2.1 in Canay, Illanes and Velez (2023)
+""" Table 3 in Section 8.2.1 in Canay, Illanes and Velez (2023)
 """
 
 import time
