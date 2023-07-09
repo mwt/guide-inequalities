@@ -1,6 +1,6 @@
 % This function find the test statistic and critical value as in Section 5
-% - the test statistic is as in eq. (38)
-% - the critical value is as in eq. (40), (41) and (48)
+% - the test statistic is as in eq. (39)
+% - the critical value is as in eq. (41), (42) and (49)
 %
 % Comment:
 % - it also includes the re-centered test statistic as in section 8.2.2
@@ -36,20 +36,20 @@ function salida = G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matri
             n = size(X_data, 1);
 
             T_n = sqrt(n) * m_hat0;
-            T_n = max(T_n); % as in eq (38)
+            T_n = max(T_n); % as in eq (39)
 
             if strcmp(cvalue, 'SN')
-                c_value = cvalue_SN(X_data, alpha_input); % as in eq (40)
+                c_value = cvalue_SN(X_data, alpha_input); % as in eq (41)
             end
 
             if strcmp(cvalue, 'SN2S')
                 beta_input = alpha_input / 50; % see Section 4.2.2 in Chernozhukov et al. (2019)
-                c_value = cvalue_SN2S(X_data, alpha_input, beta_input); % as in eq (41)
+                c_value = cvalue_SN2S(X_data, alpha_input, beta_input); % as in eq (42)
             end
 
             if strcmp(cvalue, 'EB2S')
                 beta_input = alpha_input / 50; % see Section 4.2.2 in Chernozhukov et al. (2019)
-                c_value = cvalue_EB2S(X_data, num_boots, alpha_input, beta_input, rng_seed); % as in eq (48)
+                c_value = cvalue_EB2S(X_data, num_boots, alpha_input, beta_input, rng_seed); % as in eq (49)
             end
 
             salida = [T_n, c_value];
@@ -73,12 +73,12 @@ function salida = G_restriction(W_data, A_matrix, theta0, J0_vec, Vbar, IV_matri
 
             if strcmp(cvalue, 'SN2S')
                 beta_input = alpha_input / 50;
-                c_value = cvalue_SN2S(X_data, alpha_input, beta_input); % as in eq (41)
+                c_value = cvalue_SN2S(X_data, alpha_input, beta_input); % as in eq (42)
             end
 
             if strcmp(cvalue, 'EB2S')
                 beta_input = alpha_input / 50;
-                c_value = cvalue_EB2S(X_data, num_boots, alpha_input, beta_input, rng_seed); % as in eq (48)
+                c_value = cvalue_EB2S(X_data, num_boots, alpha_input, beta_input, rng_seed); % as in eq (49)
             end
 
             salida = [S_n, c_value];
