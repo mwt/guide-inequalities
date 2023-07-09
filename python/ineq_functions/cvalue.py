@@ -5,7 +5,7 @@ from .helpers import get_bootstrap_indices
 
 
 def base_sn(n: int, k: int, alpha: float) -> float:
-    """Base function for the SN test statistic defined in eq (40) of
+    """Base function for the SN test statistic defined in eq (41) of
     Section 5 in Canay, Illanes, and Velez (2023). This function is called
     by the other cvalue functions. It is not exported. Function
     :func:`ineq_functions.cvalue.cvalue_sn` is a convenience wrapper that sets
@@ -29,7 +29,7 @@ def base_sn(n: int, k: int, alpha: float) -> float:
     # the significance level
     z_quantile = ndtri(1 - alpha / k)
 
-    # Compute the c-value as in eq (40)
+    # Compute the c-value as in eq (41)
     return z_quantile / np.sqrt(1 - z_quantile**2 / n)
 
 
@@ -55,12 +55,12 @@ def cvalue_sn(x_data: np.ndarray, alpha: float) -> float:
     n = x_data.shape[0]  # sample size
     k = x_data.shape[1]  # number of moments
 
-    # Compute the c-value as in eq (40)
+    # Compute the c-value as in eq (41)
     return base_sn(n, k, alpha)
 
 
 def cvalue_sn2s(x_data: np.ndarray, alpha: float, beta: float | None = None) -> float:
-    """Calculate the c-value for the SN2S test statistic defined in eq (41) of
+    """Calculate the c-value for the SN2S test statistic defined in eq (42) of
     Section 5 in Canay, Illanes, and Velez (2023).
 
     Parameters
@@ -96,12 +96,12 @@ def cvalue_sn2s(x_data: np.ndarray, alpha: float, beta: float | None = None) -> 
     ## Studentized statistic for each moment inequality
     test_stat0 = np.sqrt(n) * mu_hat / sigma_hat
 
-    ## Number of moment inequalities that are almost binding as in eq (39)
+    ## Number of moment inequalities that are almost binding as in eq (40)
     k_hat = (test_stat0 > (-2 * cvalue0)).sum()
 
     # Step 2: calculate critical value using a subset of moment inequalities
     if k_hat > 0:
-        return base_sn(n, k_hat, alpha - 2 * beta)  # as in eq (41)
+        return base_sn(n, k_hat, alpha - 2 * beta)  # as in eq (42)
     else:
         return 0
 
@@ -114,7 +114,7 @@ def cvalue_eb2s(
     rng_seed: int | None = None,
     bootstrap_indices: np.ndarray | None = None,
 ) -> float:
-    """Calculate the c-value for the EB2S test statistic defined in eq (48) of
+    """Calculate the c-value for the EB2S test statistic defined in eq (49) of
     Section 5 in Canay, Illanes, and Velez (2023).
 
     Parameters
@@ -162,7 +162,7 @@ def cvalue_eb2s(
 
     x_samples = x_data[bootstrap_indices, :]
 
-    ## Follow the steps in eq (45)
+    ## Follow the steps in eq (46)
     web_matrix = (
         np.sqrt(n)
         * (1 / n)
@@ -181,7 +181,7 @@ def cvalue_eb2s(
 
     # Step 2: Critical value
 
-    ## Selection of moment inequalities that are almost binding as in eq (46)
+    ## Selection of moment inequalities that are almost binding as in eq (47)
     almost_binding = test_stat0 > (-2 * cvalue0)
     if np.any(almost_binding):
         web_matrix2 = web_matrix[:, almost_binding]
