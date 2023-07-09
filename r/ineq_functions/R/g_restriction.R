@@ -13,7 +13,7 @@
 #' @param cvalue optional critical value to use. Either "SPUR1", "SN", "SN2S",
 #'   or "EB2S".
 #' @param account_uncertainty Whether to account for additional uncertainty (as
-#'   in Equations 49 and 50). If TRUE, the last two elements of theta are
+#'   in Equations 50 and 51). If TRUE, the last two elements of theta are
 #'   assumed to be mu.
 #' @param bootstrap_replications the number of bootstrap replications.
 #'   Required if bootstrap_indices is not specified.
@@ -78,9 +78,9 @@ g_restriction <- function(theta, w_data, a_matrix, j0_vector, v_bar, alpha, grid
   # Set critical value
   ## 1. SPUR1 as in Section 4.4 in Andrews and Kwon (2023)
   ##    (note, we use -x_data to match their condition)
-  ## 2. SN as in eq (40)
-  ## 3. SN2S as in eq (41)
-  ## 4. EB2S as in eq (48)
+  ## 2. SN as in eq (41)
+  ## 3. SN2S as in eq (42)
+  ## 4. EB2S as in eq (49)
   critical_value <-
     switch(cvalue,
       SN = cvalue_sn(x_data, alpha),
