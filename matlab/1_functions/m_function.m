@@ -6,7 +6,7 @@
 % step 3: select the cumputed moments using ml_indx & mu_indx defined in step 1
 
 % comment:
-% - all the inputs are included in 'Amatrix200701_fake.mat'.
+% - all the inputs are in the structure dgp.
 % - W_data = D_matrix(:,2:end);
 % - J1 is the number of moments w/ no zero variance, see section 8.1.
 % - n is the number of markets
