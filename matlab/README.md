@@ -1,6 +1,6 @@
 # MATLAB Code for "A User's Guide for Inference in Models Defined by Moment Inequalities"
 
-This folder contains MATLAB to replicate the results in the paper "A User's Guide for Inference in Models Defined by Moment Inequalities" by Canay, Illanes, and Velez available [here](https://www.amilcarvelez.com/working_paper/guide_mi/). The code is organized with five table files and a folder with auxiliary functions.
+This folder contains MATLAB to replicate the results in the paper "A User's Guide for Inference in Models Defined by Moment Inequalities" by Canay, Illanes, and Velez available [here](https://faculty.wcas.northwestern.edu/iac879/wp/inequalities-guide.pdf). The code is organized with five table files and a folder with auxiliary functions.
 
 ## Table Files
 
@@ -70,23 +70,5 @@ G_restriction_fmin:
   - m_hat
   - cvalue_SN
   - cvalue_SN2S
-  - cvalue_EB2S
-```
-
-### Table B2
-
-```yaml
-compute_An_vec:
-  - m_function:
-      - MomentFunct_L
-      - MomentFunct_U
-
-G_restriction:
-  - m_function:
-      - MomentFunct_L
-      - MomentFunct_U
-  - m_hat
-  - cvalue_SN2S:
-      - cvalue_SN
   - cvalue_EB2S
 ```
