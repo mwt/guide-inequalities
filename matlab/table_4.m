@@ -9,9 +9,9 @@
 %  - J0.csv              J0 x 2          matrix of ownership by two firms
 
 % G_restriction.m                        find test statistic and c. value
-%  - m_function                          compute (26)-(27)
-%  - m_hat                               compute a version of (38)
-%  - cvalue_SN                           compute c. value as in (40)
+%  - m_function                          compute (27)-(28)
+%  - m_hat                               compute a version of (39)
+%  - cvalue_SN                           compute c. value as in (41)
 
 % output
 
@@ -38,9 +38,9 @@ dgp.W_data = dgp.D_matrix(:, 2:end);
 
 % Settings (cell arrays are used to loop over each of the four different specifications)
 settings = struct;
-settings.Vbar = {500, 500, 1000, 1000}; % Vbar is defined in Assumption 4.2 and appears in eq. (26)-(27).
-settings.test_stat = {'CCK', 'CCK', 'CCK', 'CCK'}; % CCK as in eq. (38).
-settings.cv = {'SN', 'SN', 'SN', 'SN'}; % Critical values as in eq. (41) and (47).
+settings.Vbar = {500, 500, 1000, 1000}; % Vbar is defined in Assumption 4.2 and appears in eq. (27)-(28).
+settings.test_stat = {'CCK', 'CCK', 'CCK', 'CCK'}; % CCK as in eq. (39).
+settings.cv = {'SN', 'SN', 'SN', 'SN'}; % Critical values as in eq. (42) and (48).
 settings.alpha = {0.05, 0.05, 0.05, 0.05}; % significance level
 settings.IV = {[], [], [], []}; % no IVs
 
@@ -63,7 +63,7 @@ results.comp_time = zeros(4, 1);
 
 %% 2 Computation
 %  three steps:
-%          1) define objective functions and constraints options as in (49)-(50)
+%          1) define objective functions and constraints options as in (50)-(51)
 %          2) find confidence intervals for coordinate of theta as in Section 6
 %          3) find confidence intervals for function of theta following Section 6
 
@@ -71,14 +71,14 @@ for sim0 = 1:4
 
     disp(['case ' num2str(sim0)])
 
-    % Step 1: define objective functions and constraints options as in (49)
+    % Step 1: define objective functions and constraints options as in (50)-(51)
     tic
 
     options = optimoptions('fmincon', 'Algorithm', 'sqp');
 
-    % inequality restriction for fmincon as in (49) and (50)
+    % inequality restriction for fmincon as in (50) and (51)
 
-    plug_in = 'Y'; % default option for the alternative specifications and same objective funciton as in eq (49) and (50)
+    plug_in = 'Y'; % default option for the alternative specifications and same objective funciton as in eq (50) and (51)
     nonlcon_v1 = @(theta0) G_restriction_fmin(dgp.W_data, dgp.Dist_matrix, dgp.A_matrix, theta0', dgp.J0_vec, settings.Vbar{sim0}, settings.IV{sim0}, 'all', settings.test_stat{sim0}, settings.cv{sim0}, settings.alpha{sim0}, sim.num_boots, sim.rng_seed, plug_in); %  theta0' in G_restriction_fmin must be a column vector
 
     % Step 2: find confidence intervals for coordinates of theta as in Section 6
