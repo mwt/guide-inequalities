@@ -1,5 +1,20 @@
 # Python Code for "A User's Guide for Inference in Models Defined by Moment Inequalities"
+
+This folder contains PYTHON to replicate the results in the paper "A User's Guide for Inference in Models Defined by Moment Inequalities" by Canay, Illanes, and Velez available [here](https://faculty.wcas.northwestern.edu/iac879/wp/inequalities-guide.pdf). The code is organized with five table files and a folder with auxiliary functions.
+
+## Table Files
+
+The table files are:
+
+- `table_1a.m`: Replicates Table 1, Panel A in Section 8.1.
+- `table_1b.m`: Replicates Table 1, Panel B in Section 8.1.
+- `table_2.m`: Replicates Table 2 in Section 8.2.1.
+- `table_3.m`: Replicates Table 3 in Section 8.2.2.
+- `table_4.m`: Replicates Table 4 in Section 8.2.3.
+
 ## Library Modules
+
+The modules are contained in the folder `ineq_functions` and have the following dependency structure:
 
 * [ineq\_functions.g\_restriction](#ineq_functions.g_restriction)
   * [g\_restriction](#ineq_functions.g_restriction)
