@@ -173,7 +173,7 @@ the_table <- cbind(
 
 # Add colnames
 colnames(the_table) <- c(
-  "$\\Bar{V}$",
+  "$\\bar{V}$",
   "Crit. Value",
   "$\\theta_1$: Coca-Cola",
   "$\\theta_2$: Energy Brands",

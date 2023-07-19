@@ -155,7 +155,7 @@ f = fopen(fullfile('_results', cd_name, strcat(sim.sim_name, '.tex')), 'w'); % O
 
 fprintf(f, '%s\n', '\begin{tabular}{c c c c c c}');
 fprintf(f, '%s\n', '\hline \hline');
-fprintf(f, '%s\n', '& & \multicolumn{2}{c}{ $\Bar{V}=500$  } &  \multicolumn{2}{c}{ $\Bar{V}=1000$  }\\ \hline ');
+fprintf(f, '%s\n', '& & \multicolumn{2}{c}{ $\bar{V}=500$  } &  \multicolumn{2}{c}{ $\bar{V}=1000$  }\\ \hline ');
 fprintf(f, '%s\n', '& parameter & linear & quadratic & linear & quadratic \\ \hline');
 
 row9 = time_vec(:, 1:4);

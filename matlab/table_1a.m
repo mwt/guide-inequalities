@@ -190,7 +190,7 @@ fprintf(f, '%s\n', '\hline');
 for row0 = 1:4
 
     if strcmp(settings.cv{row0}, 'SN2S')
-        Vbar = ['$\Bar{V}$=' num2str(settings.Vbar{row0})];
+        Vbar = ['$\bar{V}$=' num2str(settings.Vbar{row0})];
         cvalue0 = 'self-norm';
     elseif strcmp(settings.cv{row0}, 'EB2S')
         Vbar = "~";

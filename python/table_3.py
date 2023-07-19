@@ -201,7 +201,7 @@ the_table = np.column_stack((the_table, results["comp_time"]))
 the_table = np.vstack(
     (
         [
-            "$\\Bar{V}$",
+            "$\\bar{V}$",
             "Crit. Value",
             "$\\theta_1$: Coca-Cola",
             "$\\theta_2$: Energy Brands",
