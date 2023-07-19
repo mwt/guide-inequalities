@@ -13,7 +13,7 @@
 #' @param cvalue optional critical value to use. Either "SPUR1", "SN", "SN2S",
 #'   or "EB2S".
 #' @param account_uncertainty Whether to account for additional uncertainty (as
-#'   in Equations 50 and 51). If TRUE, the last two elements of theta are
+#'   in Equations 49 and 50). If TRUE, the last two elements of theta are
 #'   assumed to be mu.
 #' @param bootstrap_replications the number of bootstrap replications.
 #'   Required if bootstrap_indices is not specified.

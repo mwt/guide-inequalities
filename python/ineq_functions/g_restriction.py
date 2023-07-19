@@ -50,8 +50,8 @@ def g_restriction(
     cvalue : {'SPUR1', 'SN', 'SN2S', 'EB2S'}
         Critical value to use.
     account_uncertainty : bool, default False
-        Whether to account for additional uncertainty (as in Equations 50 and
-        51). If True, the last two elements of theta are assumed to be mu.
+        Whether to account for additional uncertainty (as in Equations 49 and
+        50). If True, the last two elements of theta are assumed to be mu.
     bootstrap_replications : int, optional
         Number of bootstrap replications. Required if bootstrap_indices
         is not specified.
@@ -81,8 +81,8 @@ def g_restriction(
 
     Notes
     -----
-      - The test statistic is defined in eq (39)
-      - The possible critical values are defined in eq (41), (42), and (49)
+      - The test statistic is defined in eq (39).
+      - The possible critical values are defined in eq (41), (42), and (49).
       - This function also includes the re-centered test statistic as in
         Section 8.2.2 and critical value SPUR1 as in Appendix Section C.
     """

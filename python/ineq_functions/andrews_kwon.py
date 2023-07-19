@@ -357,7 +357,7 @@ def tn_star(
     std_b1 : array_like
         Array of shape (1, k, 1) with the first scaling factor.
     kappa_n : float
-        Tuning parameter as in (4.23).
+        Tuning parameter as in (4.23) in Andrews and Kwon (2023).
     bootstrap_replications : int, optional
         Number of bootstrap replications. Required if bootstrap_indices
         is not specified.

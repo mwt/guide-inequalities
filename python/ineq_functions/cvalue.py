@@ -34,7 +34,7 @@ def base_sn(n: int, k: int, alpha: float) -> float:
 
 
 def cvalue_sn(x_data: np.ndarray, alpha: float) -> float:
-    """Calculate the c-value for the SN test statistic defined in eq (40) of
+    """Calculate the c-value for the SN test statistic defined in eq (41) of
     Section 5 in Canay, Illanes, and Velez (2023). This is a convenience
     wrapper for :func:`ineq_functions.cvalue.base_sn` that sets n and k based
     on the dimensions of the input matrix.

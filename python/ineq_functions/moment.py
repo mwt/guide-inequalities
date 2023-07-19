@@ -47,7 +47,7 @@ def m_function(
 ) -> np.ndarray:
     """Moment inequality function defined in eq (29)
 
-    There are four main steps:
+    There are three main steps:
      1. Select moments with non-zero variance using ml_indx & mu_indx.
      2. Compute all the moment functions.
      3. Select the computed moment functions using ml_indx & mu_indx.
