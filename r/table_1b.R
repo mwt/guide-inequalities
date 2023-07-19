@@ -12,15 +12,10 @@ require(Rfast2)
 require(foreach)
 require(doParallel)
 require(xtable)
-# Quick hack to load functions (temporary)
-invisible(lapply(
-  list.files(
-    path = file.path("ineq_functions", "R"),
-    full.names = T,
-    pattern = "\\.R$"
-  ),
-  source
-))
+require(devtools)
+
+# Install and import package
+devtools::install("ineqfunctions", upgrade = "never")
 
 # Import data
 datasets <- c("A", "D", "J0")
@@ -108,7 +103,7 @@ for (sim_i in 1:4) {
       theta[theta_index] <- theta_i
 
       # output: [T_n, c_value]
-      g_restriction(
+      ineqfunctions::g_restriction(
         theta = theta,
         w_data = dgp$W,
         a_matrix = dgp$A,
