@@ -44,7 +44,7 @@ m_hat <- function(x_data, MARGIN = 2) {
 #' @param dist_data an n x (J + 1) matrix of distances from the product
 #'   factories to the cities.
 #'
-#' @return
+#' @return a matrix of the moment functions with n rows.
 #' @export
 m_function <- function(theta, w_data, a_matrix, j0_vector, v_bar, grid0 = "all", iv_matrix = NULL, dist_data = NULL) {
   n <- nrow(a_matrix)
