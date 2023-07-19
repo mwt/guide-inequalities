@@ -71,7 +71,7 @@ results <- list(
 
 # Generate bootstrap indices
 # number of markets
-bootstrap_indices <- get_bootstrap_indices(
+bootstrap_indices <- ineqfunctions::get_bootstrap_indices(
   n, sim$bootstrap_replications, sim$rng_seed
 )
 
