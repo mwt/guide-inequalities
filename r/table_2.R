@@ -5,14 +5,14 @@ if (!dir.exists("_results")) {
 }
 
 # Import packages and functions
-require(readr)
-require(tictoc)
-require(Rfast)
-require(Rfast2)
-require(foreach)
-require(doParallel)
-require(xtable)
-require(devtools)
+library(readr)
+library(tictoc)
+library(Rfast)
+library(Rfast2)
+library(foreach)
+library(doParallel)
+library(xtable)
+library(devtools)
 
 # Install and import package
 devtools::install("ineqfunctions", upgrade = "never")
