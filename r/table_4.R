@@ -5,21 +5,16 @@ if (!dir.exists("_results")) {
 }
 
 # Import packages and functions
-require(readr)
-require(tictoc)
-require(Rfast)
-require(Rfast2)
-require(nloptr)
-require(xtable)
-# Quick hack to load functions (temporary)
-invisible(lapply(
-  list.files(
-    path = file.path("ineq_functions", "R"),
-    full.names = T,
-    pattern = "\\.R$"
-  ),
-  source
-))
+library(readr)
+library(tictoc)
+library(Rfast)
+library(Rfast2)
+library(nloptr)
+library(xtable)
+library(devtools)
+
+# Install and import package
+devtools::install("ineqfunctions", upgrade = "never")
 
 # Import data
 datasets <- c("A", "D", "J0", "Dist")
@@ -76,7 +71,7 @@ results <- list(
 
 # Define constraint function
 restriction_function <- function(theta, sim_i, theta_index, account_uncertainty) {
-  restriction_terms <- g_restriction(
+  restriction_terms <- ineqfunctions::g_restriction(
     theta = theta,
     w_data = dgp$W,
     a_matrix = dgp$A,

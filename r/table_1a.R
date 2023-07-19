@@ -1,26 +1,21 @@
 # Table 1 in Section 8.1 in Canay, Illanes and Velez (2023)
 
+# Import packages and functions
+library(readr)
+library(tictoc)
+library(Rfast)
+library(Rfast2)
+library(foreach)
+library(doParallel)
+library(xtable)
+library(devtools)
+
+# Install and import package
+devtools::install("ineqfunctions", upgrade = "never")
+
 if (!dir.exists("_results")) {
   dir.create("_results")
 }
-
-# Import packages and functions
-require(readr)
-require(tictoc)
-require(Rfast)
-require(Rfast2)
-require(foreach)
-require(doParallel)
-require(xtable)
-# Quick hack to load functions (temporary)
-invisible(lapply(
-  list.files(
-    path = file.path("ineq_functions", "R"),
-    full.names = T,
-    pattern = "\\.R$"
-  ),
-  source
-))
 
 # Import data
 datasets <- c("A", "D", "J0")
@@ -76,7 +71,7 @@ results <- list(
 
 # Generate bootstrap indices
 # number of markets
-bootstrap_indices <- get_bootstrap_indices(
+bootstrap_indices <- ineqfunctions::get_bootstrap_indices(
   n, sim$bootstrap_replications, sim$rng_seed
 )
 
@@ -100,7 +95,7 @@ for (sim_i in 1:4) {
     theta <- as.numeric(sim$grid_theta[i, ])
 
     # output: [T_n, c_value]
-    g_restriction(
+    ineqfunctions::g_restriction(
       theta = theta,
       w_data = dgp$W,
       a_matrix = dgp$A,
