@@ -111,6 +111,12 @@ if [ ! -f ./python/_results/tables-tex/table_4.tex ]; then
     } || echo "Maybe there is a problem with the python venv? Try deleting it and running this script again."
 fi
 
+# Table convert function
+table_to_md() {
+    pandoc -f latex -t gfm "$1" |
+        sed -e 's/\\(/$/g' -e 's/\\)/$/g'
+}
+
 # Insert the new tables
 cat <<EOF >>README.md
 
@@ -120,23 +126,23 @@ cat <<EOF >>README.md
 
 ##### Panel A
 
-$(pandoc -f latex -t gfm ./matlab/_results/tables-tex/table_1a.tex)
+$(table_to_md ./matlab/_results/tables-tex/table_1a.tex)
 
 ##### Panel B
 
-$(pandoc -f latex -t gfm ./matlab/_results/tables-tex/table_1b.tex)
+$(table_to_md ./matlab/_results/tables-tex/table_1b.tex)
 
 #### Table 2
 
-$(pandoc -f latex -t gfm ./matlab/_results/tables-tex/table_2.tex)
+$(table_to_md ./matlab/_results/tables-tex/table_2.tex)
 
 #### Table 3
 
-$(pandoc -f latex -t gfm ./matlab/_results/tables-tex/table_3.tex)
+$(table_to_md ./matlab/_results/tables-tex/table_3.tex)
 
 #### Table 4
 
-$(pandoc -f latex -t gfm ./matlab/_results/tables-tex/table_4.tex)
+$(table_to_md ./matlab/_results/tables-tex/table_4.tex)
 
 ### R tables
 
@@ -144,19 +150,19 @@ $(pandoc -f latex -t gfm ./matlab/_results/tables-tex/table_4.tex)
 
 ##### Panel A
 
-$(pandoc -f latex -t gfm ./r/_results/tables-tex/table_1a.tex)
+$(table_to_md ./r/_results/tables-tex/table_1a.tex)
 
 ##### Panel B
 
-$(pandoc -f latex -t gfm ./r/_results/tables-tex/table_1b.tex)
+$(table_to_md ./r/_results/tables-tex/table_1b.tex)
 
 #### Table 2
 
-$(pandoc -f latex -t gfm ./r/_results/tables-tex/table_2.tex)
+$(table_to_md ./r/_results/tables-tex/table_2.tex)
 
 #### Table 4
 
-$(pandoc -f latex -t gfm ./r/_results/tables-tex/table_4.tex)
+$(table_to_md ./r/_results/tables-tex/table_4.tex)
 
 ### Python tables
 
@@ -164,22 +170,22 @@ $(pandoc -f latex -t gfm ./r/_results/tables-tex/table_4.tex)
 
 ##### Panel A
 
-$(pandoc -f latex -t gfm ./python/_results/tables-tex/table_1a.tex)
+$(table_to_md ./python/_results/tables-tex/table_1a.tex)
 
 ##### Panel B
 
-$(pandoc -f latex -t gfm ./python/_results/tables-tex/table_1b.tex)
+$(table_to_md ./python/_results/tables-tex/table_1b.tex)
 
 #### Table 2
 
-$(pandoc -f latex -t gfm ./python/_results/tables-tex/table_2.tex)
+$(table_to_md ./python/_results/tables-tex/table_2.tex)
 
 #### Table 3
 
-$(pandoc -f latex -t gfm ./python/_results/tables-tex/table_3.tex)
+$(table_to_md ./python/_results/tables-tex/table_3.tex)
 
 #### Table 4
 
-$(pandoc -f latex -t gfm ./python/_results/tables-tex/table_4.tex)
+$(table_to_md ./python/_results/tables-tex/table_4.tex)
 
 EOF
