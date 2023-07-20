@@ -1,25 +1,49 @@
-[⮝ README](../README.md)
+[^ README](../README.md)
 
-# Stage 1 Critical Value Backend
+# Upper Moment Inequality Function
 
-Stage 1 Critical Value Backend
+Upper Moment Inequality Function
 
-    base_sn(n, k, alpha)
+    m_fun_upper(
+      theta,
+      d_matrix,
+      a_subset,
+      j0_vector,
+      v_bar,
+      z_matrix = 1,
+      dist_subset = NULL
+    )
 
 ## Arguments
 
-`n`
+`theta`
 
-the sample size.
+a vector containing the parameters of interest.
 
-`k`
+`d_matrix`
 
-the number of moments.
+an n x j0 matrix of product portfolio in each market.
 
-`alpha`
+`a_subset`
 
-the confidence level required.
+an n x j0 matrix of estimated revenue differential in each market.
+
+`j0_vector`
+
+a j0 x 2 matrix of ownership by the two firms.
+
+`v_bar`
+
+a tuning parameter as in Assumption 4.2.
+
+`z_matrix`
+
+an optional n x j0 matrix of instruments in each market.
+
+`dist_subset`
+
+an optional n x j0 matrix of distance between products in each market.
 
 ## Value
 
-a float for the critical value.
+a j0-dimensional vector of upper moment inequalities.

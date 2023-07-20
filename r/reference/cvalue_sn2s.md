@@ -1,4 +1,4 @@
-[⮝ README](../README.md)
+[^ README](../README.md)
 
 # Stage 2 Critical Value
 

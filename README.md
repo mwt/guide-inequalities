@@ -31,27 +31,27 @@ The tables below were computed in a personal laptop (Intel64 Family 6 Model 142 
 
 |                | Crit. Value | $\theta_1$: Coca-Cola | $\theta_2$: Energy Brands | Comp. Time |
 |:--------------:|:-----------:|:---------------------:|:-------------------------:|:----------:|
-| $\Bar{V}$=500  |  self-norm  |   \[-16.0 , 23.4\]    |     \[-40.0 , 39.3\]      |   453.5    |
+| $\bar{V}$=500  |  self-norm  |   \[-16.0 , 23.4\]    |     \[-40.0 , 39.3\]      |   453.5    |
 |                |  bootstrap  |   \[-13.9 , 22.4\]    |     \[-40.0 , 38.5\]      |   1226.2   |
-| $\Bar{V}$=1000 |  self-norm  |   \[-40.0 , 29.1\]    |     \[-40.0 , 63.1\]      |   446.8    |
+| $\bar{V}$=1000 |  self-norm  |   \[-40.0 , 29.1\]    |     \[-40.0 , 63.1\]      |   446.8    |
 |                |  bootstrap  |   \[-40.0 , 26.8\]    |     \[-40.0 , 60.2\]      |   1812.6   |
 
 ##### Panel B
 
 |                | Crit. Value | $\theta_1$: Coca-Cola | $\theta_2$: Energy Brands | Comp. Time |
 |:--------------:|:-----------:|:---------------------:|:-------------------------:|:----------:|
-| $\Bar{V}$=500  |  self-norm  |   \[-14.3 , 22.6\]    |     \[-40.0 , 35.9\]      |    53.6    |
+| $\bar{V}$=500  |  self-norm  |   \[-14.3 , 22.6\]    |     \[-40.0 , 35.9\]      |    53.6    |
 |                |  bootstrap  |   \[-13.1 , 22.1\]    |     \[-40.0 , 34.8\]      |    90.5    |
-| $\Bar{V}$=1000 |  self-norm  |   \[-40.0 , 28.3\]    |     \[-40.0 , 57.4\]      |    41.1    |
+| $\bar{V}$=1000 |  self-norm  |   \[-40.0 , 28.3\]    |     \[-40.0 , 57.4\]      |    41.1    |
 |                |  bootstrap  |   \[-40.0 , 26.6\]    |     \[-40.0 , 54.7\]      |    88.6    |
 
 #### Table 2
 
 |                | Crit. Value | $\theta_1$: Coca-Cola | $\theta_2$: Energy Brands | Comp. Time |
 |:--------------:|:-----------:|:---------------------:|:-------------------------:|:----------:|
-| $\Bar{V}$=500  |  self-norm  |   \[-22.9 , 17.1\]    |     \[-40.0 , 37.9\]      |   157.6    |
+| $\bar{V}$=500  |  self-norm  |   \[-22.9 , 17.1\]    |     \[-40.0 , 37.9\]      |   157.6    |
 |                |  bootstrap  |   \[-17.6 , 14.4\]    |     \[-40.0 , 35.3\]      |   276.8    |
-| $\Bar{V}$=1000 |  self-norm  |   \[-40.0 , 17.0\]    |     \[-40.0 , 37.9\]      |   142.2    |
+| $\bar{V}$=1000 |  self-norm  |   \[-40.0 , 17.0\]    |     \[-40.0 , 37.9\]      |   142.2    |
 |                |  bootstrap  |   \[-40.0 , 14.3\]    |     \[-40.0 , 34.2\]      |   246.1    |
 
 #### Table 3
@@ -65,7 +65,7 @@ The tables below were computed in a personal laptop (Intel64 Family 6 Model 142 
 
 #### Table 4
 
-|            |                 |   $\Bar{V}=500$    |                     |   $\Bar{V}=1000$    |                     |
+|            |                 |   $\bar{V}=500$    |                     |   $\bar{V}=1000$    |                     |
 |:----------:|:---------------:|:------------------:|:-------------------:|:-------------------:|:-------------------:|
 |            |    parameter    |       linear       |      quadratic      |       linear        |      quadratic      |
 |            | $\theta_{1,1}$  | \[ -22.2 , 43.7\]  |  \[ -22.4 , 76.7\]  |  \[ -40.0 , 49.6\]  |  \[ -40.0 , 82.0\]  |
@@ -84,7 +84,7 @@ The tables below were computed in a personal laptop (Intel64 Family 6 Model 142 
 
 ##### Panel A
 
-| $\Bar{V}$ | Crit. Value | $\theta_1$: Coca-Cola | $\theta_2$: Energy Brands | Comp. Time |
+| $\bar{V}$ | Crit. Value | $\theta_1$: Coca-Cola | $\theta_2$: Energy Brands | Comp. Time |
 |:----------|:------------|:----------------------|:--------------------------|:-----------|
 | 500       | SN2S        | \[-16.0, 23.0\]       | \[-40.0, 39.0\]           | 53.24      |
 | 500       | EB2S        | \[-12.0, 22.0\]       | \[-40.0, 38.0\]           | 1472.28    |
@@ -93,7 +93,7 @@ The tables below were computed in a personal laptop (Intel64 Family 6 Model 142 
 
 ##### Panel B
 
-| $\Bar{V}$ | Crit. Value | $\theta_1$: Coca-Cola | $\theta_2$: Energy Brands | Comp. Time |
+| $\bar{V}$ | Crit. Value | $\theta_1$: Coca-Cola | $\theta_2$: Energy Brands | Comp. Time |
 |:----------|:------------|:----------------------|:--------------------------|:-----------|
 | 500       | SN2S        | \[-14.3, 22.6\]       | \[-40.0, 35.9\]           | 5.90       |
 | 500       | EB2S        | \[-11.9, 21.7\]       | \[-40.0, 34.6\]           | 105.88     |
@@ -102,7 +102,7 @@ The tables below were computed in a personal laptop (Intel64 Family 6 Model 142 
 
 #### Table 2
 
-| $\Bar{V}$ | Crit. Value | $\theta_1$: Coca-Cola | $\theta_2$: Energy Brands | Comp. Time |
+| $\bar{V}$ | Crit. Value | $\theta_1$: Coca-Cola | $\theta_2$: Energy Brands | Comp. Time |
 |:----------|:------------|:----------------------|:--------------------------|:-----------|
 | 500       | SN2S        | \[-22.9, 17.1\]       | \[-40.0, 37.9\]           | 19.75      |
 | 500       | EB2S        | \[-17.4, 14.1\]       | \[-40.0, 34.8\]           | 418.77     |
@@ -129,7 +129,7 @@ The tables below were computed in a personal laptop (Intel64 Family 6 Model 142 
 
 ##### Panel A
 
-| $\Bar{V}$ | Crit. Value | $\theta_1$: Coca-Cola | $\theta_2$: Energy Brands | Comp. Time |
+| $\bar{V}$ | Crit. Value | $\theta_1$: Coca-Cola | $\theta_2$: Energy Brands | Comp. Time |
 |:----------|:------------|:---------------------:|:-------------------------:|:----------:|
 | 500       | SN2S        |    \[-16.0, 23.0\]    |      \[-40.0, 39.0\]      |   11.608   |
 | 500       | EB2S        |    \[-15.0, 22.0\]    |      \[-40.0, 39.0\]      |  1382.676  |
@@ -138,7 +138,7 @@ The tables below were computed in a personal laptop (Intel64 Family 6 Model 142 
 
 ##### Panel B
 
-| $\Bar{V}$ | Crit. Value | $\theta_1$: Coca-Cola | $\theta_2$: Energy Brands | Comp. Time |
+| $\bar{V}$ | Crit. Value | $\theta_1$: Coca-Cola | $\theta_2$: Energy Brands | Comp. Time |
 |:----------|:------------|:---------------------:|:-------------------------:|:----------:|
 | 500       | SN2S        |    \[-14.3, 22.6\]    |      \[-40.0, 35.9\]      |   3.228    |
 | 500       | EB2S        |    \[-13.7, 22.3\]    |      \[-40.0, 34.5\]      |  123.181   |
@@ -147,7 +147,7 @@ The tables below were computed in a personal laptop (Intel64 Family 6 Model 142 
 
 #### Table 2
 
-| $\Bar{V}$ | Crit. Value | $\theta_1$: Coca-Cola | $\theta_2$: Energy Brands | Comp. Time |
+| $\bar{V}$ | Crit. Value | $\theta_1$: Coca-Cola | $\theta_2$: Energy Brands | Comp. Time |
 |:----------|:------------|:---------------------:|:-------------------------:|:----------:|
 | 500       | SN2S        |    \[-22.9, 17.1\]    |      \[-40.0, 37.9\]      |   8.060    |
 | 500       | EB2S        |    \[-19.1, 14.9\]    |      \[-40.0, 35.0\]      |  420.637   |
@@ -156,7 +156,7 @@ The tables below were computed in a personal laptop (Intel64 Family 6 Model 142 
 
 #### Table 3
 
-| $\Bar{V}$ | Crit. Value | $\theta_1$: Coca-Cola | $\theta_2$: Energy Brands | Comp. Time |
+| $\bar{V}$ | Crit. Value | $\theta_1$: Coca-Cola | $\theta_2$: Energy Brands | Comp. Time |
 |:----------|:------------|:---------------------:|:-------------------------:|:----------:|
 | 0         | SN2S        |     \[nan, 14.2\]     |      \[-40.0, 12.8\]      |   7.549    |
 | 0         | SN2S        |    \[-35.4, 44.0\]    |      \[-40.0, 13.8\]      |   8.188    |
