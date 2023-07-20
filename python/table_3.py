@@ -183,9 +183,9 @@ for key, value in results.items():
 tableObj = tt.Texttable(0)
 
 tableObj.set_cols_align(["l", "l", "c", "c", "c"])
-tableObj.set_cols_dtype(["i", "t", "t", "t", "f"])
+tableObj.set_cols_dtype(["t", "t", "t", "t", "f"])
 
-the_table = np.array(settings["v_bar"])
+the_table = np.array(settings["test_stat"])
 the_table = np.column_stack((the_table, settings["cv"]))
 for ci_theta in results["ci_vector"]:
     the_table = np.column_stack(
@@ -201,7 +201,7 @@ the_table = np.column_stack((the_table, results["comp_time"]))
 the_table = np.vstack(
     (
         [
-            "$\\bar{V}$",
+            "Test Stat.",
             "Crit. Value",
             "$\\theta_1$: Coca-Cola",
             "$\\theta_2$: Energy Brands",
